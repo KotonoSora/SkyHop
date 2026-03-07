@@ -71,6 +71,27 @@ class ShopViewModel(application: Application) : AndroidViewModel(application) {
                 isUnlocked = true
             ),
             ShopItem(
+                id = "skin_pirate",
+                name = "Pirate",
+                price = 50,
+                imageRes = R.drawable.img_skin_pirate,
+                isUnlocked = purchasedIds.contains("skin_pirate")
+            ),
+            ShopItem(
+                id = "skin_ninja",
+                name = "Ninja",
+                price = 50,
+                imageRes = R.drawable.img_skin_ninja,
+                isUnlocked = purchasedIds.contains("skin_ninja")
+            ),
+            ShopItem(
+                id = "skin_robot",
+                name = "Robot",
+                price = 50,
+                imageRes = R.drawable.img_skin_robot,
+                isUnlocked = purchasedIds.contains("skin_robot")
+            ),
+            ShopItem(
                 id = "skin_space",
                 name = "Space Voyager",
                 price = 300,

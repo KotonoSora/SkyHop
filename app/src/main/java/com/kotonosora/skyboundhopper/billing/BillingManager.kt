@@ -40,7 +40,6 @@ class BillingManager(private val context: Context, private val externalScope: Co
     val purchasedProductIds = _purchasedProductIds.asStateFlow()
 
     private val productIds = listOf(
-        "skin_pirate", "skin_ninja", "skin_robot",
         "coins_100", "coins_500", "coins_1000"
     )
 
