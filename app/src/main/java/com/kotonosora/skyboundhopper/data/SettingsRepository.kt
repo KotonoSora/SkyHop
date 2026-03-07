@@ -27,7 +27,7 @@ class SettingsRepository(private val context: Context) {
 
     val coinsFlow: Flow<Int> = context.settingsDataStore.data
         .map { preferences ->
-            preferences[COINS_KEY] ?: 1000
+            preferences[COINS_KEY] ?: 10000
         }
 
     val purchasedItemsFlow: Flow<Set<String>> = context.settingsDataStore.data
@@ -49,7 +49,7 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun addCoins(amount: Int) {
         context.settingsDataStore.edit { preferences ->
-            val current = preferences[COINS_KEY] ?: 1000
+            val current = preferences[COINS_KEY] ?: 10000
             preferences[COINS_KEY] = current + amount
         }
     }
@@ -57,7 +57,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun spendCoins(amount: Int): Boolean {
         var success = false
         context.settingsDataStore.edit { preferences ->
-            val current = preferences[COINS_KEY] ?: 1000
+            val current = preferences[COINS_KEY] ?: 10000
             if (current >= amount) {
                 preferences[COINS_KEY] = current - amount
                 success = true
