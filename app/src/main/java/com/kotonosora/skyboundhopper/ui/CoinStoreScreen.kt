@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kotonosora.skyboundhopper.billing.BillingStatus
+import com.kotonosora.skyboundhopper.ui.components.GameButton
 import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 
 @Composable
@@ -103,14 +104,16 @@ fun CoinStoreScreen(
                                 fontWeight = FontWeight.Medium
                             )
                             Spacer(modifier = Modifier.height(24.dp))
-                            Button(
+                            GameButton(
+                                text = "Retry",
                                 onClick = { viewModel.retryConnection() },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
-                            ) {
-                                Icon(Icons.Default.Refresh, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Retry")
-                            }
+                                modifier = Modifier.fillMaxWidth(0.5f),
+                                height = 48.dp,
+                                backgroundColor = Color.White,
+                                shadowColor = Color.LightGray,
+                                textColor = Color.Black,
+                                icon = { Icon(Icons.Default.Refresh, contentDescription = null) }
+                            )
                         }
                     }
                     BillingStatus.EMPTY -> {
@@ -212,23 +215,16 @@ fun CoinPackCard(item: CoinPackItem, onBuy: () -> Unit) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
+            GameButton(
+                text = "Buy",
                 onClick = onBuy,
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCA28))
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.Black)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Buy",
-                        fontWeight = FontWeight.Black,
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
-                }
-            }
+                modifier = Modifier.fillMaxWidth(),
+                height = 56.dp,
+                backgroundColor = Color(0xFFFFCA28),
+                shadowColor = Color(0xFFFFA000),
+                textColor = Color.Black,
+                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.Black) }
+            )
         }
     }
 }

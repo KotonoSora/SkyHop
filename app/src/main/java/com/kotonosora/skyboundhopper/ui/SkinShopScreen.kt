@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kotonosora.skyboundhopper.ui.components.GameButton
 import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 
 @Composable
@@ -154,16 +155,14 @@ fun SkinShopScreen(
                 
                 // Get More Coins Button at the bottom of the list
                 item(span = { GridItemSpan(2) }) {
-                    Button(
+                    GameButton(
+                        text = "GET MORE COINS",
                         onClick = onGoToCoinStore,
-                        modifier = Modifier.fillMaxWidth().height(64.dp).padding(vertical = 8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFD54F)),
-                        shape = RoundedCornerShape(32.dp)
-                    ) {
-                        Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.Black)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text("GET MORE COINS", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 18.sp)
-                    }
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        backgroundColor = Color(0xFFFFD54F),
+                        shadowColor = Color(0xFFFBC02D),
+                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.Black) }
+                    )
                 }
             }
         }
@@ -224,23 +223,39 @@ fun ShopItemCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
+            val btnColor = when {
+                isSelected -> Color(0xFF4CAF50)
+                item.id.startsWith("skin") && item.isUnlocked -> Color(0xFF2196F3)
+                item.id == "skin_space" -> Color(0xFF5C6BC0)
+                item.id == "skin_golden" -> Color(0xFFFFA726)
+                item.id == "skin_steampunk" -> Color(0xFF8D6E63)
+                else -> Color(0xFF29B6F6)
+            }
+
+            // A helper for shadows
+            val shadowColor = when {
+                isSelected -> Color(0xFF388E3C)
+                item.id.startsWith("skin") && item.isUnlocked -> Color(0xFF1976D2)
+                item.id == "skin_space" -> Color(0xFF3F51B5)
+                item.id == "skin_golden" -> Color(0xFFF57C00)
+                item.id == "skin_steampunk" -> Color(0xFF6D4C41)
+                else -> Color(0xFF0288D1)
+            }
+
+            GameButton(
+                text = when {
+                    isSelected -> "Active"
+                    item.isUnlocked -> "Select"
+                    else -> "Purchase"
+                },
                 onClick = onAction,
-                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = when {
-                        isSelected -> Color(0xFF4CAF50)
-                        item.id.startsWith("skin") && item.isUnlocked -> Color(0xFF2196F3)
-                        item.id == "skin_space" -> Color(0xFF5C6BC0)
-                        item.id == "skin_golden" -> Color(0xFFFFA726)
-                        item.id == "skin_steampunk" -> Color(0xFF8D6E63)
-                        else -> Color(0xFF29B6F6)
-                    }
-                ),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                height = 44.dp,
+                backgroundColor = btnColor,
+                shadowColor = shadowColor,
+                textColor = Color.White,
+                borderWidth = 0.dp,
+                icon = {
                     Icon(
                         imageVector = when {
                             isSelected -> Icons.Default.Check
@@ -248,20 +263,11 @@ fun ShopItemCard(
                             else -> if (item.id.startsWith("skin")) Icons.Default.Lock else Icons.Default.MonetizationOn
                         },
                         contentDescription = null,
+                        tint = Color.White,
                         modifier = Modifier.size(16.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = when {
-                            isSelected -> "Active"
-                            item.isUnlocked -> "Select"
-                            else -> "Purchase"
-                        },
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
                 }
-            }
+            )
         }
     }
 }

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.game.GameViewModel
+import com.kotonosora.skyboundhopper.ui.components.GameButton
 import com.kotonosora.skyboundhopper.ui.theme.PipeGreen
 import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 import java.util.Locale
@@ -316,38 +317,38 @@ fun GameOverShopOverlay(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
+            GameButton(
+                text = "GET MORE COINS",
                 onClick = onGetMoreCoins,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE64A19)),
-                shape = RoundedCornerShape(28.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("GET MORE COINS", fontWeight = FontWeight.Black)
-                }
-            }
+                modifier = Modifier.fillMaxWidth(),
+                height = 56.dp,
+                backgroundColor = Color(0xFFE64A19),
+                shadowColor = Color(0xFFBF360C),
+                textColor = Color.White,
+                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Button(
+                GameButton(
+                    text = "HOME",
                     onClick = onHome,
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("HOME", fontWeight = FontWeight.Bold)
-                }
-                Button(
+                    modifier = Modifier.weight(1f),
+                    height = 56.dp,
+                    backgroundColor = Color(0xFF1565C0),
+                    shadowColor = Color(0xFF0D47A1),
+                    textColor = Color.White
+                )
+                GameButton(
+                    text = "PLAY AGAIN",
                     onClick = { onPlayAgain() },
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFBC02D)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("PLAY AGAIN", color = Color.Black, fontWeight = FontWeight.Bold)
-                }
+                    modifier = Modifier.weight(1f),
+                    height = 56.dp,
+                    backgroundColor = Color(0xFFFBC02D),
+                    shadowColor = Color(0xFFF57F17),
+                    textColor = Color.Black
+                )
             }
         }
     }
@@ -377,14 +378,16 @@ fun PowerUpPurchaseCard(
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "$cost Coins", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
+            GameButton(
+                text = "PURCHASE",
                 onClick = onPurchase,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f)),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "PURCHASE", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Black)
-            }
+                modifier = Modifier.fillMaxWidth(),
+                height = 40.dp,
+                backgroundColor = Color.White.copy(alpha = 0.3f),
+                shadowColor = Color.White.copy(alpha = 0.1f),
+                textColor = Color.White,
+                borderWidth = 0.dp
+            )
         }
     }
 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.game.GameViewModel
+import com.kotonosora.skyboundhopper.ui.components.GameButton
 import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 
 @Composable
@@ -131,47 +132,25 @@ fun HomeScreen(
             }
 
             // Play Button
-            Button(
+            GameButton(
+                text = "PLAY",
                 onClick = onPlayClick,
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .height(64.dp),
-                shape = RoundedCornerShape(32.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCA28))
-            ) {
-                Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "PLAY",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-            }
+                modifier = Modifier.fillMaxWidth(0.6f),
+                icon = { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black) }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Skin Shop Button
-            OutlinedButton(
+            GameButton(
+                text = "SKIN SHOP",
                 onClick = onShopClick,
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .height(64.dp),
-                shape = RoundedCornerShape(32.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.White.copy(alpha = 0.3f),
-                    contentColor = Color.White
-                ),
-                border = ButtonDefaults.outlinedButtonBorder.copy(width = 2.dp)
-            ) {
-                Icon(Icons.Default.ShoppingCart, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "SKIN SHOP",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                modifier = Modifier.fillMaxWidth(0.6f),
+                backgroundColor = Color(0xFF66BB6A),
+                shadowColor = Color(0xFF388E3C),
+                textColor = Color.White,
+                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) }
+            )
         }
     }
 }
