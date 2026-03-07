@@ -5,18 +5,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.game.GameViewModel
 import com.kotonosora.skyboundhopper.ui.components.GameButton
+import com.kotonosora.skyboundhopper.ui.theme.CloudWhite
 import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 
 @Composable
@@ -71,16 +72,27 @@ fun HomeScreen(
             .fillMaxSize()
             .background(SkyBlue)
     ) {
-        // Background Elements (Clouds/Islands)
-        Image(
-            painter = painterResource(id = R.drawable.img_floating_island),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .offset(x = 50.dp, y = (-100).dp)
-                .size(200.dp),
-            alpha = 0.6f
-        )
+        // Background Elements (Clouds/Islands) centered
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.img_floating_island),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(320.dp)
+                    .alpha(0.4f)
+                    .offset(y = (-80).dp),
+                contentScale = ContentScale.Fit
+            )
+            
+            // Decorative Clouds
+            Cloud(Modifier.offset(x = (-120).dp, y = (-180).dp).scale(0.8f).alpha(0.6f))
+            Cloud(Modifier.offset(x = 140.dp, y = (-100).dp).scale(1.1f).alpha(0.5f))
+            Cloud(Modifier.offset(x = (-100).dp, y = 140.dp).scale(0.9f).alpha(0.6f))
+            Cloud(Modifier.offset(x = 120.dp, y = 200.dp).alpha(0.5f))
+        }
 
         // Settings Button
         IconButton(
@@ -219,5 +231,29 @@ fun PowerUpButton(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Cloud(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.width(100.dp).height(60.dp)) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .align(Alignment.BottomStart)
+                .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .align(Alignment.Center)
+                .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(45.dp)
+                .align(Alignment.BottomEnd)
+                .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
+        )
     }
 }
