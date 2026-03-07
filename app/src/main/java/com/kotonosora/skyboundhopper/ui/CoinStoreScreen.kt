@@ -53,6 +53,7 @@ fun CoinStoreScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
             // Header
             Row(

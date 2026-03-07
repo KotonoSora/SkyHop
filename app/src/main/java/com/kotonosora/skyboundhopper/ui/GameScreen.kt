@@ -131,7 +131,8 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit, onGoToShop: (
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(top = 48.dp, start = 24.dp)
+                .statusBarsPadding()
+                .padding(top = 16.dp, start = 24.dp)
         ) {
             HUDBadge(text = "SCORE: ${gameState.score}", icon = Icons.Default.Star)
             Spacer(modifier = Modifier.height(8.dp))
@@ -147,7 +148,10 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit, onGoToShop: (
         }
 
         Surface(
-            modifier = Modifier.align(Alignment.TopEnd).padding(top = 48.dp, end = 24.dp),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(top = 16.dp, end = 24.dp),
             shape = RoundedCornerShape(20.dp),
             color = Color.Black.copy(alpha = 0.4f)
         ) {
@@ -268,7 +272,10 @@ fun GameOverShopOverlay(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .systemBarsPadding()
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(

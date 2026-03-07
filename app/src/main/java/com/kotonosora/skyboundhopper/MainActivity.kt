@@ -12,12 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -26,11 +25,12 @@ import com.kotonosora.skyboundhopper.game.GameViewModel
 import com.kotonosora.skyboundhopper.ui.CoinStoreScreen
 import com.kotonosora.skyboundhopper.ui.GameScreen
 import com.kotonosora.skyboundhopper.ui.HomeScreen
+import com.kotonosora.skyboundhopper.ui.SettingsScreen
 import com.kotonosora.skyboundhopper.ui.SkinShopScreen
 import com.kotonosora.skyboundhopper.ui.theme.SkyHopTheme
 
 enum class Screen {
-    Home, Game, Shop, CoinStore, Profile
+    Home, Game, Shop, CoinStore, Settings
 }
 
 class MainActivity : ComponentActivity() {
@@ -79,10 +79,10 @@ fun MainApp() {
                         label = { Text("Play") }
                     )
                     NavigationBarItem(
-                        selected = currentScreen == Screen.Profile,
-                        onClick = { currentScreen = Screen.Profile },
-                        icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
-                        label = { Text("Profile") }
+                        selected = currentScreen == Screen.Settings,
+                        onClick = { currentScreen = Screen.Settings },
+                        icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                        label = { Text("Settings") }
                     )
                 }
             }
@@ -123,9 +123,7 @@ fun MainApp() {
                     Screen.CoinStore -> CoinStoreScreen(
                         onClose = { currentScreen = Screen.Shop }
                     )
-                    Screen.Profile -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Profile Coming Soon")
-                    }
+                    Screen.Settings -> SettingsScreen()
                 }
             }
         }

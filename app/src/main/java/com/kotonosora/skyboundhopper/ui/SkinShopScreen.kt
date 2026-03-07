@@ -106,7 +106,7 @@ fun SkinShopScreen(
             // Shop Grid
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 100.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
@@ -164,10 +164,6 @@ fun SkinShopScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text("GET MORE COINS", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 18.sp)
                     }
-                }
-                
-                item(span = { GridItemSpan(2) }) {
-                    Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         }
