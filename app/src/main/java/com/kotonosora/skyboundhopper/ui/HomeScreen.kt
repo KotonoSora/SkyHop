@@ -11,6 +11,8 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,6 +36,8 @@ import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 fun HomeScreen(
     onPlayClick: () -> Unit,
     onShopClick: () -> Unit,
+    onGetCoinsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     gameViewModel: GameViewModel = viewModel()
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "HomeAnimations")
@@ -77,6 +81,19 @@ fun HomeScreen(
                 .size(200.dp),
             alpha = 0.6f
         )
+
+        // Settings Button
+        IconButton(
+            onClick = onSettingsClick,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(16.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.3f))
+        ) {
+            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Black)
+        }
 
         Column(
             modifier = Modifier
@@ -137,6 +154,19 @@ fun HomeScreen(
                 onClick = onPlayClick,
                 modifier = Modifier.fillMaxWidth(0.6f),
                 icon = { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Get Coins Button
+            GameButton(
+                text = "GET COINS",
+                onClick = onGetCoinsClick,
+                modifier = Modifier.fillMaxWidth(0.6f),
+                backgroundColor = Color(0xFFFFCA28),
+                shadowColor = Color(0xFFFFA000),
+                textColor = Color.Black,
+                icon = { Icon(Icons.Default.Add, contentDescription = null, tint = Color.Black) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

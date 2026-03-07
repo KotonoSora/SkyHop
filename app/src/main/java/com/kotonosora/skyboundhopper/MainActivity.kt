@@ -10,15 +10,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kotonosora.skyboundhopper.game.GameViewModel
@@ -48,45 +42,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainApp() {
     var currentScreen by remember { mutableStateOf(Screen.Home) }
+    var previousScreen by remember { mutableStateOf(Screen.Home) }
     val gameViewModel: GameViewModel = viewModel()
 
+    fun navigateTo(screen: Screen) {
+        previousScreen = currentScreen
+        currentScreen = screen
+    }
+
     Scaffold(
-        bottomBar = {
-            if (currentScreen != Screen.Game) {
-                NavigationBar(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                ) {
-                    NavigationBarItem(
-                        selected = currentScreen == Screen.Home,
-                        onClick = { currentScreen = Screen.Home },
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") }
-                    )
-                    NavigationBarItem(
-                        selected = currentScreen == Screen.Shop || currentScreen == Screen.CoinStore,
-                        onClick = { currentScreen = Screen.Shop },
-                        icon = { Icon(Icons.Default.ShoppingBag, contentDescription = "Shop") },
-                        label = { Text("Shop") }
-                    )
-                    NavigationBarItem(
-                        selected = currentScreen == Screen.Game,
-                        onClick = { 
-                            gameViewModel.startGame()
-                            currentScreen = Screen.Game 
-                        },
-                        icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Play") },
-                        label = { Text("Play") }
-                    )
-                    NavigationBarItem(
-                        selected = currentScreen == Screen.Settings,
-                        onClick = { currentScreen = Screen.Settings },
-                        icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                        label = { Text("Settings") }
-                    )
-                }
-            }
-        }
+        // Bottom bar removed as per request
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedContent(
@@ -107,23 +72,30 @@ fun MainApp() {
                     Screen.Home -> HomeScreen(
                         onPlayClick = { 
                             gameViewModel.startGame()
-                            currentScreen = Screen.Game 
+                            navigateTo(Screen.Game) 
                         },
-                        onShopClick = { currentScreen = Screen.Shop }
+                        onShopClick = { navigateTo(Screen.Shop) },
+                        onGetCoinsClick = { navigateTo(Screen.CoinStore) },
+                        onSettingsClick = { navigateTo(Screen.Settings) }
                     )
                     Screen.Game -> GameScreen(
                         viewModel = gameViewModel,
-                        onBackToHome = { currentScreen = Screen.Home },
-                        onGoToShop = { currentScreen = Screen.CoinStore }
+                        onBackToHome = { navigateTo(Screen.Home) },
+                        onGoToShop = { navigateTo(Screen.CoinStore) }
                     )
                     Screen.Shop -> SkinShopScreen(
-                        onClose = { currentScreen = Screen.Home },
-                        onGoToCoinStore = { currentScreen = Screen.CoinStore }
+                        onClose = { navigateTo(Screen.Home) },
+                        onGoToCoinStore = { navigateTo(Screen.CoinStore) }
                     )
                     Screen.CoinStore -> CoinStoreScreen(
-                        onClose = { currentScreen = Screen.Shop }
+                        onClose = { 
+                            if (previousScreen == Screen.Game) navigateTo(Screen.Home)
+                            else navigateTo(previousScreen)
+                        }
                     )
-                    Screen.Settings -> SettingsScreen()
+                    Screen.Settings -> SettingsScreen(
+                        onBack = { navigateTo(Screen.Home) }
+                    )
                 }
             }
         }
