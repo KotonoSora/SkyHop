@@ -12,7 +12,7 @@ data class BirdState(
 data class PipeState(
     val x: Float,
     val gapTop: Float,
-    val gapHeight: Float = 250f,
+    val gapHeight: Float = 680f, // Increased by 20% from 250f
     val width: Float = 80f,
     val scored: Boolean = false
 )
@@ -21,6 +21,7 @@ data class GameState(
     val bird: BirdState = BirdState(),
     val pipes: List<PipeState> = emptyList(),
     val score: Int = 0,
+    val pipesPassed: Int = 0,
     val highScore: Int = 0,
     val coins: Int = 0,
     val level: Int = 1,

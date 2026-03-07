@@ -154,9 +154,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             val multiplierTime = (state.multiplierTimeLeft - deltaTime).coerceAtLeast(0f)
             val multiplierActive = multiplierTime > 0f
 
-            // Update level based on score
-            val newLevel = (state.score / 10) + 1
-
             // Auto Play Logic: Determine if bird should jump
             var shouldAutoJump = false
             if (autoPlayActive) {
@@ -186,30 +183,45 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             // Update pipes
-            val pipeSpeed = 5f + (newLevel - 1) * 0.5f
+            // Update level based on pipesPassed
+            val pipeSpeed = 5f + ((state.pipesPassed / 10) * 0.5f)
             val updatedPipes = state.pipes.map { it.copy(x = it.x - pipeSpeed) }
                 .filter { it.x + it.width > 0 }
                 .toMutableList()
 
-            // Spawn new pipe
-            if (updatedPipes.isEmpty() || updatedPipes.last().x < state.screenWidth - 400) {
-                val gapTop = Random.nextFloat() * (state.screenHeight - 600) + 100
+            // Spawn new pipe (Increased horizontal distance by 10%, from 400 to 440)
+            if (updatedPipes.isEmpty() || updatedPipes.last().x < state.screenWidth - 460) {
+                // Reduce the vertical amplitude by 20%
+                val availableHeight = (state.screenHeight - 600).coerceAtLeast(100f)
+                val reducedAmplitude = availableHeight * 0.68f
+                val amplitudeOffset = 100f + (availableHeight * 0.1f)
+                
+                val gapTop = Random.nextFloat() * reducedAmplitude + amplitudeOffset
                 updatedPipes.add(PipeState(x = state.screenWidth, gapTop = gapTop))
             }
 
             // Check scoring
             var newScore = state.score
             var newCoins = state.coins
+            var newPipesPassed = state.pipesPassed
             val finalPipes = updatedPipes.map { pipe ->
                 if (!pipe.scored && pipe.x + pipe.width < state.bird.position.x) {
                     val scoreGain = if (multiplierActive) 2 else 1
                     newScore += scoreGain
-                    newCoins += 10
+                    newPipesPassed += 1
+                    
+                    // 3 coin reward per level (every 10 columns)
+                    if (newPipesPassed % 10 == 0) {
+                        newCoins += 3
+                    }
+                    
                     pipe.copy(scored = true)
                 } else {
                     pipe
                 }
             }
+            
+            val newLevel = (newPipesPassed / 10) + 1
 
             // Check collisions
             var isGameOver = checkCollision(newBirdState, finalPipes, state.screenHeight)
@@ -231,6 +243,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 bird = newBirdState,
                 pipes = finalPipes,
                 score = newScore,
+                pipesPassed = newPipesPassed,
                 coins = newCoins,
                 level = newLevel,
                 isGameOver = isGameOver,
