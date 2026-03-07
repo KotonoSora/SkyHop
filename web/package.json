@@ -1,0 +1,16 @@
+{
+  "name": "skyhop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami",
+    "dev": "wrangler pages dev public",
+    "cf:project:create": "wrangler pages project create skyhop",
+    "deploy": "wrangler pages deploy public --project-name skyhop"
+  },
+  "devDependencies": {
+    "wrangler": "^4.55.0"
+  }
+}
