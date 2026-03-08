@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 val SkyBlue = Color(0xFF4FC3F7)
 val PipeGreen = Color(0xFF4CAF50)
+val DarkPipeGreen = Color(0xFF1B5E20)
 val BirdBlue = Color(0xFF29B6F6)
 val BirdYellow = Color(0xFFFFF176)
 val LogoYellow = Color(0xFFFFD54F)

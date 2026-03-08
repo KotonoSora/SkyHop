@@ -6,14 +6,14 @@ import androidx.compose.ui.geometry.Size
 data class BirdState(
     val position: Offset = Offset(100f, 500f),
     val velocity: Float = 0f,
-    val size: Size = Size(125f, 125f)
+    val size: Size = Size(120f, 120f)
 )
 
 data class PipeState(
     val x: Float,
     val gapTop: Float,
-    val gapHeight: Float = 680f, // Increased by 20% from 250f
-    val width: Float = 80f,
+    val gapHeight: Float = 350f,
+    val width: Float = 60f,
     val scored: Boolean = false
 )
 

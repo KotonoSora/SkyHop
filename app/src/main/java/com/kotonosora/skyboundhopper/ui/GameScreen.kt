@@ -21,9 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -35,9 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.game.GameViewModel
+import com.kotonosora.skyboundhopper.ui.components.GameBackground
 import com.kotonosora.skyboundhopper.ui.components.GameButton
+import com.kotonosora.skyboundhopper.ui.theme.DarkPipeGreen
 import com.kotonosora.skyboundhopper.ui.theme.PipeGreen
-import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 import java.util.Locale
 
 @Composable
@@ -64,7 +68,6 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit, onGoToShop: (
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SkyBlue)
             .onGloballyPositioned { coordinates ->
                 viewModel.onScreenSizeChanged(
                     coordinates.size.width.toFloat(),
@@ -77,20 +80,49 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit, onGoToShop: (
                 }
             }
     ) {
+        // Reused background elements with 50% opacity for gameplay
+        GameBackground(opacity = 0.3f)
+
         Canvas(modifier = Modifier.fillMaxSize()) {
             gameState.pipes.forEach { pipe ->
-                drawRoundRect(
-                    color = PipeGreen,
-                    topLeft = Offset(pipe.x, 0f),
-                    size = Size(pipe.width, pipe.gapTop),
-                    cornerRadius = CornerRadius(8.dp.toPx())
-                )
-                drawRoundRect(
-                    color = PipeGreen,
-                    topLeft = Offset(pipe.x, pipe.gapTop + pipe.gapHeight),
-                    size = Size(pipe.width, size.height - (pipe.gapTop + pipe.gapHeight)),
-                    cornerRadius = CornerRadius(8.dp.toPx())
-                )
+                val cornerRadius = CornerRadius(8.dp.toPx())
+                val strokeWidth = 3.dp.toPx()
+                
+                // Top pipe: only bottom corners rounded
+                val topPipePath = Path().apply {
+                    addRoundRect(
+                        RoundRect(
+                            left = pipe.x,
+                            top = -strokeWidth, // Extend off-screen
+                            right = pipe.x + pipe.width,
+                            bottom = pipe.gapTop,
+                            bottomLeftCornerRadius = cornerRadius,
+                            bottomRightCornerRadius = cornerRadius,
+                            topLeftCornerRadius = CornerRadius.Zero,
+                            topRightCornerRadius = CornerRadius.Zero
+                        )
+                    )
+                }
+                drawPath(path = topPipePath, color = PipeGreen)
+                drawPath(path = topPipePath, color = DarkPipeGreen, style = Stroke(width = strokeWidth))
+
+                // Bottom pipe: only top corners rounded
+                val bottomPipePath = Path().apply {
+                    addRoundRect(
+                        RoundRect(
+                            left = pipe.x,
+                            top = pipe.gapTop + pipe.gapHeight,
+                            right = pipe.x + pipe.width,
+                            bottom = size.height + strokeWidth, // Extend off-screen
+                            topLeftCornerRadius = cornerRadius,
+                            topRightCornerRadius = cornerRadius,
+                            bottomLeftCornerRadius = CornerRadius.Zero,
+                            bottomRightCornerRadius = CornerRadius.Zero
+                        )
+                    )
+                }
+                drawPath(path = bottomPipePath, color = PipeGreen)
+                drawPath(path = bottomPipePath, color = DarkPipeGreen, style = Stroke(width = strokeWidth))
             }
         }
 

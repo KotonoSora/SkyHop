@@ -111,7 +111,7 @@ fun GameButton(
                 }
                 Text(
                     text = text,
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Black,
                     color = textColor,
                     letterSpacing = 1.sp,

@@ -16,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -29,9 +28,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.game.GameViewModel
+import com.kotonosora.skyboundhopper.ui.components.GameBackground
 import com.kotonosora.skyboundhopper.ui.components.GameButton
-import com.kotonosora.skyboundhopper.ui.theme.CloudWhite
-import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
 
 @Composable
 fun HomeScreen(
@@ -68,31 +66,10 @@ fun HomeScreen(
     )
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(SkyBlue)
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Background Elements (Clouds/Islands) centered
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.img_floating_island),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(320.dp)
-                    .alpha(0.4f)
-                    .offset(y = (-80).dp),
-                contentScale = ContentScale.Fit
-            )
-            
-            // Decorative Clouds
-            Cloud(Modifier.offset(x = (-120).dp, y = (-180).dp).scale(0.8f).alpha(0.6f))
-            Cloud(Modifier.offset(x = 140.dp, y = (-100).dp).scale(1.1f).alpha(0.5f))
-            Cloud(Modifier.offset(x = (-100).dp, y = 140.dp).scale(0.9f).alpha(0.6f))
-            Cloud(Modifier.offset(x = 120.dp, y = 200.dp).alpha(0.5f))
-        }
+        // Reused background elements
+        GameBackground(opacity = 0.4f)
 
         // Settings Button
         IconButton(
@@ -140,25 +117,6 @@ fun HomeScreen(
             )
 
             Spacer(modifier = Modifier.height(32.dp))
-
-            // Power-up Quick Use
-            Row(
-                modifier = Modifier.padding(bottom = 32.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                PowerUpButton(
-                    icon = Icons.Default.Shield,
-                    count = shieldCount,
-                    color = Color(0xFF29B6F6),
-                    onClick = { gameViewModel.usePowerUp("shield") }
-                )
-                PowerUpButton(
-                    icon = Icons.Default.Star,
-                    count = multiplierCount,
-                    color = Color(0xFFFFA726),
-                    onClick = { gameViewModel.usePowerUp("multiplier") }
-                )
-            }
 
             // Play Button
             GameButton(
@@ -231,29 +189,5 @@ fun PowerUpButton(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun Cloud(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.width(100.dp).height(60.dp)) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .align(Alignment.BottomStart)
-                .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
-        )
-        Box(
-            modifier = Modifier
-                .size(60.dp)
-                .align(Alignment.Center)
-                .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
-        )
-        Box(
-            modifier = Modifier
-                .size(45.dp)
-                .align(Alignment.BottomEnd)
-                .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
-        )
     }
 }
