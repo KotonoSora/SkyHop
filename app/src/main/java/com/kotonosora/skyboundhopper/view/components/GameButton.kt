@@ -1,4 +1,4 @@
-package com.kotonosora.skyboundhopper.ui.components
+package com.kotonosora.skyboundhopper.view.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -65,7 +65,7 @@ fun GameButton(
     Box(
         modifier = modifier
             .scale(scale)
-            .height(height + 8.dp) // extra height for the shadow
+            .height(height + 8.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -73,7 +73,6 @@ fun GameButton(
             ),
         contentAlignment = Alignment.BottomCenter
     ) {
-        // Shadow/Bottom part
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -83,7 +82,6 @@ fun GameButton(
                 .background(shadowColor)
         )
 
-        // Main top part
         Box(
             modifier = Modifier
                 .fillMaxWidth()

@@ -135,14 +135,18 @@ class BillingManager(private val context: Context, private val externalScope: Co
             if (isCoinPack) {
                 consumeCoinPack(purchase)
             } else if (!purchase.isAcknowledged) {
-                val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-                    .setPurchaseToken(purchase.purchaseToken)
-                    .build()
-                billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        queryPurchases()
-                    }
-                }
+                acknowledgePurchaseIfNeeded(purchase)
+            }
+        }
+    }
+
+    private fun acknowledgePurchaseIfNeeded(purchase: Purchase) {
+        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+            .setPurchaseToken(purchase.purchaseToken)
+            .build()
+        billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                queryPurchases()
             }
         }
     }

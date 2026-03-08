@@ -1,5 +1,6 @@
-package com.kotonosora.skyboundhopper.ui
+package com.kotonosora.skyboundhopper.view
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.background
@@ -22,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
+import com.kotonosora.skyboundhopper.view.theme.SkyBlue
 
 @Composable
 fun SettingsScreen(
@@ -42,29 +43,12 @@ fun SettingsScreen(
         }
     }
 
-    if (showWarningDialog) {
-        AlertDialog(
-            onDismissRequest = { showWarningDialog = false },
-            title = { Text("Leaving the App") },
-            text = { Text("You are about to open an external website. Do you want to continue?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showWarningDialog = false
-                        val intent = Intent(Intent.ACTION_VIEW, pendingUrl.toUri())
-                        context.startActivity(intent)
-                    }
-                ) {
-                    Text("Continue")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showWarningDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
+    ExternalLinkAlertDialog(
+        showDialog = showWarningDialog,
+        onDismiss = { showWarningDialog = false },
+        url = pendingUrl,
+        context = context
+    )
 
     Box(
         modifier = Modifier
@@ -78,85 +62,136 @@ fun SettingsScreen(
                 .navigationBarsPadding()
                 .padding(16.dp)
         ) {
-            // Header with Back Button
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 24.dp)
-            ) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.3f))
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Settings",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.Black
-                )
-            }
+            SettingsHeader(onBack = onBack)
 
-            // Options Group: Support & Legal
-            Text(
-                text = "Legal",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.DarkGray,
-                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
-            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-            SettingsItem(
-                icon = Icons.Default.Policy,
-                title = "Privacy Policy",
-                color = Color(0xFF1976D2),
-                onClick = {
+            SettingsGroupList(
+                versionName = versionName,
+                onPolicyClick = {
                     pendingUrl = "https://skyhop.kotonosora.com/privacy"
                     showWarningDialog = true
-                }
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            SettingsItem(
-                icon = Icons.Default.Description,
-                title = "Terms of Service",
-                color = Color(0xFFF4511E),
-                onClick = {
+                },
+                onTermsClick = {
                     pendingUrl = "https://skyhop.kotonosora.com/terms"
                     showWarningDialog = true
                 }
             )
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(24.dp))
+@Composable
+fun SettingsHeader(
+    onBack: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 24.dp)
+    ) {
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.3f))
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = "Settings",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Black,
+            color = Color.Black
+        )
+    }
+}
 
-            // Options Group: About
-            Text(
-                text = "About",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.DarkGray,
-                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+@Composable
+fun SettingsGroupList(
+    versionName: String,
+    onPolicyClick: () -> Unit,
+    onTermsClick: () -> Unit
+) {
+    Text(
+        text = "Legal",
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.DarkGray,
+        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+    )
+
+    SettingsItem(
+        icon = Icons.Default.Policy,
+        title = "Privacy Policy",
+        color = Color(0xFF1976D2),
+        onClick = onPolicyClick
+    )
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    SettingsItem(
+        icon = Icons.Default.Description,
+        title = "Terms of Service",
+        color = Color(0xFFF4511E),
+        onClick = onTermsClick
+    )
+
+    Spacer(modifier = Modifier.height(24.dp))
+
+    Text(
+        text = "About",
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.DarkGray,
+        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+    )
+
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White.copy(alpha = 0.8f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            AboutRow(
+                icon = Icons.Default.Info,
+                title = "Game Version",
+                value = "v$versionName",
+                color = Color(0xFF388E3C)
             )
+        }
+    }
+}
 
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = Color.White.copy(alpha = 0.8f),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    AboutRow(
-                        icon = Icons.Default.Info,
-                        title = "Game Version",
-                        value = "v$versionName",
-                        color = Color(0xFF388E3C)
-                    )
+@Composable
+fun ExternalLinkAlertDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    url: String,
+    context: Context
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Leaving the App") },
+            text = { Text("You are about to open an external website. Do you want to continue?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDismiss()
+                        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                        context.startActivity(intent)
+                    }
+                ) {
+                    Text("Continue")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
                 }
             }
-        }
+        )
     }
 }
 

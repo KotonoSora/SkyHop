@@ -8,11 +8,13 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.math.max
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
+private val HIGH_SCORE_KEY = intPreferencesKey("high_score")
+
 class ScoreRepository(private val context: Context) {
-    private val HIGH_SCORE_KEY = intPreferencesKey("high_score")
 
     val highScoreFlow: Flow<Int> = context.dataStore.data
         .map { preferences ->
@@ -22,9 +24,7 @@ class ScoreRepository(private val context: Context) {
     suspend fun updateHighScore(score: Int) {
         context.dataStore.edit { preferences ->
             val currentHighScore = preferences[HIGH_SCORE_KEY] ?: 0
-            if (score > currentHighScore) {
-                preferences[HIGH_SCORE_KEY] = score
-            }
+            preferences[HIGH_SCORE_KEY] = max(currentHighScore, score)
         }
     }
 }

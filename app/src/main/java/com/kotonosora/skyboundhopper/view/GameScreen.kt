@@ -1,0 +1,125 @@
+package com.kotonosora.skyboundhopper.view
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import com.kotonosora.skyboundhopper.R
+import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
+import com.kotonosora.skyboundhopper.model.GameState
+import com.kotonosora.skyboundhopper.view.components.*
+import com.kotonosora.skyboundhopper.model.SkinData
+
+@Composable
+fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit, onGoToShop: () -> Unit) {
+    val gameState by viewModel.gameState.collectAsState()
+    val selectedSkinId by viewModel.selectedSkinId.collectAsState()
+    val density = LocalDensity.current
+
+    val birdSkinRes = remember(selectedSkinId) { SkinData.getBirdSkinResource(selectedSkinId) }
+
+    val rotation by animateFloatAsState(
+        targetValue = (gameState.bird.velocity * 3f).coerceIn(-30f, 90f),
+        animationSpec = tween(durationMillis = 100)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onGloballyPositioned { coordinates ->
+                viewModel.onScreenSizeChanged(
+                    coordinates.size.width.toFloat(),
+                    coordinates.size.height.toFloat()
+                )
+            }
+            .clickable {
+                if (!gameState.isGameOver) {
+                    viewModel.jump()
+                }
+            }
+    ) {
+        GameContent(
+            gameState = gameState,
+            birdSkinRes = birdSkinRes,
+            rotation = rotation,
+            density = density,
+            onUsePowerUp = { viewModel.usePowerUp(it) },
+            onGoToShop = onGoToShop,
+            onReviveShield = { 
+                if (gameState.shieldCount > 0) viewModel.usePowerUp("shield")
+                else viewModel.purchasePowerUp("shield", 50, {}, { onGoToShop() }) 
+            },
+            onPowerUpBoost = { 
+                if (gameState.autoPlayCount > 0) viewModel.usePowerUp("autoplay")
+                else viewModel.purchasePowerUp("boost", 50, {}, { onGoToShop() }) 
+            },
+            onHome = onBackToHome,
+            onPlayAgain = { viewModel.startGame() }
+        )
+    }
+}
+
+@Composable
+fun GameContent(
+    gameState: GameState,
+    birdSkinRes: Int,
+    rotation: Float,
+    density: Density,
+    onUsePowerUp: (String) -> Unit,
+    onGoToShop: () -> Unit,
+    onReviveShield: () -> Unit,
+    onPowerUpBoost: () -> Unit,
+    onHome: () -> Unit,
+    onPlayAgain: () -> Unit
+) {
+    GameBackground(opacity = 0.3f)
+
+    PipesCanvas(gameState.pipes)
+
+    Bird(
+        density = density,
+        position = gameState.bird.position,
+        size = gameState.bird.size,
+        rotation = rotation,
+        skinRes = birdSkinRes,
+        shieldActive = gameState.shieldActive
+    )
+
+    GameHUD(
+        gameState = gameState,
+        onUsePowerUp = onUsePowerUp
+    )
+
+    if (gameState.isStartSequenceActive) {
+        StartSequenceOverlay(gameState.startSequenceTimeLeft)
+    }
+
+    if (gameState.isAutoPlayActive && !gameState.isStartSequenceActive) {
+        AutoPlayTimer(gameState.autoPlayTimeLeft)
+    }
+
+    AnimatedVisibility(
+        visible = gameState.isGameOver,
+        enter = fadeIn() + scaleIn(),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        GameOverShopOverlay(
+            score = gameState.score,
+            coins = gameState.coins,
+            shieldCount = gameState.shieldCount,
+            autoPlayCount = gameState.autoPlayCount,
+            onReviveShield = onReviveShield,
+            onPowerUpBoost = onPowerUpBoost,
+            onGetMoreCoins = onGoToShop,
+            onHome = onHome,
+            onPlayAgain = onPlayAgain
+        )
+    }
+}

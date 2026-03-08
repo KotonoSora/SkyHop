@@ -1,4 +1,4 @@
-package com.kotonosora.skyboundhopper.game
+package com.kotonosora.skyboundhopper.model
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -36,5 +36,8 @@ data class GameState(
     val isAutoPlayActive: Boolean = false,
     val autoPlayTimeLeft: Float = 0f,
     val startSequenceTimeLeft: Float = 0f,
-    val isStartSequenceActive: Boolean = false
+    val isStartSequenceActive: Boolean = false,
+    val shieldCount: Int = 0,
+    val multiplierCount: Int = 0,
+    val autoPlayCount: Int = 0
 )

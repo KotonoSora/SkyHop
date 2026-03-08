@@ -1,0 +1,278 @@
+package com.kotonosora.skyboundhopper.view
+
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kotonosora.skyboundhopper.billing.BillingStatus
+import com.kotonosora.skyboundhopper.view.components.GameButton
+import com.kotonosora.skyboundhopper.view.theme.SkyBlue
+import com.kotonosora.skyboundhopper.viewmodel.ShopViewModel
+import com.kotonosora.skyboundhopper.model.CoinPackItem
+
+@Composable
+fun CoinStoreScreen(
+    onClose: () -> Unit,
+    viewModel: ShopViewModel = viewModel()
+) {
+    val coinPacks by viewModel.coinPacks.collectAsState()
+    val billingStatus by viewModel.billingStatus.collectAsState()
+    val activity = LocalContext.current.findActivity()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SkyBlue)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+        ) {
+            CoinStoreHeader(onClose = onClose)
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            CoinStoreContent(
+                modifier = Modifier.weight(1f),
+                billingStatus = billingStatus,
+                coinPacks = coinPacks,
+                onRetry = { viewModel.retryConnection() },
+                onBuy = { coinPackItem ->
+                    activity?.let { act ->
+                        viewModel.buyCoinPack(act, coinPackItem.productDetails)
+                    }
+                }
+            )
+            
+            Spacer(modifier = Modifier.height(64.dp))
+        }
+    }
+}
+
+@Composable
+fun CoinStoreHeader(
+    onClose: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onClose,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.3f))
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = "Coin Store",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Black,
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun CoinStoreContent(
+    modifier: Modifier = Modifier,
+    billingStatus: BillingStatus,
+    coinPacks: List<CoinPackItem>,
+    onRetry: () -> Unit,
+    onBuy: (CoinPackItem) -> Unit
+) {
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        val emptyMessage = when (billingStatus) {
+            BillingStatus.EMPTY -> "No coin packs available at the moment."
+            BillingStatus.CONNECTED -> if (coinPacks.isEmpty()) "No coin packs found in the store." else null
+            else -> null
+        }
+
+        if (emptyMessage != null) {
+            NoPacksView(message = emptyMessage)
+            return@Box
+        }
+
+        when (billingStatus) {
+            BillingStatus.CONNECTING, BillingStatus.IDLE -> {
+                ConnectionLoadingView()
+            }
+            BillingStatus.ERROR -> {
+                ConnectionErrorView(onRetry = onRetry)
+            }
+            BillingStatus.CONNECTED -> {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 32.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(coinPacks) { item ->
+                        CoinPackCard(item) {
+                            onBuy(item)
+                        }
+                    }
+                }
+            }
+            BillingStatus.EMPTY -> {}
+        }
+    }
+}
+
+@Composable
+fun ConnectionLoadingView() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        CircularProgressIndicator(color = Color.White)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Connecting to Play Store...", color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun ConnectionErrorView(onRetry: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+        Icon(Icons.Default.Warning, contentDescription = null, tint = Color.White, modifier = Modifier.size(64.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            "Failed to connect to Google Play. Please check your internet connection.",
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        GameButton(
+            text = "Retry",
+            onClick = onRetry,
+            modifier = Modifier.fillMaxWidth(0.5f),
+            height = 48.dp,
+            backgroundColor = Color.White,
+            shadowColor = Color.LightGray,
+            textColor = Color.Black,
+            icon = { Icon(Icons.Default.Refresh, contentDescription = null) }
+        )
+    }
+}
+
+@Composable
+fun NoPacksView(message: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+        Text(
+            message,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+    }
+}
+
+
+@Composable
+fun CoinPackCard(item: CoinPackItem, onBuy: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(32.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .size(280.dp, 400.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0xFFFFF9C4), Color(0xFFFFECB3))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = item.imageRes),
+                    contentDescription = item.name,
+                    modifier = Modifier.fillMaxSize(0.8f),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = item.name,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.Black
+            )
+            
+            Text(
+                text = item.price,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            GameButton(
+                text = "Buy",
+                onClick = onBuy,
+                modifier = Modifier.fillMaxWidth(),
+                height = 56.dp,
+                backgroundColor = Color(0xFFFFCA28),
+                shadowColor = Color(0xFFFFA000),
+                textColor = Color.Black,
+                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.Black) }
+            )
+        }
+    }
+}
+
+private fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
+}

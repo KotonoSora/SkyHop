@@ -19,6 +19,14 @@ class SettingsRepository(private val context: Context) {
     private val PURCHASED_ITEMS_KEY = stringSetPreferencesKey("purchased_items")
     private val SHIELD_COUNT_KEY = intPreferencesKey("shield_count")
     private val MULTIPLIER_COUNT_KEY = intPreferencesKey("multiplier_count")
+    private val AUTOPLAY_COUNT_KEY = intPreferencesKey("autoplay_count")
+
+    private val POWER_UP_KEYS = mapOf(
+        "shield" to SHIELD_COUNT_KEY,
+        "multiplier" to MULTIPLIER_COUNT_KEY,
+        "autoplay" to AUTOPLAY_COUNT_KEY,
+        "boost" to AUTOPLAY_COUNT_KEY
+    )
 
     val selectedSkinFlow: Flow<String> = context.settingsDataStore.data
         .map { preferences ->
@@ -40,6 +48,9 @@ class SettingsRepository(private val context: Context) {
 
     val multiplierCountFlow: Flow<Int> = context.settingsDataStore.data
         .map { preferences -> preferences[MULTIPLIER_COUNT_KEY] ?: 0 }
+
+    val autoPlayCountFlow: Flow<Int> = context.settingsDataStore.data
+        .map { preferences -> preferences[AUTOPLAY_COUNT_KEY] ?: 0 }
 
     suspend fun updateSelectedSkin(skinId: String) {
         context.settingsDataStore.edit { preferences ->
@@ -74,32 +85,21 @@ class SettingsRepository(private val context: Context) {
     }
 
     suspend fun addPowerUp(type: String) {
+        val key = POWER_UP_KEYS[type] ?: return
         context.settingsDataStore.edit { preferences ->
-            if (type == "shield") {
-                val current = preferences[SHIELD_COUNT_KEY] ?: 0
-                preferences[SHIELD_COUNT_KEY] = current + 1
-            } else if (type == "multiplier") {
-                val current = preferences[MULTIPLIER_COUNT_KEY] ?: 0
-                preferences[MULTIPLIER_COUNT_KEY] = current + 1
-            }
+            val current = preferences[key] ?: 0
+            preferences[key] = current + 1
         }
     }
 
     suspend fun usePowerUp(type: String): Boolean {
+        val key = POWER_UP_KEYS[type] ?: return false
         var success = false
         context.settingsDataStore.edit { preferences ->
-            if (type == "shield") {
-                val current = preferences[SHIELD_COUNT_KEY] ?: 0
-                if (current > 0) {
-                    preferences[SHIELD_COUNT_KEY] = current - 1
-                    success = true
-                }
-            } else if (type == "multiplier") {
-                val current = preferences[MULTIPLIER_COUNT_KEY] ?: 0
-                if (current > 0) {
-                    preferences[MULTIPLIER_COUNT_KEY] = current - 1
-                    success = true
-                }
+            val current = preferences[key] ?: 0
+            if (current > 0) {
+                preferences[key] = current - 1
+                success = true
             }
         }
         return success

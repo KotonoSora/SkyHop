@@ -15,13 +15,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kotonosora.skyboundhopper.game.GameViewModel
-import com.kotonosora.skyboundhopper.ui.CoinStoreScreen
-import com.kotonosora.skyboundhopper.ui.GameScreen
-import com.kotonosora.skyboundhopper.ui.HomeScreen
-import com.kotonosora.skyboundhopper.ui.SettingsScreen
-import com.kotonosora.skyboundhopper.ui.SkinShopScreen
-import com.kotonosora.skyboundhopper.ui.theme.SkyHopTheme
+import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
+import com.kotonosora.skyboundhopper.view.CoinStoreScreen
+import com.kotonosora.skyboundhopper.view.GameScreen
+import com.kotonosora.skyboundhopper.view.HomeScreen
+import com.kotonosora.skyboundhopper.view.SettingsScreen
+import com.kotonosora.skyboundhopper.view.SkinShopScreen
+import com.kotonosora.skyboundhopper.view.theme.SkyHopTheme
 
 enum class Screen {
     Home, Game, Shop, CoinStore, Settings
@@ -50,54 +50,76 @@ fun MainApp() {
         currentScreen = screen
     }
 
-    Scaffold(
-        // Bottom bar removed as per request
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedContent(
                 targetState = currentScreen,
                 modifier = Modifier.padding(if (currentScreen == Screen.Game) PaddingValues(0.dp) else innerPadding),
-                transitionSpec = {
-                    if (targetState == Screen.Game) {
-                        (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
-                    } else if (initialState == Screen.Game) {
-                        (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
-                    } else {
-                        fadeIn(animationSpec = tween(500)).togetherWith(fadeOut(animationSpec = tween(500)))
-                    }
-                },
+                transitionSpec = { getScreenTransitionSpec(targetState, initialState) },
                 label = "ScreenTransition"
             ) { screen ->
-                when (screen) {
-                    Screen.Home -> HomeScreen(
-                        onPlayClick = { 
-                            gameViewModel.startGame()
-                            navigateTo(Screen.Game) 
-                        },
-                        onShopClick = { navigateTo(Screen.Shop) },
-                        onGetCoinsClick = { navigateTo(Screen.CoinStore) },
-                        onSettingsClick = { navigateTo(Screen.Settings) }
-                    )
-                    Screen.Game -> GameScreen(
-                        viewModel = gameViewModel,
-                        onBackToHome = { navigateTo(Screen.Home) },
-                        onGoToShop = { navigateTo(Screen.CoinStore) }
-                    )
-                    Screen.Shop -> SkinShopScreen(
-                        onClose = { navigateTo(Screen.Home) },
-                        onGoToCoinStore = { navigateTo(Screen.CoinStore) }
-                    )
-                    Screen.CoinStore -> CoinStoreScreen(
-                        onClose = { 
-                            if (previousScreen == Screen.Game) navigateTo(Screen.Home)
-                            else navigateTo(previousScreen)
-                        }
-                    )
-                    Screen.Settings -> SettingsScreen(
-                        onBack = { navigateTo(Screen.Home) }
-                    )
-                }
+                ScreenContent(
+                    screen = screen,
+                    previousScreen = previousScreen,
+                    gameViewModel = gameViewModel,
+                    navigateTo = ::navigateTo
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun ScreenContent(
+    screen: Screen,
+    previousScreen: Screen,
+    gameViewModel: GameViewModel,
+    navigateTo: (Screen) -> Unit
+) {
+    when (screen) {
+        Screen.Home -> HomeScreen(
+            onPlayClick = { 
+                gameViewModel.startGame()
+                navigateTo(Screen.Game) 
+            },
+            onShopClick = { navigateTo(Screen.Shop) },
+            onGetCoinsClick = { navigateTo(Screen.CoinStore) },
+            onSettingsClick = { navigateTo(Screen.Settings) }
+        )
+        Screen.Game -> GameScreen(
+            viewModel = gameViewModel,
+            onBackToHome = { navigateTo(Screen.Home) },
+            onGoToShop = { navigateTo(Screen.CoinStore) }
+        )
+        Screen.Shop -> SkinShopScreen(
+            onClose = { navigateTo(Screen.Home) },
+            onGoToCoinStore = { navigateTo(Screen.CoinStore) }
+        )
+        Screen.CoinStore -> CoinStoreScreen(
+            onClose = { 
+                if (previousScreen == Screen.Game) navigateTo(Screen.Home)
+                else navigateTo(previousScreen)
+            }
+        )
+        Screen.Settings -> SettingsScreen(
+            onBack = { navigateTo(Screen.Home) }
+        )
+    }
+}
+
+private fun AnimatedContentTransitionScope<Screen>.getScreenTransitionSpec(
+    targetState: Screen,
+    initialState: Screen
+): ContentTransform {
+    return when {
+        targetState == Screen.Game -> {
+            (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
+        }
+        initialState == Screen.Game -> {
+            (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
+        }
+        else -> {
+            fadeIn(animationSpec = tween(500)).togetherWith(fadeOut(animationSpec = tween(500)))
         }
     }
 }

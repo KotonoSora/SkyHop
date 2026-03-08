@@ -1,4 +1,4 @@
-package com.kotonosora.skyboundhopper.ui.components
+package com.kotonosora.skyboundhopper.view.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,8 +13,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.kotonosora.skyboundhopper.R
-import com.kotonosora.skyboundhopper.ui.theme.CloudWhite
-import com.kotonosora.skyboundhopper.ui.theme.SkyBlue
+import com.kotonosora.skyboundhopper.view.theme.CloudWhite
+import com.kotonosora.skyboundhopper.view.theme.SkyBlue
 
 @Composable
 fun GameBackground(
@@ -24,9 +24,8 @@ fun GameBackground(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(SkyBlue) // Solid sky color background
+            .background(SkyBlue)
     ) {
-        // Full screen background image (img_floating_island used as the landscape)
         Image(
             painter = painterResource(id = R.drawable.img_floating_island),
             contentDescription = null,
@@ -35,12 +34,10 @@ fun GameBackground(
             alpha = opacity
         )
 
-        // Decorative Elements (Island and Clouds)
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            // Decorative Clouds
             Cloud(Modifier.offset(x = (-120).dp, y = (-180).dp).scale(0.8f).alpha(0.6f))
             Cloud(Modifier.offset(x = 140.dp, y = (-100).dp).scale(1.1f).alpha(0.5f))
             Cloud(Modifier.offset(x = (-100).dp, y = 140.dp).scale(0.9f).alpha(0.6f))
