@@ -69,7 +69,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         // Reused background elements
-        GameBackground(opacity = 0.4f)
+        GameBackground(opacity = 0.3f)
 
         // Settings Button
         IconButton(
