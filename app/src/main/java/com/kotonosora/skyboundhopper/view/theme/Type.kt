@@ -94,7 +94,7 @@ val Typography = Typography(
     labelMedium = TextStyle(
         fontFamily = PressStart2P,
         fontWeight = FontWeight.Normal,
-        fontSize = 8.sp, // Reduced to 8sp for better fit
+        fontSize = 8.sp,
         lineHeight = 12.sp,
         letterSpacing = 0.sp
     ),

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,6 +22,7 @@ import java.util.Locale
 @Composable
 fun GameOverShopOverlay(
     score: Int,
+    level: Int,
     onHome: () -> Unit,
     onPlayAgain: () -> Unit
 ) {
@@ -42,7 +44,17 @@ fun GameOverShopOverlay(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Top Highlight Score
+            Text(
+                text = stringResource(R.string.label_game_over),
+                color = Color.White,
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 2.sp
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Score Highlight
             Text(
                 text = stringResource(R.string.title_score),
                 color = Color.White.copy(alpha = 0.6f),
@@ -54,16 +66,18 @@ fun GameOverShopOverlay(
                 text = String.format(Locale.US, "%,d", score),
                 color = Color(0xFFFFD54F), // Gold
                 style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Black,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
+            // Level Info
             Text(
-                text = stringResource(R.string.label_game_over),
-                color = Color.White,
-                style = MaterialTheme.typography.displaySmall,
-                letterSpacing = 2.sp
+                text = "${stringResource(R.string.title_level)} $level",
+                color = Color.White.copy(alpha = 0.9f),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(64.dp))

@@ -8,9 +8,9 @@ object GamePhysics {
     const val FRAME_RATE_MS = 16L
     const val DELTA_TIME = FRAME_RATE_MS / 1000f
     
-    private const val PIPE_GAP_HEIGHT = 350f
-    private const val PIPE_WIDTH = 60f
-    private const val PIPE_SPACING = 460f
+    private const val PIPE_GAP_HEIGHT = 550f
+    private const val PIPE_WIDTH = 55f
+    private const val PIPE_SPACING = 660f
     private const val BASE_PIPE_SPEED = 5f
     private const val SPEED_INCREMENT = 0.5f
     private const val PIPES_PER_LEVEL = 10

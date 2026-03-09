@@ -110,7 +110,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun jump() {
         val currentState = _gameState.value
         if (currentState.isGameOver) {
-            startGame()
             return
         }
 

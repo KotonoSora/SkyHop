@@ -39,7 +39,8 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
             }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
+                enabled = !gameState.isGameOver
             ) {
                 viewModel.jump()
             }
@@ -91,6 +92,7 @@ fun GameContent(
     ) {
         GameOverShopOverlay(
             score = gameState.score,
+            level = gameState.level,
             onHome = onHome,
             onPlayAgain = onPlayAgain
         )

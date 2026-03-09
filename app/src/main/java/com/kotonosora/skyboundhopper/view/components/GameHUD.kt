@@ -1,14 +1,16 @@
 package com.kotonosora.skyboundhopper.view.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DoubleArrow
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,15 +19,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.model.GameState
 import com.kotonosora.skyboundhopper.model.PowerUpType
+import java.util.Locale
 import kotlin.math.ceil
 
 @Composable
@@ -47,8 +53,11 @@ fun GameHUD(
                 contentDescription = stringResource(R.string.desc_star)
             )
             Spacer(modifier = Modifier.height(8.dp))
+            
+            // Fixed Level Display: Showing progress (pipes passed within current level)
+            val pipesInCurrentLevel = gameState.pipesPassed % 10
             HUDBadge(
-                text = "${stringResource(R.string.title_level)}: ${gameState.level}",
+                text = "${stringResource(R.string.title_level)}: ${gameState.level} ($pipesInCurrentLevel/10)",
                 icon = Icons.Default.PlayArrow,
                 contentDescription = stringResource(R.string.desc_play)
             )
@@ -66,10 +75,10 @@ fun GameHUD(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(bottom = 32.dp, start = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             PowerUpInventoryBadge(
-                icon = Icons.Default.Shield,
+                iconRes = R.drawable.img_powerup_shield_icon,
                 count = gameState.shieldCount,
                 isActive = gameState.shieldActive,
                 timeLeft = gameState.shieldTimeLeft,
@@ -77,7 +86,7 @@ fun GameHUD(
                 contentDescription = stringResource(R.string.desc_shield)
             )
             PowerUpInventoryBadge(
-                icon = Icons.Default.DoubleArrow,
+                iconRes = R.drawable.img_powerup_multiplier_icon,
                 count = gameState.multiplierCount,
                 isActive = gameState.multiplierActive,
                 timeLeft = gameState.multiplierTimeLeft,
@@ -92,18 +101,19 @@ fun GameHUD(
 fun HUDBadge(text: String, icon: ImageVector, contentDescription: String?) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.Black.copy(alpha = 0.4f)
+        color = Color.Black.copy(alpha = 0.5f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = contentDescription, tint = Color.White, modifier = Modifier.size(16.dp))
+            Icon(icon, contentDescription = contentDescription, tint = Color(0xFFFFD54F), modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
                 color = Color.White,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold
             )
         }
     }
@@ -117,23 +127,24 @@ fun CoinDisplayHUD(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
-        color = Color.Black.copy(alpha = 0.4f)
+        color = Color.Black.copy(alpha = 0.5f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 Icons.Default.MonetizationOn,
                 contentDescription = stringResource(R.string.desc_coin),
                 tint = Color(0xFFFFD54F),
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = coins.toString(),
+                text = String.format(Locale.getDefault(), "%,d", coins),
                 color = Color.White,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.ExtraBold
             )
         }
     }
@@ -141,7 +152,7 @@ fun CoinDisplayHUD(
 
 @Composable
 fun PowerUpInventoryBadge(
-    icon: ImageVector,
+    iconRes: Int,
     count: Int,
     isActive: Boolean,
     timeLeft: Float,
@@ -149,52 +160,84 @@ fun PowerUpInventoryBadge(
     contentDescription: String,
     modifier: Modifier = Modifier
 ) {
+    val progress = (timeLeft / 10f).coerceIn(0f, 1f)
     val shape = RoundedCornerShape(16.dp)
-    val baseColor = Color.Black.copy(alpha = 0.4f)
-    val activeColor = Color(0xFF4CAF50).copy(alpha = 0.9f)
-    val ringColor = Color(0xFF66BB6A)
-
-    Surface(
+    
+    Box(
         modifier = modifier
-            .size(80.dp)
-            .clickable(onClick = onClick),
-        shape = shape,
-        color = if (isActive) activeColor else baseColor
+            .size(68.dp)
+            .clip(shape)
+            .background(Color.Black.copy(alpha = 0.5f))
+            .border(
+                width = 2.dp,
+                color = if (isActive) Color(0xFF4CAF50) else Color.White.copy(alpha = 0.2f),
+                shape = shape
+            )
+            .clickable(enabled = count > 0 && !isActive, onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        if (isActive) {
+            // Background progress fill
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawArc(
+                    color = Color(0xFF4CAF50).copy(alpha = 0.25f),
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = true
+                )
+            }
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = contentDescription,
+                modifier = Modifier.size(32.dp),
+                contentScale = ContentScale.Fit,
+                alpha = if (count > 0 || isActive) 1f else 0.3f
+            )
             if (isActive) {
                 Text(
-                    text = "${ceil(timeLeft).toInt()}S",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
+                    text = "${ceil(timeLeft).toInt()}s",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp
                 )
-            } else if (count > 0) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(icon, contentDescription = contentDescription, tint = Color.White, modifier = Modifier.size(32.dp))
-                    Text(
-                        text = count.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
-                    )
-                }
-            } else {
-                Icon(icon, contentDescription = contentDescription, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(32.dp))
             }
+        }
 
-            if (!isActive && count > 0) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    drawArc(
-                        color = ringColor,
-                        startAngle = 0f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                }
+        // Count badge
+        if (count > 0 && !isActive) {
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp),
+                shape = CircleShape,
+                color = Color(0xFFFF5252),
+                tonalElevation = 4.dp
+            ) {
+                Text(
+                    text = count.toString(),
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp
+                )
             }
+        }
+        
+        // Locked overlay if count is 0
+        if (count <= 0 && !isActive) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.1f))
+            )
         }
     }
 }
