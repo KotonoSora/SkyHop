@@ -31,6 +31,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         observeRepositories()
+        // Initialize the game in a "Ready" state with a 2s auto-fly period
+        resetGame()
+        runGameLoop()
     }
 
     private fun observeRepositories() {
@@ -44,22 +47,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onScreenSizeChanged(width: Float, height: Float) {
         _gameState.update { it.copy(screenWidth = width, screenHeight = height) }
+        // Adjust bird position after screen size is known
+        _gameState.update { state ->
+            if (state.bird.position.y == 0f || state.bird.position.y == state.screenHeight / 2) {
+                state.copy(bird = state.bird.copy(position = androidx.compose.ui.geometry.Offset(100f, height / 2)))
+            } else state
+        }
     }
 
     fun startGame() {
-        if (_gameState.value.isGameOver) resetGame()
-        
-        _gameState.update { 
-            it.copy(
-                isGameStarted = true, 
-                isGameOver = false,
-                isStartSequenceActive = true,
-                startSequenceTimeLeft = 10f,
-                shieldActive = true,
-                shieldTimeLeft = 5f,
-                isAutoPlayActive = false
-            ) 
-        }
+        resetGame()
         runGameLoop()
     }
 
@@ -74,16 +71,28 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 multiplierCount = state.multiplierCount,
                 autoPlayCount = state.autoPlayCount,
                 level = 1,
-                bird = BirdState(position = androidx.compose.ui.geometry.Offset(100f, state.screenHeight / 2))
+                isGameStarted = true,
+                isStartSequenceActive = true,
+                startSequenceTimeLeft = 2f, // 2-second auto-fly period
+                bird = BirdState(position = androidx.compose.ui.geometry.Offset(100f, if (state.screenHeight > 0) state.screenHeight / 2 else 500f))
             ) 
         }
     }
 
     fun jump() {
         val state = _gameState.value
-        if (!state.isGameStarted) startGame()
+        if (state.isGameOver) {
+            startGame()
+            return
+        }
         
-        if (!state.isGameOver && !state.isAutoPlayActive && !state.isStartSequenceActive) {
+        // If user jumps during auto-fly, take control immediately
+        if (state.isStartSequenceActive) {
+            _gameState.update { it.copy(isStartSequenceActive = false, bird = it.bird.copy(velocity = -15f)) }
+            return
+        }
+
+        if (state.isGameStarted && !state.isAutoPlayActive && !state.multiplierActive) {
             _gameState.update { it.copy(bird = it.bird.copy(velocity = -15f)) }
         }
     }
@@ -101,6 +110,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateGame() {
         _gameState.update { currentState ->
             var state = updatePowerUpTimers(currentState)
+            
+            // Note: Start sequence active means "auto-fly" period, we DO update physics/pipes
+            
             state = updatePhysics(state)
             state = updatePipes(state)
             state = updateScoring(state)
@@ -118,20 +130,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         var autoPlayTime = state.autoPlayTimeLeft
 
         if (startSeqActive) {
-            startSeqTime -= deltaTime
-            if (startSeqTime > 5f) {
-                shieldActive = true
-                shieldTime = startSeqTime - 5f
-                autoPlayActive = true
-            } else if (startSeqTime > 0f) {
-                shieldActive = false
-                shieldTime = 0f
-                autoPlayActive = true
-                autoPlayTime = startSeqTime
-            } else {
+            startSeqTime = (startSeqTime - deltaTime).coerceAtLeast(0f)
+            if (startSeqTime <= 0f) {
                 startSeqActive = false
-                autoPlayActive = false
-                autoPlayTime = 0f
             }
         } else {
             shieldTime = (state.shieldTimeLeft - deltaTime).coerceAtLeast(0f)
@@ -157,7 +158,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updatePhysics(state: GameState): GameState {
         var shouldAutoJump = false
-        if (state.isAutoPlayActive) {
+        
+        // Multiplier also helps bird fly pass pipe (acts like AutoPlay)
+        if (state.isStartSequenceActive) {
+            // During auto-fly, maintain height near the middle
+            val targetY = if (state.screenHeight > 0) state.screenHeight / 2 else 500f
+            if (state.bird.position.y > targetY && state.bird.velocity >= 0) {
+                shouldAutoJump = true
+            }
+        } else if (state.isAutoPlayActive || state.multiplierActive) {
             val nextPipe = state.pipes.firstOrNull { it.x + it.width > state.bird.position.x }
             val targetY = nextPipe?.let { it.gapTop + it.gapHeight / 2 } ?: (state.screenHeight / 2)
             
@@ -178,13 +187,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun updatePipes(state: GameState): GameState {
+        // Pipes move normally even during auto-fly
         val pipeSpeed = 5f + ((state.pipesPassed / 10) * 0.5f)
         val updatedPipes = state.pipes
             .map { it.copy(x = it.x - pipeSpeed) }
             .filter { it.x + it.width > 0 }
             .toMutableList()
 
-        if (updatedPipes.isEmpty() || updatedPipes.last().x < state.screenWidth - 460) {
+        if (state.screenWidth > 0 && (updatedPipes.isEmpty() || updatedPipes.last().x < state.screenWidth - 460)) {
             val availableHeight = (state.screenHeight - 600).coerceAtLeast(100f)
             val reducedAmplitude = availableHeight * 0.68f
             val amplitudeOffset = 100f + (availableHeight * 0.1f)
@@ -224,9 +234,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkAndHandleGameOver(state: GameState): GameState {
+        // Invincible during auto-fly start sequence or if screen size not set
+        if (state.isStartSequenceActive || state.screenHeight <= 0f) return state
+        
         val hasCollided = checkCollision(state.bird, state.pipes, state.screenHeight)
         
-        val isGameOver = hasCollided && !state.shieldActive && !state.isAutoPlayActive
+        // Multiplier also grants invincibility (helps bird fly pass pipe)
+        val isGameOver = hasCollided && !state.shieldActive && !state.isAutoPlayActive && !state.multiplierActive
 
         if (isGameOver) {
             viewModelScope.launch {
@@ -238,6 +252,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkCollision(bird: BirdState, pipes: List<PipeState>, screenHeight: Float): Boolean {
+        // Extra guard for screenHeight
+        if (screenHeight <= 0f) return false
+
         if (bird.position.y < 0 || bird.position.y + bird.size.height > screenHeight) return true
 
         val birdLeft = bird.position.x
@@ -269,13 +286,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun purchasePowerUp(type: String, cost: Int, onSuccess: () -> Unit, onInsufficient: () -> Unit) {
         viewModelScope.launch {
             if (settingsRepository.spendCoins(cost)) {
+                settingsRepository.addPowerUp(type)
+                
                 _gameState.update { state ->
-                    val revivedState = state.copy(isGameOver = false, bird = getRevivedBirdState(state))
+                    var newState = state.copy(isGameOver = false, bird = getRevivedBirdState(state))
+
+                    // Grant immediate temporary effect upon purchase (Shield/Boost/AutoPlay)
                     when (type) {
-                        "shield" -> revivedState.copy(shieldActive = true, shieldTimeLeft = 10f)
-                        "boost" -> revivedState.copy(isAutoPlayActive = true, autoPlayTimeLeft = 10f)
-                        else -> state
+                        "shield" -> newState = newState.copy(shieldActive = true, shieldTimeLeft = 10f)
+                        "multiplier" -> newState = newState.copy(multiplierActive = true, multiplierTimeLeft = 10f)
+                        "autoplay", "boost" -> newState = newState.copy(isAutoPlayActive = true, autoPlayTimeLeft = 10f)
+                        else -> newState
                     }
+                    newState
                 }
                 onSuccess()
                 if (gameJob?.isActive != true) runGameLoop()
@@ -295,6 +318,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         "autoplay", "boost" -> state.copy(isAutoPlayActive = true, autoPlayTimeLeft = 10f)
                         else -> state
                     }
+                    // Revive bird if game over and power-up is used to continue
                     if (state.isGameOver) {
                         newState = newState.copy(isGameOver = false, bird = getRevivedBirdState(state))
                     }

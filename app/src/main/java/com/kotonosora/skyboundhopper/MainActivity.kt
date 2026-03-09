@@ -88,8 +88,7 @@ private fun ScreenContent(
         )
         Screen.Game -> GameScreen(
             viewModel = gameViewModel,
-            onBackToHome = { navigateTo(Screen.Home) },
-            onGoToShop = { navigateTo(Screen.CoinStore) }
+            onBackToHome = { navigateTo(Screen.Home) }
         )
         Screen.Shop -> SkinShopScreen(
             onClose = { navigateTo(Screen.Home) },

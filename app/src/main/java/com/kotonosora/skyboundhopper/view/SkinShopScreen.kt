@@ -2,7 +2,6 @@ package com.kotonosora.skyboundhopper.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -48,6 +47,10 @@ fun SkinShopScreen(
     val powerUpItems = viewModel.powerUpItems
     val selectedSkinId by viewModel.selectedSkinId.collectAsState()
 
+    // Collect power-up counts
+    val shieldCount by viewModel.shieldCount.collectAsState()
+    val multiplierCount by viewModel.multiplierCount.collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -67,6 +70,8 @@ fun SkinShopScreen(
                 skinItems = skinItems,
                 powerUpItems = powerUpItems,
                 selectedSkinId = selectedSkinId,
+                shieldCount = shieldCount,
+                multiplierCount = multiplierCount,
                 onSkinSelectOrBuy = { item ->
                     if (item.id.startsWith("skin")) {
                         if (item.isUnlocked) viewModel.selectSkin(item.id)
@@ -146,6 +151,8 @@ fun ShopGridContent(
     skinItems: List<ShopItem>,
     powerUpItems: List<ShopItem>,
     selectedSkinId: String,
+    shieldCount: Int,
+    multiplierCount: Int,
     onSkinSelectOrBuy: (ShopItem) -> Unit,
     onGoToCoinStore: () -> Unit
 ) {
@@ -173,10 +180,16 @@ fun ShopGridContent(
         }
 
         items(powerUpItems) { item ->
+            val count = when (item.id) {
+                "powerup_shield" -> shieldCount
+                "powerup_multiplier" -> multiplierCount
+                else -> 0
+            }
             SkinShopItemCard(
                 item = item,
                 isSelected = false,
-                onAction = onSkinSelectOrBuy
+                onAction = onSkinSelectOrBuy,
+                ownedCount = count
             )
         }
         
@@ -208,7 +221,8 @@ fun SectionTitle(title: String, modifier: Modifier = Modifier) {
 fun SkinShopItemCard(
     item: ShopItem,
     isSelected: Boolean,
-    onAction: (ShopItem) -> Unit
+    onAction: (ShopItem) -> Unit,
+    ownedCount: Int = 0
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
@@ -219,7 +233,7 @@ fun SkinShopItemCard(
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ItemImageContainer(item = item)
+            ItemImageContainer(item = item, ownedCount = ownedCount)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -231,7 +245,7 @@ fun SkinShopItemCard(
                 maxLines = 1
             )
             
-            ItemStatusText(item = item, isSelected = isSelected)
+            ItemStatusText(item = item, isSelected = isSelected, ownedCount = ownedCount)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -253,7 +267,7 @@ fun SkinShopItemCard(
 }
 
 @Composable
-private fun ItemImageContainer(item: ShopItem) {
+private fun ItemImageContainer(item: ShopItem, ownedCount: Int = 0) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -272,11 +286,29 @@ private fun ItemImageContainer(item: ShopItem) {
             modifier = Modifier.fillMaxSize(0.85f),
             contentScale = ContentScale.Fit
         )
+        
+        if (ownedCount > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .background(Color(0xFFFFD54F), CircleShape)
+                    .size(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = ownedCount.toString(),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+        }
     }
 }
 
 @Composable
-private fun ItemStatusText(item: ShopItem, isSelected: Boolean) {
+private fun ItemStatusText(item: ShopItem, isSelected: Boolean, ownedCount: Int = 0) {
     val (text, color) = when {
         isSelected -> "Active" to Color(0xFF4CAF50)
         item.isUnlocked -> "Owned" to Color(0xFF2196F3)

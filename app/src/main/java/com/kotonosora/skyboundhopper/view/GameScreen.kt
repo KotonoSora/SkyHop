@@ -11,14 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
-import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
 import com.kotonosora.skyboundhopper.model.GameState
 import com.kotonosora.skyboundhopper.view.components.*
 import com.kotonosora.skyboundhopper.model.SkinData
 
 @Composable
-fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit, onGoToShop: () -> Unit) {
+fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
     val gameState by viewModel.gameState.collectAsState()
     val selectedSkinId by viewModel.selectedSkinId.collectAsState()
     val density = LocalDensity.current
@@ -51,15 +50,6 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit, onGoToShop: (
             rotation = rotation,
             density = density,
             onUsePowerUp = { viewModel.usePowerUp(it) },
-            onGoToShop = onGoToShop,
-            onReviveShield = { 
-                if (gameState.shieldCount > 0) viewModel.usePowerUp("shield")
-                else viewModel.purchasePowerUp("shield", 50, {}, { onGoToShop() }) 
-            },
-            onPowerUpBoost = { 
-                if (gameState.autoPlayCount > 0) viewModel.usePowerUp("autoplay")
-                else viewModel.purchasePowerUp("boost", 50, {}, { onGoToShop() }) 
-            },
             onHome = onBackToHome,
             onPlayAgain = { viewModel.startGame() }
         )
@@ -73,9 +63,6 @@ fun GameContent(
     rotation: Float,
     density: Density,
     onUsePowerUp: (String) -> Unit,
-    onGoToShop: () -> Unit,
-    onReviveShield: () -> Unit,
-    onPowerUpBoost: () -> Unit,
     onHome: () -> Unit,
     onPlayAgain: () -> Unit
 ) {
@@ -97,14 +84,6 @@ fun GameContent(
         onUsePowerUp = onUsePowerUp
     )
 
-    if (gameState.isStartSequenceActive) {
-        StartSequenceOverlay(gameState.startSequenceTimeLeft)
-    }
-
-    if (gameState.isAutoPlayActive && !gameState.isStartSequenceActive) {
-        AutoPlayTimer(gameState.autoPlayTimeLeft)
-    }
-
     AnimatedVisibility(
         visible = gameState.isGameOver,
         enter = fadeIn() + scaleIn(),
@@ -112,12 +91,6 @@ fun GameContent(
     ) {
         GameOverShopOverlay(
             score = gameState.score,
-            coins = gameState.coins,
-            shieldCount = gameState.shieldCount,
-            autoPlayCount = gameState.autoPlayCount,
-            onReviveShield = onReviveShield,
-            onPowerUpBoost = onPowerUpBoost,
-            onGetMoreCoins = onGoToShop,
             onHome = onHome,
             onPlayAgain = onPlayAgain
         )

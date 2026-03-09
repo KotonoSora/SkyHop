@@ -24,7 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
 import com.kotonosora.skyboundhopper.model.GameState
 import com.kotonosora.skyboundhopper.view.components.GameBackground

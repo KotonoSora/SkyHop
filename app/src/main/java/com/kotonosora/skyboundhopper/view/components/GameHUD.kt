@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Forward
 import androidx.compose.material.icons.filled.DoubleArrow
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.PlayArrow
@@ -22,11 +21,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.TextUnit
 import com.kotonosora.skyboundhopper.model.GameState
+import kotlin.math.ceil
 
 @Composable
 fun GameHUD(
@@ -60,6 +58,7 @@ fun GameHUD(
                 .padding(bottom = 32.dp, start = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Support only shield and multiplier
             PowerUpInventoryBadge(
                 icon = Icons.Default.Shield,
                 count = gameState.shieldCount,
@@ -67,14 +66,6 @@ fun GameHUD(
                 timeLeft = gameState.shieldTimeLeft,
                 onClick = { onUsePowerUp("shield") },
                 typeKey = "shield"
-            )
-            PowerUpInventoryBadge(
-                icon = Icons.AutoMirrored.Filled.Forward,
-                count = gameState.autoPlayCount,
-                isActive = gameState.isAutoPlayActive,
-                timeLeft = gameState.autoPlayTimeLeft,
-                onClick = { onUsePowerUp("autoplay") },
-                typeKey = "autoplay"
             )
             PowerUpInventoryBadge(
                 icon = Icons.Default.DoubleArrow,
@@ -163,9 +154,9 @@ fun PowerUpInventoryBadge(
         ) {
             if (isActive) {
                 Text(
-                    text = "${(timeLeft / 1000).toInt()}s",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                    text = "${ceil(timeLeft).toInt()}s",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Black,
                     color = Color.White
                 )
             } else if (count > 0) {
@@ -179,7 +170,7 @@ fun PowerUpInventoryBadge(
                     )
                 }
             } else {
-                Icon(icon, contentDescription = typeKey, tint = Color.White, modifier = Modifier.size(32.dp))
+                Icon(icon, contentDescription = typeKey, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(32.dp))
             }
 
             if (!isActive && count > 0) {

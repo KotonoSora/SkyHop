@@ -31,6 +31,14 @@ class ShopViewModel(application: Application) : AndroidViewModel(application) {
     val products: StateFlow<List<ProductDetails>> = billingManager.products
     val billingStatus: StateFlow<BillingStatus> = billingManager.status
 
+    // Expose power-up counts for the shop UI
+    val shieldCount: StateFlow<Int> = settingsRepository.shieldCountFlow.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), 0
+    )
+    val multiplierCount: StateFlow<Int> = settingsRepository.multiplierCountFlow.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), 0
+    )
+
     init {
         viewModelScope.launch {
             settingsRepository.selectedSkinFlow.collect { skinId ->
