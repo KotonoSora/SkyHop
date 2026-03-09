@@ -13,7 +13,7 @@ enum class BillingStatus {
     IDLE, CONNECTING, CONNECTED, ERROR, EMPTY
 }
 
-class BillingManager(private val context: Context, private val externalScope: CoroutineScope) {
+class BillingManager(context: Context, private val externalScope: CoroutineScope) {
 
     private val settingsRepository = SettingsRepository(context)
 
@@ -35,9 +35,6 @@ class BillingManager(private val context: Context, private val externalScope: Co
 
     private val _products = MutableStateFlow<List<ProductDetails>>(emptyList())
     val products = _products.asStateFlow()
-
-    private val _purchasedProductIds = MutableStateFlow<Set<String>>(emptySet())
-    val purchasedProductIds = _purchasedProductIds.asStateFlow()
 
     private val productIds = listOf(
         "coins_100", "coins_500", "coins_1000"
@@ -82,7 +79,7 @@ class BillingManager(private val context: Context, private val externalScope: Co
 
         billingClient.queryProductDetailsAsync(queryProductDetailsParams) { billingResult, productDetailsResult ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                val list = productDetailsResult.productDetailsList ?: emptyList()
+                val list = productDetailsResult.productDetailsList
                 _products.value = list
                 if (list.isEmpty()) {
                     _status.value = BillingStatus.EMPTY
@@ -100,11 +97,6 @@ class BillingManager(private val context: Context, private val externalScope: Co
                 .build()
         ) { billingResult, purchases ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                val ids = purchases.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
-                    .flatMap { it.products }
-                    .toSet()
-                _purchasedProductIds.value = ids
-                
                 purchases.forEach { purchase ->
                     if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                         handlePurchase(purchase)
