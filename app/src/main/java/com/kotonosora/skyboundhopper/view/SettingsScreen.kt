@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -64,7 +63,7 @@ fun SettingsScreen(
         ) {
             SettingsHeader(onBack = onBack)
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             SettingsGroupList(
                 versionName = versionName,
@@ -87,11 +86,12 @@ fun SettingsHeader(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 24.dp)
+        modifier = Modifier.padding(bottom = 8.dp)
     ) {
         IconButton(
             onClick = onBack,
             modifier = Modifier
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.3f))
         ) {
@@ -99,9 +99,8 @@ fun SettingsHeader(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(
-            text = "Settings",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Black,
+            text = "SETTINGS",
+            style = MaterialTheme.typography.headlineLarge,
             color = Color.Black
         )
     }
@@ -114,37 +113,35 @@ fun SettingsGroupList(
     onTermsClick: () -> Unit
 ) {
     Text(
-        text = "Legal",
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Bold,
+        text = "LEGAL",
+        style = MaterialTheme.typography.titleLarge,
         color = Color.DarkGray,
-        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+        modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
     )
 
     SettingsItem(
         icon = Icons.Default.Policy,
-        title = "Privacy Policy",
+        title = "PRIVACY POLICY",
         color = Color(0xFF1976D2),
         onClick = onPolicyClick
     )
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(16.dp))
 
     SettingsItem(
         icon = Icons.Default.Description,
-        title = "Terms of Service",
+        title = "TERMS OF SERVICE",
         color = Color(0xFFF4511E),
         onClick = onTermsClick
     )
 
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(32.dp))
 
     Text(
-        text = "About",
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Bold,
+        text = "ABOUT",
+        style = MaterialTheme.typography.titleLarge,
         color = Color.DarkGray,
-        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+        modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
     )
 
     Surface(
@@ -155,8 +152,8 @@ fun SettingsGroupList(
         Column(modifier = Modifier.padding(16.dp)) {
             AboutRow(
                 icon = Icons.Default.Info,
-                title = "Game Version",
-                value = "v$versionName",
+                title = "GAME VERSION",
+                value = "V$versionName",
                 color = Color(0xFF388E3C)
             )
         }
@@ -173,8 +170,8 @@ fun ExternalLinkAlertDialog(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Leaving the App") },
-            text = { Text("You are about to open an external website. Do you want to continue?") },
+            title = { Text("LEAVING THE APP", style = MaterialTheme.typography.headlineSmall) },
+            text = { Text("YOU ARE ABOUT TO OPEN AN EXTERNAL WEBSITE. DO YOU WANT TO CONTINUE?", style = MaterialTheme.typography.bodyMedium) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -183,12 +180,12 @@ fun ExternalLinkAlertDialog(
                         context.startActivity(intent)
                     }
                 ) {
-                    Text("Continue")
+                    Text("CONTINUE", style = MaterialTheme.typography.labelLarge)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text("CANCEL", style = MaterialTheme.typography.labelLarge)
                 }
             }
         )
@@ -217,13 +214,12 @@ fun SettingsItem(
                 icon,
                 contentDescription = title,
                 tint = color,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -249,20 +245,18 @@ fun AboutRow(
                 icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black
             )
         }
         Text(
             text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.bodyLarge,
             color = Color.DarkGray
         )
     }

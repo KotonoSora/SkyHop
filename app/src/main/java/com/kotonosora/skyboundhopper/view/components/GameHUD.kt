@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kotonosora.skyboundhopper.model.GameState
@@ -41,7 +41,7 @@ fun GameHUD(
         ) {
             HUDBadge(text = "SCORE: ${gameState.score}", icon = Icons.Default.Star)
             Spacer(modifier = Modifier.height(8.dp))
-            HUDBadge(text = "LEVEL ${gameState.level}", icon = Icons.Default.PlayArrow)
+            HUDBadge(text = "LEVEL: ${gameState.level}", icon = Icons.Default.PlayArrow)
         }
 
         CoinDisplayHUD(
@@ -86,12 +86,16 @@ fun HUDBadge(text: String, icon: ImageVector) {
         color = Color.Black.copy(alpha = 0.4f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = null, tint = Color.White)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(text = text, color = Color.White, fontWeight = FontWeight.Bold)
+            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = text,
+                color = Color.White,
+                style = MaterialTheme.typography.labelLarge // Changed from titleSmall for better size
+            )
         }
     }
 }
@@ -107,20 +111,20 @@ fun CoinDisplayHUD(
         color = Color.Black.copy(alpha = 0.4f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 Icons.Default.MonetizationOn,
                 contentDescription = null,
                 tint = Color(0xFFFFD54F),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(18.dp)
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = coins.toString(),
                 color = Color.White,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelLarge // Changed for consistency
             )
         }
     }
@@ -154,9 +158,8 @@ fun PowerUpInventoryBadge(
         ) {
             if (isActive) {
                 Text(
-                    text = "${ceil(timeLeft).toInt()}s",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Black,
+                    text = "${ceil(timeLeft).toInt()}S",
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.White
                 )
             } else if (count > 0) {
@@ -164,8 +167,7 @@ fun PowerUpInventoryBadge(
                     Icon(icon, contentDescription = typeKey, tint = Color.White, modifier = Modifier.size(32.dp))
                     Text(
                         text = count.toString(),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = Color.White
                     )
                 }

@@ -27,11 +27,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kotonosora.skyboundhopper.view.components.GameButton
+import com.kotonosora.skyboundhopper.view.components.CoinBadge
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
 import com.kotonosora.skyboundhopper.viewmodel.ShopViewModel
 import com.kotonosora.skyboundhopper.model.ShopItem
@@ -94,13 +95,14 @@ fun SkinShopHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
             onClick = onClose,
             modifier = Modifier
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.3f))
         ) {
@@ -108,41 +110,12 @@ fun SkinShopHeader(
         }
 
         Text(
-            text = "Shop",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Black,
+            text = "SHOP",
+            style = MaterialTheme.typography.headlineLarge,
             color = Color.Black
         )
 
-        CoinDisplay(coins = coins)
-    }
-}
-
-@Composable
-fun CoinDisplay(coins: Int) {
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = Color.White.copy(alpha = 0.3f),
-        modifier = Modifier.padding(start = 8.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Default.MonetizationOn,
-                contentDescription = null,
-                tint = Color(0xFFFFD54F),
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = coins.toString(),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.Black
-            )
-        }
+        CoinBadge(coins = coins)
     }
 }
 
@@ -160,11 +133,11 @@ fun ShopGridContent(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 100.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         item(span = { GridItemSpan(2) }) {
-            SectionTitle(title = "Skins")
+            SectionTitle(title = "SKINS")
         }
 
         items(skinItems) { item ->
@@ -176,7 +149,7 @@ fun ShopGridContent(
         }
 
         item(span = { GridItemSpan(2) }) {
-            SectionTitle(title = "Power-ups", modifier = Modifier.padding(top = 24.dp))
+            SectionTitle(title = "POWER-UPS", modifier = Modifier.padding(top = 24.dp))
         }
 
         items(powerUpItems) { item ->
@@ -194,8 +167,9 @@ fun ShopGridContent(
         }
         
         item(span = { GridItemSpan(2) }) {
+            Spacer(modifier = Modifier.height(16.dp))
             GameButton(
-                text = "GET MORE COINS",
+                text = "GET COINS",
                 onClick = onGoToCoinStore,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 backgroundColor = Color(0xFFFFD54F),
@@ -210,8 +184,7 @@ fun ShopGridContent(
 fun SectionTitle(title: String, modifier: Modifier = Modifier) {
     Text(
         text = title,
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.titleLarge,
         color = Color.Black,
         modifier = modifier.padding(bottom = 8.dp)
     )
@@ -238,12 +211,15 @@ fun SkinShopItemCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = item.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
+                text = item.name.uppercase(),
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black,
-                maxLines = 1
+                maxLines = 1,
+                textAlign = TextAlign.Center,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
+            
+            Spacer(modifier = Modifier.height(4.dp))
             
             ItemStatusText(item = item, isSelected = isSelected, ownedCount = ownedCount)
 
@@ -255,12 +231,14 @@ fun SkinShopItemCard(
                 text = btnText,
                 onClick = { onAction(item) },
                 modifier = Modifier.fillMaxWidth(),
-                height = 44.dp,
+                height = 40.dp,
                 backgroundColor = btnColor,
                 shadowColor = shadowColor,
                 textColor = Color.White,
                 borderWidth = 0.dp,
-                icon = { Icon(imageVector = btnIcon, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp)) }
+                icon = { Icon(imageVector = btnIcon, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp)) },
+                textStyle = MaterialTheme.typography.labelMedium,
+                horizontalPadding = 4.dp
             )
         }
     }
@@ -283,7 +261,7 @@ private fun ItemImageContainer(item: ShopItem, ownedCount: Int = 0) {
         Image(
             painter = painterResource(id = item.imageRes),
             contentDescription = item.name,
-            modifier = Modifier.fillMaxSize(0.85f),
+            modifier = Modifier.fillMaxSize(0.8f),
             contentScale = ContentScale.Fit
         )
         
@@ -291,15 +269,14 @@ private fun ItemImageContainer(item: ShopItem, ownedCount: Int = 0) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
+                    .padding(6.dp)
                     .background(Color(0xFFFFD54F), CircleShape)
-                    .size(32.dp),
+                    .size(28.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = ownedCount.toString(),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelSmall,
                     color = Color.Black
                 )
             }
@@ -310,16 +287,15 @@ private fun ItemImageContainer(item: ShopItem, ownedCount: Int = 0) {
 @Composable
 private fun ItemStatusText(item: ShopItem, isSelected: Boolean, ownedCount: Int = 0) {
     val (text, color) = when {
-        isSelected -> "Active" to Color(0xFF4CAF50)
-        item.isUnlocked -> "Owned" to Color(0xFF2196F3)
-        else -> "${item.price} Coins" to Color.Gray
+        isSelected -> "ACTIVE" to Color(0xFF4CAF50)
+        item.isUnlocked -> "OWNED" to Color(0xFF2196F3)
+        else -> "${item.price} COINS" to Color.Gray
     }
 
     Text(
         text = text,
-        fontSize = 14.sp,
-        color = color,
-        fontWeight = FontWeight.Medium
+        style = MaterialTheme.typography.labelSmall,
+        color = color
     )
 }
 
@@ -329,14 +305,14 @@ private fun getActionVisuals(item: ShopItem, isSelected: Boolean): ActionVisuals
         ActionVisuals(
             btnColor = Color(0xFF4CAF50),
             shadowColor = Color(0xFF388E3C),
-            btnText = "Active",
+            btnText = "ACTIVE",
             btnIcon = Icons.Default.Check
         )
     } else if (item.isUnlocked) {
         ActionVisuals(
             btnColor = Color(0xFF2196F3),
             shadowColor = Color(0xFF1976D2),
-            btnText = "Select",
+            btnText = "SELECT",
             btnIcon = Icons.Default.Check
         )
     } else {
@@ -349,7 +325,7 @@ private fun getActionVisuals(item: ShopItem, isSelected: Boolean): ActionVisuals
         ActionVisuals(
             btnColor = color,
             shadowColor = shadow,
-            btnText = "Purchase",
+            btnText = "BUY",
             btnIcon = if (item.id.startsWith("skin")) Icons.Default.Lock else Icons.Default.MonetizationOn
         )
     }

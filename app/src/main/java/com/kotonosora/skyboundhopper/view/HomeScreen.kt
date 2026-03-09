@@ -3,6 +3,8 @@ package com.kotonosora.skyboundhopper.view
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -20,10 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
 import com.kotonosora.skyboundhopper.model.GameState
 import com.kotonosora.skyboundhopper.view.components.GameBackground
@@ -63,7 +65,8 @@ fun HomeScreen(
         ) {
             AnimatedHomeScreenElements(
                 gameState = gameState,
-                selectedSkinId = selectedSkinId
+                selectedSkinId = selectedSkinId,
+                onLogoDebugClick = onGetCoinsClick
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -71,7 +74,7 @@ fun HomeScreen(
             HomeMenuButton(
                 text = "PLAY",
                 onClick = onPlayClick,
-                modifier = Modifier.fillMaxWidth(0.6f),
+                modifier = Modifier.fillMaxWidth(0.75f),
                 backgroundColor = MaterialTheme.colorScheme.primary, 
                 shadowColor = Color.Black,
                 textColor = Color.Black,
@@ -83,7 +86,7 @@ fun HomeScreen(
             HomeMenuButton(
                 text = "GET COINS",
                 onClick = onGetCoinsClick,
-                modifier = Modifier.fillMaxWidth(0.6f),
+                modifier = Modifier.fillMaxWidth(0.75f),
                 backgroundColor = Color(0xFFFFCA28),
                 shadowColor = Color(0xFFFFA000),
                 textColor = Color.Black,
@@ -95,7 +98,7 @@ fun HomeScreen(
             HomeMenuButton(
                 text = "SKIN SHOP",
                 onClick = onShopClick,
-                modifier = Modifier.fillMaxWidth(0.6f),
+                modifier = Modifier.fillMaxWidth(0.75f),
                 backgroundColor = Color(0xFF66BB6A),
                 shadowColor = Color(0xFF388E3C),
                 textColor = Color.White,
@@ -108,9 +111,11 @@ fun HomeScreen(
 @Composable
 fun AnimatedHomeScreenElements(
     gameState: GameState,
-    selectedSkinId: String
+    selectedSkinId: String,
+    onLogoDebugClick: () -> Unit = {}
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "HomeAnimations")
+    var debugTapCount by remember { mutableIntStateOf(0) }
     
     val birdOffset by infiniteTransition.animateFloat(
         initialValue = -10f,
@@ -133,12 +138,22 @@ fun AnimatedHomeScreenElements(
     )
 
     Text(
-        text = "SkyHop",
-        fontSize = 72.sp,
-        fontWeight = FontWeight.ExtraBold,
+        text = "SKYHOP",
         color = Color(0xFFFFD54F),
         style = MaterialTheme.typography.displayLarge,
-        modifier = Modifier.scale(logoScale)
+        modifier = Modifier
+            .scale(logoScale)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                enabled = BuildConfig.DEBUG
+            ) {
+                debugTapCount++
+                if (debugTapCount >= 5) {
+                    onLogoDebugClick()
+                    debugTapCount = 0
+                }
+            }
     )
 
     Spacer(modifier = Modifier.height(32.dp))

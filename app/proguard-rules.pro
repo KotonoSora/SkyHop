@@ -1,21 +1,65 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# SkyHop ProGuard Rules
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# -----------------------------------------------------------------------------------
+# General Rules
+# -----------------------------------------------------------------------------------
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Preserve line number information for debugging stack traces.
+-keepattributes SourceFile,LineNumberTable
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Preserve Annotations and Signatures for Retrofit, Room, and Moshi
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+
+# -----------------------------------------------------------------------------------
+# Jetpack Compose
+# -----------------------------------------------------------------------------------
+# Compose rules are generally included in the library, but keeping some common ones.
+-keepclassmembers class androidx.compose.ui.platform.ComposeView {
+   public *;
+}
+
+# -----------------------------------------------------------------------------------
+# Room
+# -----------------------------------------------------------------------------------
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**
+
+# -----------------------------------------------------------------------------------
+# Retrofit / OkHttp
+# -----------------------------------------------------------------------------------
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+
+# -----------------------------------------------------------------------------------
+# Moshi (for JSON parsing)
+# -----------------------------------------------------------------------------------
+# Keep classes used with Moshi for serialization
+-keep class com.kotonosora.skyboundhopper.model.** { *; }
+
+# -----------------------------------------------------------------------------------
+# Coroutines
+# -----------------------------------------------------------------------------------
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepnames class kotlinx.coroutines.android.AndroidDispatcherFactory {}
+-dontwarn kotlinx.coroutines.**
+
+# -----------------------------------------------------------------------------------
+# Google Play Billing
+# -----------------------------------------------------------------------------------
+-keep class com.android.billingclient.** { *; }
+-dontwarn com.android.billingclient.**
+
+# -----------------------------------------------------------------------------------
+# Coil (Image Loading)
+# -----------------------------------------------------------------------------------
+-dontwarn coil.**
+
+# -----------------------------------------------------------------------------------
+# SkyHop Models
+# -----------------------------------------------------------------------------------
+# Ensure your data models are not obfuscated to avoid issues with Room or Moshi
+-keepclassmembers class com.kotonosora.skyboundhopper.model.** { *; }

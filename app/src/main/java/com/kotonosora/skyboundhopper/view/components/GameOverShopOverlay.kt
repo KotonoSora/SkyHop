@@ -2,12 +2,12 @@ package com.kotonosora.skyboundhopper.view.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,30 +36,27 @@ fun GameOverShopOverlay(
             Text(
                 text = "SCORE",
                 color = Color.White.copy(alpha = 0.6f),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 8.sp
+                style = MaterialTheme.typography.titleLarge,
+                letterSpacing = 4.sp
             )
             
             Text(
                 text = String.format(Locale.US, "%,d", score),
                 color = Color(0xFFFFD54F), // Gold
-                fontSize = 110.sp,
-                fontWeight = FontWeight.Black,
+                style = MaterialTheme.typography.displayMedium,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "GAME OVER",
                 color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold,
+                style = MaterialTheme.typography.displaySmall,
                 letterSpacing = 2.sp
             )
 
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
             // Action Buttons
             GameButton(
@@ -75,7 +72,7 @@ fun GameOverShopOverlay(
             Spacer(modifier = Modifier.height(20.dp))
 
             GameButton(
-                text = "BACK TO HOME",
+                text = "HOME",
                 onClick = onHome,
                 modifier = Modifier.fillMaxWidth(),
                 height = 56.dp,

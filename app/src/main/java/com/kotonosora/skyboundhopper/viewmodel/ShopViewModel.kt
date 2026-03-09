@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
+import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.billing.BillingManager
 import com.kotonosora.skyboundhopper.billing.BillingStatus
 import com.kotonosora.skyboundhopper.data.SettingsRepository
@@ -80,6 +81,14 @@ class ShopViewModel(application: Application) : AndroidViewModel(application) {
 
     fun buyCoinPack(activity: Activity, productDetails: ProductDetails) {
         billingManager.launchPurchaseFlow(activity, productDetails)
+    }
+
+    fun addMockCoins(amount: Int) {
+        if (BuildConfig.DEBUG) {
+            viewModelScope.launch {
+                settingsRepository.addCoins(amount)
+            }
+        }
     }
 
     fun retryConnection() {

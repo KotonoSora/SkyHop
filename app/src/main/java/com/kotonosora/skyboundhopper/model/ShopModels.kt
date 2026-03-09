@@ -17,7 +17,7 @@ data class CoinPackItem(
     val name: String,
     val price: String,
     val imageRes: Int,
-    val productDetails: ProductDetails
+    val productDetails: ProductDetails?
 )
 
 object ShopData {
