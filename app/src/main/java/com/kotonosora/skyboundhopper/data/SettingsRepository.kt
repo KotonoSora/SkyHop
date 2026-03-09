@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.kotonosora.skyboundhopper.model.PowerUpType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,10 +23,10 @@ class SettingsRepository(private val context: Context) {
     private val AUTOPLAY_COUNT_KEY = intPreferencesKey("autoplay_count")
 
     private val POWER_UP_KEYS = mapOf(
-        "shield" to SHIELD_COUNT_KEY,
-        "multiplier" to MULTIPLIER_COUNT_KEY,
-        "autoplay" to AUTOPLAY_COUNT_KEY,
-        "boost" to AUTOPLAY_COUNT_KEY
+        PowerUpType.SHIELD to SHIELD_COUNT_KEY,
+        PowerUpType.MULTIPLIER to MULTIPLIER_COUNT_KEY,
+        PowerUpType.AUTO_PLAY to AUTOPLAY_COUNT_KEY,
+        PowerUpType.BOOST to AUTOPLAY_COUNT_KEY
     )
 
     val selectedSkinFlow: Flow<String> = context.settingsDataStore.data
@@ -84,7 +85,8 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun addPowerUp(type: String) {
+    suspend fun addPowerUp(typeId: String) {
+        val type = PowerUpType.fromId(typeId) ?: return
         val key = POWER_UP_KEYS[type] ?: return
         context.settingsDataStore.edit { preferences ->
             val current = preferences[key] ?: 0
@@ -92,7 +94,8 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun usePowerUp(type: String): Boolean {
+    suspend fun usePowerUp(typeId: String): Boolean {
+        val type = PowerUpType.fromId(typeId) ?: return false
         val key = POWER_UP_KEYS[type] ?: return false
         var success = false
         context.settingsDataStore.edit { preferences ->

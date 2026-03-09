@@ -5,10 +5,11 @@ import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
@@ -26,22 +27,21 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
 
     val rotation by animateFloatAsState(
         targetValue = (gameState.bird.velocity * 3f).coerceIn(-30f, 90f),
-        animationSpec = tween(durationMillis = 100)
+        animationSpec = tween(durationMillis = 100),
+        label = "BirdRotation"
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .onGloballyPositioned { coordinates ->
-                viewModel.onScreenSizeChanged(
-                    coordinates.size.width.toFloat(),
-                    coordinates.size.height.toFloat()
-                )
+            .onSizeChanged { size ->
+                viewModel.onScreenSizeChanged(size.width.toFloat(), size.height.toFloat())
             }
-            .clickable {
-                if (!gameState.isGameOver) {
-                    viewModel.jump()
-                }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                viewModel.jump()
             }
     ) {
         GameContent(

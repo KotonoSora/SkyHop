@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
 
 @Composable
 fun Bird(
@@ -24,14 +26,14 @@ fun Bird(
     skinRes: Int,
     shieldActive: Boolean
 ) {
-    val birdX = with(density) { position.x.toDp() }
-    val birdY = with(density) { position.y.toDp() }
     val birdWidth = with(density) { size.width.toDp() }
     val birdHeight = with(density) { size.height.toDp() }
 
     Box(
         modifier = Modifier
-            .offset(x = birdX, y = birdY)
+            .offset { 
+                IntOffset(position.x.roundToInt(), position.y.roundToInt()) 
+            }
             .size(birdWidth, birdHeight)
     ) {
         Image(
@@ -47,12 +49,12 @@ fun Bird(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(CircleShape)
-                    .background(Color(0xFF29B6F6).copy(alpha = 0.3f))
                     .graphicsLayer {
                         scaleX = 1.3f
                         scaleY = 1.3f
                     }
+                    .clip(CircleShape)
+                    .background(Color(0xFF29B6F6).copy(alpha = 0.3f))
             )
         }
     }

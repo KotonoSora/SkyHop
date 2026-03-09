@@ -7,6 +7,11 @@ val PipeGreen = Color(0xFF4CAF50)
 val DarkPipeGreen = Color(0xFF1B5E20)
 val CloudWhite = Color(0xFFF5F5F5)
 
+val CoinGoldLight = Color(0xFFFFF9C4)
+val CoinGoldDark = Color(0xFFFFECB3)
+val CoinButtonPrimary = Color(0xFFFFCA28)
+val CoinButtonShadow = Color(0xFFFFA000)
+
 val PrimaryLight = Color(0xFF00668B)
 val OnPrimaryLight = Color(0xFFFFFFFF)
 val PrimaryContainerLight = Color(0xFFC4E7FF)

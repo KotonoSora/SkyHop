@@ -21,9 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.model.GameState
+import com.kotonosora.skyboundhopper.model.PowerUpType
 import kotlin.math.ceil
 
 @Composable
@@ -39,9 +41,17 @@ fun GameHUD(
                 .statusBarsPadding()
                 .padding(top = 16.dp, start = 24.dp)
         ) {
-            HUDBadge(text = "SCORE: ${gameState.score}", icon = Icons.Default.Star)
+            HUDBadge(
+                text = "${stringResource(R.string.title_score)}: ${gameState.score}",
+                icon = Icons.Default.Star,
+                contentDescription = stringResource(R.string.desc_star)
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            HUDBadge(text = "LEVEL: ${gameState.level}", icon = Icons.Default.PlayArrow)
+            HUDBadge(
+                text = "${stringResource(R.string.title_level)}: ${gameState.level}",
+                icon = Icons.Default.PlayArrow,
+                contentDescription = stringResource(R.string.desc_play)
+            )
         }
 
         CoinDisplayHUD(
@@ -58,29 +68,28 @@ fun GameHUD(
                 .padding(bottom = 32.dp, start = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Support only shield and multiplier
             PowerUpInventoryBadge(
                 icon = Icons.Default.Shield,
                 count = gameState.shieldCount,
                 isActive = gameState.shieldActive,
                 timeLeft = gameState.shieldTimeLeft,
-                onClick = { onUsePowerUp("shield") },
-                typeKey = "shield"
+                onClick = { onUsePowerUp(PowerUpType.SHIELD.id) },
+                contentDescription = stringResource(R.string.desc_shield)
             )
             PowerUpInventoryBadge(
                 icon = Icons.Default.DoubleArrow,
                 count = gameState.multiplierCount,
                 isActive = gameState.multiplierActive,
                 timeLeft = gameState.multiplierTimeLeft,
-                onClick = { onUsePowerUp("multiplier") },
-                typeKey = "multiplier"
+                onClick = { onUsePowerUp(PowerUpType.MULTIPLIER.id) },
+                contentDescription = stringResource(R.string.desc_multiplier)
             )
         }
     }
 }
 
 @Composable
-fun HUDBadge(text: String, icon: ImageVector) {
+fun HUDBadge(text: String, icon: ImageVector, contentDescription: String?) {
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color.Black.copy(alpha = 0.4f)
@@ -89,12 +98,12 @@ fun HUDBadge(text: String, icon: ImageVector) {
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+            Icon(icon, contentDescription = contentDescription, tint = Color.White, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
                 color = Color.White,
-                style = MaterialTheme.typography.labelLarge // Changed from titleSmall for better size
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }
@@ -116,7 +125,7 @@ fun CoinDisplayHUD(
         ) {
             Icon(
                 Icons.Default.MonetizationOn,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.desc_coin),
                 tint = Color(0xFFFFD54F),
                 modifier = Modifier.size(18.dp)
             )
@@ -124,7 +133,7 @@ fun CoinDisplayHUD(
             Text(
                 text = coins.toString(),
                 color = Color.White,
-                style = MaterialTheme.typography.labelLarge // Changed for consistency
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }
@@ -137,7 +146,7 @@ fun PowerUpInventoryBadge(
     isActive: Boolean,
     timeLeft: Float,
     onClick: () -> Unit,
-    typeKey: String,
+    contentDescription: String,
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(16.dp)
@@ -164,7 +173,7 @@ fun PowerUpInventoryBadge(
                 )
             } else if (count > 0) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(icon, contentDescription = typeKey, tint = Color.White, modifier = Modifier.size(32.dp))
+                    Icon(icon, contentDescription = contentDescription, tint = Color.White, modifier = Modifier.size(32.dp))
                     Text(
                         text = count.toString(),
                         style = MaterialTheme.typography.bodyLarge,
@@ -172,7 +181,7 @@ fun PowerUpInventoryBadge(
                     )
                 }
             } else {
-                Icon(icon, contentDescription = typeKey, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(32.dp))
+                Icon(icon, contentDescription = contentDescription, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(32.dp))
             }
 
             if (!isActive && count > 0) {

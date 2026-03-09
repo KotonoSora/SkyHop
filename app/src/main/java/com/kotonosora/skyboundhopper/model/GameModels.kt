@@ -3,6 +3,17 @@ package com.kotonosora.skyboundhopper.model
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 
+enum class PowerUpType(val id: String) {
+    SHIELD("shield"),
+    MULTIPLIER("multiplier"),
+    AUTO_PLAY("autoplay"),
+    BOOST("boost");
+
+    companion object {
+        fun fromId(id: String) = entries.find { it.id == id }
+    }
+}
+
 data class BirdState(
     val position: Offset = Offset(100f, 500f),
     val velocity: Float = 0f,

@@ -19,9 +19,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
 
 @Composable
@@ -95,11 +96,15 @@ fun SettingsHeader(
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.3f))
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.desc_back),
+                tint = Color.Black
+            )
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(
-            text = "SETTINGS",
+            text = stringResource(R.string.title_settings),
             style = MaterialTheme.typography.headlineLarge,
             color = Color.Black
         )
@@ -113,7 +118,7 @@ fun SettingsGroupList(
     onTermsClick: () -> Unit
 ) {
     Text(
-        text = "LEGAL",
+        text = stringResource(R.string.title_legal),
         style = MaterialTheme.typography.titleLarge,
         color = Color.DarkGray,
         modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
@@ -121,7 +126,7 @@ fun SettingsGroupList(
 
     SettingsItem(
         icon = Icons.Default.Policy,
-        title = "PRIVACY POLICY",
+        title = stringResource(R.string.label_privacy_policy),
         color = Color(0xFF1976D2),
         onClick = onPolicyClick
     )
@@ -130,7 +135,7 @@ fun SettingsGroupList(
 
     SettingsItem(
         icon = Icons.Default.Description,
-        title = "TERMS OF SERVICE",
+        title = stringResource(R.string.label_terms_of_service),
         color = Color(0xFFF4511E),
         onClick = onTermsClick
     )
@@ -138,7 +143,7 @@ fun SettingsGroupList(
     Spacer(modifier = Modifier.height(32.dp))
 
     Text(
-        text = "ABOUT",
+        text = stringResource(R.string.title_about),
         style = MaterialTheme.typography.titleLarge,
         color = Color.DarkGray,
         modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
@@ -152,7 +157,7 @@ fun SettingsGroupList(
         Column(modifier = Modifier.padding(16.dp)) {
             AboutRow(
                 icon = Icons.Default.Info,
-                title = "GAME VERSION",
+                title = stringResource(R.string.label_game_version),
                 value = "V$versionName",
                 color = Color(0xFF388E3C)
             )
@@ -170,8 +175,8 @@ fun ExternalLinkAlertDialog(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("LEAVING THE APP", style = MaterialTheme.typography.headlineSmall) },
-            text = { Text("YOU ARE ABOUT TO OPEN AN EXTERNAL WEBSITE. DO YOU WANT TO CONTINUE?", style = MaterialTheme.typography.bodyMedium) },
+            title = { Text(stringResource(R.string.dialog_leaving_title), style = MaterialTheme.typography.headlineSmall) },
+            text = { Text(stringResource(R.string.dialog_leaving_msg), style = MaterialTheme.typography.bodyMedium) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -180,12 +185,12 @@ fun ExternalLinkAlertDialog(
                         context.startActivity(intent)
                     }
                 ) {
-                    Text("CONTINUE", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.btn_continue), style = MaterialTheme.typography.labelLarge)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("CANCEL", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.btn_cancel), style = MaterialTheme.typography.labelLarge)
                 }
             }
         )

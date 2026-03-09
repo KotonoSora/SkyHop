@@ -1,3 +1,34 @@
 <resources>
     <string name="app_name">SkyHop</string>
+    <string name="title_coins">COINS</string>
+    <string name="desc_back">Back</string>
+    <string name="msg_no_packs_available">NO COIN PACKS AVAILABLE AT THE MOMENT.</string>
+    <string name="msg_no_packs_found">NO COIN PACKS FOUND IN THE STORE.</string>
+    <string name="msg_connecting_play_store">CONNECTING TO PLAY STORE...</string>
+    <string name="msg_connection_error">FAILED TO CONNECT TO GOOGLE PLAY. PLEASE CHECK YOUR INTERNET CONNECTION.</string>
+    <string name="btn_retry">RETRY</string>
+    <string name="btn_buy">BUY</string>
+
+    <string name="title_score">SCORE</string>
+    <string name="title_level">LEVEL</string>
+    <string name="label_game_over">GAME OVER</string>
+    <string name="btn_replay">REPLAY</string>
+    <string name="btn_home">HOME</string>
+
+    <string name="desc_star">Score Star</string>
+    <string name="desc_play">Level Icon</string>
+    <string name="desc_coin">Coins</string>
+    <string name="desc_shield">Shield</string>
+    <string name="desc_multiplier">Multiplier Booster</string>
+
+    <string name="title_settings">SETTINGS</string>
+    <string name="title_legal">LEGAL</string>
+    <string name="title_about">ABOUT</string>
+    <string name="label_privacy_policy">PRIVACY POLICY</string>
+    <string name="label_terms_of_service">TERMS OF SERVICE</string>
+    <string name="label_game_version">GAME VERSION</string>
+    <string name="dialog_leaving_title">LEAVING THE APP</string>
+    <string name="dialog_leaving_msg">YOU ARE ABOUT TO OPEN AN EXTERNAL WEBSITE. DO YOU WANT TO CONTINUE?</string>
+    <string name="btn_continue">CONTINUE</string>
+    <string name="btn_cancel">CANCEL</string>
 </resources>
