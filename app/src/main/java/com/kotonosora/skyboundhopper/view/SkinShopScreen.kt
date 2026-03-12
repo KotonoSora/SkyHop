@@ -2,7 +2,19 @@ package com.kotonosora.skyboundhopper.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,7 +27,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,19 +46,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kotonosora.skyboundhopper.view.components.GameButton
+import com.kotonosora.skyboundhopper.model.ShopItem
 import com.kotonosora.skyboundhopper.view.components.CoinBadge
+import com.kotonosora.skyboundhopper.view.components.GameButton
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
 import com.kotonosora.skyboundhopper.viewmodel.ShopViewModel
-import com.kotonosora.skyboundhopper.model.ShopItem
 
 @Composable
 fun SkinShopScreen(
     onClose: () -> Unit,
     onGoToCoinStore: () -> Unit,
-    viewModel: ShopViewModel = viewModel()
+    viewModel: ShopViewModel
 ) {
     val coins by viewModel.coins.collectAsState()
     val skinItems by viewModel.skinItems.collectAsState()
@@ -171,7 +186,9 @@ fun ShopGridContent(
             GameButton(
                 text = "GET COINS",
                 onClick = onGoToCoinStore,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 backgroundColor = Color(0xFFFFD54F),
                 shadowColor = Color(0xFFFBC02D),
                 icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.Black) }

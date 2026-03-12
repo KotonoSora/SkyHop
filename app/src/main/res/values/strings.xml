@@ -22,6 +22,10 @@
     <string name="desc_multiplier">Multiplier Booster</string>
 
     <string name="title_settings">SETTINGS</string>
+    <string name="label_music">Background Music</string>
+    <string name="desc_music_toggle">Toggle for background music</string>
+    <string name="label_sfx">Sound Effects</string>
+    <string name="desc_sfx_toggle">Toggle for sound effects</string>
     <string name="title_legal">LEGAL</string>
     <string name="title_about">ABOUT</string>
     <string name="label_privacy_policy">PRIVACY POLICY</string>

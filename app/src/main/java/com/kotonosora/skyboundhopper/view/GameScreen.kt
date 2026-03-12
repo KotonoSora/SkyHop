@@ -1,21 +1,30 @@
 package com.kotonosora.skyboundhopper.view
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
-import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
 import com.kotonosora.skyboundhopper.model.GameState
-import com.kotonosora.skyboundhopper.view.components.*
 import com.kotonosora.skyboundhopper.model.SkinData
+import com.kotonosora.skyboundhopper.view.components.Bird
+import com.kotonosora.skyboundhopper.view.components.GameBackground
+import com.kotonosora.skyboundhopper.view.components.GameHUD
+import com.kotonosora.skyboundhopper.view.components.GameOverShopOverlay
+import com.kotonosora.skyboundhopper.view.components.PipesCanvas
+import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
 
 @Composable
 fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {

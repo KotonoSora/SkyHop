@@ -3,6 +3,7 @@ package com.kotonosora.skyboundhopper.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -14,6 +15,8 @@ import kotlinx.coroutines.flow.map
 
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "user_settings")
 
+private const val INITIAL_COINS = 200
+
 class SettingsRepository(private val context: Context) {
     private val SELECTED_SKIN_KEY = stringPreferencesKey("selected_skin")
     private val COINS_KEY = intPreferencesKey("coins")
@@ -21,6 +24,10 @@ class SettingsRepository(private val context: Context) {
     private val SHIELD_COUNT_KEY = intPreferencesKey("shield_count")
     private val MULTIPLIER_COUNT_KEY = intPreferencesKey("multiplier_count")
     private val AUTOPLAY_COUNT_KEY = intPreferencesKey("autoplay_count")
+
+    // Task 2.1: Define Audio Preference Keys
+    private val MUSIC_ENABLED_KEY = booleanPreferencesKey("music_enabled")
+    private val SFX_ENABLED_KEY = booleanPreferencesKey("sfx_enabled")
 
     private val POWER_UP_KEYS = mapOf(
         PowerUpType.SHIELD to SHIELD_COUNT_KEY,
@@ -36,7 +43,7 @@ class SettingsRepository(private val context: Context) {
 
     val coinsFlow: Flow<Int> = context.settingsDataStore.data
         .map { preferences ->
-            preferences[COINS_KEY] ?: 200
+            preferences[COINS_KEY] ?: INITIAL_COINS
         }
 
     val purchasedItemsFlow: Flow<Set<String>> = context.settingsDataStore.data
@@ -53,6 +60,17 @@ class SettingsRepository(private val context: Context) {
     val autoPlayCountFlow: Flow<Int> = context.settingsDataStore.data
         .map { preferences -> preferences[AUTOPLAY_COUNT_KEY] ?: 0 }
 
+    // Task 2.1: Expose Audio StateFlows (Default to true)
+    val musicEnabledFlow: Flow<Boolean> = context.settingsDataStore.data
+        .map { preferences ->
+            preferences[MUSIC_ENABLED_KEY] ?: true
+        }
+
+    val sfxEnabledFlow: Flow<Boolean> = context.settingsDataStore.data
+        .map { preferences ->
+            preferences[SFX_ENABLED_KEY] ?: true
+        }
+
     suspend fun updateSelectedSkin(skinId: String) {
         context.settingsDataStore.edit { preferences ->
             preferences[SELECTED_SKIN_KEY] = skinId
@@ -61,7 +79,7 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun addCoins(amount: Int) {
         context.settingsDataStore.edit { preferences ->
-            val current = preferences[COINS_KEY] ?: 1000
+            val current = preferences[COINS_KEY] ?: INITIAL_COINS
             preferences[COINS_KEY] = current + amount
         }
     }
@@ -69,7 +87,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun spendCoins(amount: Int): Boolean {
         var success = false
         context.settingsDataStore.edit { preferences ->
-            val current = preferences[COINS_KEY] ?: 1000
+            val current = preferences[COINS_KEY] ?: INITIAL_COINS
             if (current >= amount) {
                 preferences[COINS_KEY] = current - amount
                 success = true
@@ -106,5 +124,18 @@ class SettingsRepository(private val context: Context) {
             }
         }
         return success
+    }
+
+    // Task 2.2: Implement toggle functions
+    suspend fun toggleMusic(enabled: Boolean) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[MUSIC_ENABLED_KEY] = enabled
+        }
+    }
+
+    suspend fun toggleSfx(enabled: Boolean) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[SFX_ENABLED_KEY] = enabled
+        }
     }
 }

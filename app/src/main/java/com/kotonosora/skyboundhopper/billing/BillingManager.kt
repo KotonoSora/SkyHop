@@ -2,9 +2,24 @@ package com.kotonosora.skyboundhopper.billing
 
 import android.app.Activity
 import android.content.Context
-import com.android.billingclient.api.*
+import com.android.billingclient.api.AcknowledgePurchaseParams
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ConsumeParams
+import com.android.billingclient.api.PendingPurchasesParams
+import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.QueryProductDetailsParams
+import com.android.billingclient.api.QueryPurchasesParams
 import com.kotonosora.skyboundhopper.data.SettingsRepository
+import com.kotonosora.skyboundhopper.model.ShopData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -13,9 +28,12 @@ enum class BillingStatus {
     IDLE, CONNECTING, CONNECTED, ERROR, EMPTY
 }
 
-class BillingManager(context: Context, private val externalScope: CoroutineScope) {
+class BillingManager(
+    context: Context,
+    private val settingsRepository: SettingsRepository
+) {
 
-    private val settingsRepository = SettingsRepository(context)
+    private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _status = MutableStateFlow(BillingStatus.IDLE)
     val status = _status.asStateFlow()
@@ -36,9 +54,7 @@ class BillingManager(context: Context, private val externalScope: CoroutineScope
     private val _products = MutableStateFlow<List<ProductDetails>>(emptyList())
     val products = _products.asStateFlow()
 
-    private val productIds = listOf(
-        "coins_100", "coins_500", "coins_1000"
-    )
+    private val productIds = ShopData.coinProductIds
 
     init {
         startConnection()
@@ -150,17 +166,20 @@ class BillingManager(context: Context, private val externalScope: CoroutineScope
             
         billingClient.consumeAsync(consumeParams) { billingResult, _ ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                externalScope.launch {
+                managerScope.launch {
                     purchase.products.forEach { productId ->
-                        when (productId) {
-                            "coins_100" -> settingsRepository.addCoins(100)
-                            "coins_500" -> settingsRepository.addCoins(500)
-                            "coins_1000" -> settingsRepository.addCoins(1000)
+                        ShopData.getCoinAmount(productId)?.let { coinAmount ->
+                            settingsRepository.addCoins(coinAmount)
                         }
                     }
                 }
                 queryPurchases()
             }
         }
+    }
+
+    fun release() {
+        billingClient.endConnection()
+        managerScope.cancel()
     }
 }

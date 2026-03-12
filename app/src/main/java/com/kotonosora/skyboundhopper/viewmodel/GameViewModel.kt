@@ -1,23 +1,31 @@
 package com.kotonosora.skyboundhopper.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.compose.ui.geometry.Offset
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kotonosora.skyboundhopper.audio.AudioManager
+import com.kotonosora.skyboundhopper.audio.SfxType
 import com.kotonosora.skyboundhopper.data.ScoreRepository
 import com.kotonosora.skyboundhopper.data.SettingsRepository
-import com.kotonosora.skyboundhopper.model.*
+import com.kotonosora.skyboundhopper.model.BirdState
+import com.kotonosora.skyboundhopper.model.GamePhysics
+import com.kotonosora.skyboundhopper.model.GameState
+import com.kotonosora.skyboundhopper.model.PowerUpType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import androidx.compose.ui.geometry.Offset
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
-    private val scoreRepository = ScoreRepository(application)
-    private val settingsRepository = SettingsRepository(application)
+class GameViewModel(
+    private val scoreRepository: ScoreRepository,
+    private val settingsRepository: SettingsRepository,
+    private val audioManager: AudioManager
+) : ViewModel() {
     
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
@@ -25,12 +33,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _selectedSkinId = MutableStateFlow("default")
     val selectedSkinId: StateFlow<String> = _selectedSkinId.asStateFlow()
 
+    // Local state to hold current audio settings (Task 4.1 cleanup)
+    private var currentMusicEnabled: Boolean = true
+    private var currentSfxEnabled: Boolean = true
+
     private var gameJob: Job? = null
 
     init {
         observeRepositories()
-        resetGame()
-        runGameLoop()
     }
 
     private fun observeRepositories() {
@@ -64,6 +74,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _gameState.update { it.copy(autoPlayCount = count) } 
             }
         }
+
+        // Task 4.1: Observe Audio Preferences using combine
+        viewModelScope.launch {
+            combine(
+                settingsRepository.musicEnabledFlow,
+                settingsRepository.sfxEnabledFlow
+            ) { musicEnabled, sfxEnabled ->
+                currentMusicEnabled = musicEnabled
+                currentSfxEnabled = sfxEnabled
+                Pair(musicEnabled, sfxEnabled)
+            }.collect { (musicEnabled, sfxEnabled) ->
+                audioManager.updateSettings(musicEnabled = musicEnabled, sfxEnabled = sfxEnabled)
+            }
+        }
     }
 
     fun onScreenSizeChanged(width: Float, height: Float) {
@@ -84,6 +108,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startGame() {
+        // Task 4.2: Orchestrate BGM/SFX on game start
+        if (currentMusicEnabled) audioManager.playBgm()
+        if (currentSfxEnabled) audioManager.playSfx(SfxType.START)
+
         resetGame()
         runGameLoop()
     }
@@ -122,6 +150,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 state
             }
         }
+        // Task 5.1: Trigger SFX_TOUCH on jump/tap (if not game over and in game)
+        if (!currentState.isGameOver && currentState.isGameStarted && !currentState.isStartSequenceActive) {
+            if (currentSfxEnabled) audioManager.playSfx(SfxType.TOUCH)
+        }
     }
 
     private fun runGameLoop() {
@@ -152,6 +184,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val shouldDie = hasCollided && !state.shieldActive && !state.isAutoPlayActive && !state.multiplierActive
 
         if (shouldDie) {
+            // Task 4.3: Orchestrate BGM/SFX on game over
+            if (currentSfxEnabled) audioManager.playSfx(SfxType.GAMEOVER)
+            audioManager.stopBgm()
+
             viewModelScope.launch {
                 scoreRepository.updateHighScore(state.score)
                 settingsRepository.addCoins(state.score / 2)
@@ -181,6 +217,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         PowerUpType.AUTO_PLAY, PowerUpType.BOOST -> state.copy(isAutoPlayActive = true, autoPlayTimeLeft = 10f)
                     }
                     if (state.isGameOver) {
+                        // Restart BGM if we revive using a power-up and music is enabled
+                        if (currentMusicEnabled) {
+                            audioManager.playBgm()
+                        }
                         newState = newState.copy(isGameOver = false, bird = getRevivedBirdState(state))
                     }
                     newState
@@ -188,5 +228,42 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 if (gameJob?.isActive != true) runGameLoop()
             }
         }
+    }
+
+    fun onGameScreenHidden() {
+        gameJob?.cancel()
+        audioManager.stopBgm()
+    }
+
+    fun onGameScreenVisible() {
+        val state = _gameState.value
+        if (!state.isGameStarted || state.isGameOver) return
+
+        if (gameJob?.isActive != true) {
+            runGameLoop()
+        }
+        if (currentMusicEnabled) {
+            audioManager.playBgm()
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // AudioManager is Application-scoped; do not release it here.
+        audioManager.stopBgm()
+    }
+}
+
+class GameViewModelFactory(
+    private val scoreRepository: ScoreRepository,
+    private val settingsRepository: SettingsRepository,
+    private val audioManager: AudioManager
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
+            return GameViewModel(scoreRepository, settingsRepository, audioManager) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
