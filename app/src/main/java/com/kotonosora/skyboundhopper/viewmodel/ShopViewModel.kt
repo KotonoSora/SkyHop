@@ -8,6 +8,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
+import com.kotonosora.skyboundhopper.analytics.CoinPackRevenueEvent
+import com.kotonosora.skyboundhopper.analytics.RevenueAnalyticsLogger
 import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.billing.BillingManager
 import com.kotonosora.skyboundhopper.billing.BillingStatus
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class ShopViewModel(
     private val settingsRepository: SettingsRepository,
@@ -137,12 +140,37 @@ class ShopViewModel(
         if (item.id.startsWith("mock_")) {
             val amountStr = item.id.removePrefix("mock_")
             val amount = amountStr.toIntOrNull() ?: 0
+            if (isDebug) {
+                logDebugMockRevenue(item = item, coinAmount = amount)
+            }
             addMockCoins(amount)
         } else {
             item.productDetails?.let { details ->
                 _purchaseLaunchRequests.tryEmit(details)
             }
         }
+    }
+
+    private fun logDebugMockRevenue(item: CoinPackItem, coinAmount: Int) {
+        val normalizedPrice = item.price.replace(',', '.')
+        val parsedValue = normalizedPrice
+            .filter { it.isDigit() || it == '.' }
+            .toDoubleOrNull() ?: 0.0
+        val transactionId = "debug_${item.id}_${UUID.randomUUID()}"
+
+        RevenueAnalyticsLogger.logCoinPackRevenue(
+            CoinPackRevenueEvent(
+                eventName = "debug_mock_purchase",
+                transactionId = transactionId,
+                itemId = item.id,
+                itemName = item.name,
+                value = parsedValue,
+                currency = "USD",
+                paymentType = "debug_mock",
+                purchaseSource = "debug_mock",
+                coinAmount = coinAmount.toLong()
+            )
+        )
     }
 
     private fun addMockCoins(amount: Int) {

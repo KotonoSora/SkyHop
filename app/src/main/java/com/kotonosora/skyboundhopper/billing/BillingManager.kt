@@ -14,6 +14,9 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.kotonosora.skyboundhopper.analytics.CoinPackRevenueEvent
+import com.kotonosora.skyboundhopper.analytics.RevenueAnalyticsLogger
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.kotonosora.skyboundhopper.data.SettingsRepository
 import com.kotonosora.skyboundhopper.model.ShopData
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +26,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Collections
 
 enum class BillingStatus {
     IDLE, CONNECTING, CONNECTED, ERROR, EMPTY
@@ -53,6 +57,7 @@ class BillingManager(
 
     private val _products = MutableStateFlow<List<ProductDetails>>(emptyList())
     val products = _products.asStateFlow()
+    private val trackedPurchaseKeys = Collections.synchronizedSet(mutableSetOf<String>())
 
     private val productIds = ShopData.coinProductIds
 
@@ -168,6 +173,7 @@ class BillingManager(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 managerScope.launch {
                     purchase.products.forEach { productId ->
+                        logRevenueIfNeeded(purchase, productId)
                         ShopData.getCoinAmount(productId)?.let { coinAmount ->
                             settingsRepository.addCoins(coinAmount)
                         }
@@ -176,6 +182,34 @@ class BillingManager(
                 queryPurchases()
             }
         }
+    }
+
+    private fun logRevenueIfNeeded(purchase: Purchase, productId: String) {
+        val productDetails = _products.value.firstOrNull { it.productId == productId }
+        val oneTimeDetails = productDetails?.oneTimePurchaseOfferDetails ?: return
+        val priceMicros = oneTimeDetails.priceAmountMicros
+        if (priceMicros <= 0L) return
+
+        val purchaseKey = "${purchase.purchaseToken}:$productId"
+        if (!trackedPurchaseKeys.add(purchaseKey)) return
+
+        val value = priceMicros / 1_000_000.0
+        val currency = oneTimeDetails.priceCurrencyCode
+        val transactionId = purchase.orderId ?: purchase.purchaseToken
+
+        RevenueAnalyticsLogger.logCoinPackRevenue(
+            CoinPackRevenueEvent(
+                eventName = FirebaseAnalytics.Event.PURCHASE,
+                transactionId = transactionId,
+                itemId = productId,
+                itemName = productDetails.name,
+                value = value,
+                currency = currency,
+                paymentType = "google_play",
+                purchaseSource = "in_app_billing",
+                purchaseState = purchase.purchaseState.toString()
+            )
+        )
     }
 
     fun release() {
