@@ -19,6 +19,7 @@ import com.kotonosora.skyboundhopper.analytics.RevenueAnalyticsLogger
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.kotonosora.skyboundhopper.data.SettingsRepository
 import com.kotonosora.skyboundhopper.model.ShopData
+import com.kotonosora.skyboundhopper.remoteconfig.RemoteConfigManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -34,7 +35,8 @@ enum class BillingStatus {
 
 class BillingManager(
     context: Context,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val remoteConfigManager: RemoteConfigManager
 ) {
 
     private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -59,10 +61,19 @@ class BillingManager(
     val products = _products.asStateFlow()
     private val trackedPurchaseKeys = Collections.synchronizedSet(mutableSetOf<String>())
 
-    private val productIds = ShopData.coinProductIds
-
     init {
         startConnection()
+        observeRemoteConfig()
+    }
+
+    private fun observeRemoteConfig() {
+        managerScope.launch {
+            remoteConfigManager.coinProductIds.collect { ids ->
+                if (_status.value == BillingStatus.CONNECTED) {
+                    queryProducts(ids)
+                }
+            }
+        }
     }
 
     fun startConnection() {
@@ -73,7 +84,7 @@ class BillingManager(
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _status.value = BillingStatus.CONNECTED
-                    queryProducts()
+                    queryProducts(remoteConfigManager.coinProductIds.value)
                     queryPurchases()
                 } else {
                     _status.value = BillingStatus.ERROR
@@ -86,7 +97,9 @@ class BillingManager(
         })
     }
 
-    private fun queryProducts() {
+    private fun queryProducts(productIds: List<String>) {
+        if (productIds.isEmpty()) return
+
         val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
             .setProductList(
                 productIds.map {

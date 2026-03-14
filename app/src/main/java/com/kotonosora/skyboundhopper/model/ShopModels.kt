@@ -42,16 +42,24 @@ object ShopData {
 
     val coinProductIds: List<String> = CoinPackIds.ALL
 
-    fun getCoinAmount(productId: String): Int? =
-        coinPackDefinitions.firstOrNull { it.productId == productId }?.coinAmount
+    fun getCoinAmount(productId: String): Int? {
+        val defined = coinPackDefinitions.firstOrNull { it.productId == productId }?.coinAmount
+        if (defined != null) return defined
+        
+        // Fallback: try to parse amount from ID like "coins_123"
+        return productId.removePrefix("coins_").toIntOrNull()
+    }
 
-    fun getDebugCoinPacks(): List<CoinPackItem> =
-        coinPackDefinitions.map { definition ->
+    fun getDebugCoinPacks(productIds: List<String> = coinProductIds): List<CoinPackItem> =
+        productIds.mapNotNull { id ->
+            val amount = getCoinAmount(id) ?: return@mapNotNull null
+            val def = coinPackDefinitions.firstOrNull { it.productId == id }
+            val price = def?.debugPrice ?: "$0.99"
             CoinPackItem(
-                id = "mock_${definition.coinAmount}",
-                name = formatCoinPackName(definition.coinAmount),
-                price = definition.debugPrice,
-                imageRes = getCoinPackImageRes(definition.coinAmount),
+                id = "mock_$amount",
+                name = formatCoinPackName(amount),
+                price = price,
+                imageRes = getCoinPackImageRes(amount),
                 productDetails = null
             )
         }

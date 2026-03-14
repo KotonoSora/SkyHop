@@ -14,11 +14,11 @@ import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.billing.BillingManager
 import com.kotonosora.skyboundhopper.billing.BillingStatus
 import com.kotonosora.skyboundhopper.data.SettingsRepository
-import com.kotonosora.skyboundhopper.model.CoinPackIds
 import com.kotonosora.skyboundhopper.model.CoinPackItem
 import com.kotonosora.skyboundhopper.model.ShopData
 import com.kotonosora.skyboundhopper.model.ShopItem
 import com.kotonosora.skyboundhopper.model.SkinIds
+import com.kotonosora.skyboundhopper.remoteconfig.RemoteConfigManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ import java.util.UUID
 class ShopViewModel(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
+    remoteConfigManager: RemoteConfigManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModel() {
 
@@ -84,23 +86,24 @@ class ShopViewModel(
         }
     }
 
-    val coinPacks: StateFlow<List<CoinPackItem>> = products.map { productList ->
+    val coinPacks: StateFlow<List<CoinPackItem>> = combine(
+        products,
+        remoteConfigManager.coinProductIds
+    ) { productList, allowedIds ->
         val packs = productList.filter { it.productId.startsWith("coins_") }
             .map { product -> ShopData.mapToCoinPack(product) }
-            .sortedBy { CoinPackIds.ALL.indexOf(it.id) }
+            .sortedBy { allowedIds.indexOf(it.id) }
 
         if (isDebug && packs.isEmpty()) {
-            getMockPacks()
+            ShopData.getDebugCoinPacks(allowedIds)
         } else {
             packs
         }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        if (isDebug) getMockPacks() else emptyList()
+        if (isDebug) ShopData.getDebugCoinPacks(remoteConfigManager.coinProductIds.value) else emptyList()
     )
-
-    private fun getMockPacks() = ShopData.getDebugCoinPacks()
 
     val skinItems = purchasedItems.map { purchasedIds ->
         ShopData.getSkinItems(purchasedIds)
@@ -188,12 +191,13 @@ class ShopViewModel(
 class ShopViewModelFactory(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
+    private val remoteConfigManager: RemoteConfigManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ShopViewModel::class.java)) {
-            return ShopViewModel(settingsRepository, billingManager, isDebug) as T
+            return ShopViewModel(settingsRepository, billingManager, remoteConfigManager, isDebug) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
