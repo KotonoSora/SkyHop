@@ -75,4 +75,18 @@
 Music by <a href="https://pixabay.com/users/the_mountain-3616498/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=487020">Dmitrii Kolesnikov</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=487020">Pixabay</a>
 
 ---
+
 Developed as a robust, maintainable, and user-friendly Android application.
+
+---
+
+```
+properties
+# Add this to /SkyHop/local.properties
+RELEASE_STORE_FILE=release-keystore.jks
+RELEASE_STORE_PASSWORD=your_keystore_password
+RELEASE_KEY_ALIAS=your_key_alias
+RELEASE_KEY_PASSWORD=your_key_password
+```
+
+Then, place your release-keystore.jks in the `app/` folder. Since `local.properties` is ignored by Git, these values will stay only on your machine and won't be pushed to GitHub.
