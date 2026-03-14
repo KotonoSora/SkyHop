@@ -12,6 +12,7 @@ import com.kotonosora.skyboundhopper.model.BirdState
 import com.kotonosora.skyboundhopper.model.GamePhysics
 import com.kotonosora.skyboundhopper.model.GameState
 import com.kotonosora.skyboundhopper.model.PowerUpType
+import com.kotonosora.skyboundhopper.model.SkinIds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,10 +31,9 @@ class GameViewModel(
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
-    private val _selectedSkinId = MutableStateFlow("default")
+    private val _selectedSkinId = MutableStateFlow(SkinIds.SKIN_DEFAULT_ID)
     val selectedSkinId: StateFlow<String> = _selectedSkinId.asStateFlow()
 
-    // Local state to hold current audio settings (Task 4.1 cleanup)
     private var currentMusicEnabled: Boolean = true
     private var currentSfxEnabled: Boolean = true
 
@@ -96,8 +96,6 @@ class GameViewModel(
             
             var newState = state.copy(screenWidth = width, screenHeight = height)
             
-            // If screen size was previously unknown, or if the bird is at a default/centered position,
-            // we center it for the new screen dimensions.
             if (state.screenHeight <= 0f || !state.isGameStarted || state.isStartSequenceActive) {
                 newState = newState.copy(
                     bird = state.bird.copy(position = Offset(100f, height / 2))
@@ -108,7 +106,6 @@ class GameViewModel(
     }
 
     fun startGame() {
-        // Task 4.2: Orchestrate BGM/SFX on game start
         if (currentMusicEnabled) audioManager.playBgm()
         if (currentSfxEnabled) audioManager.playSfx(SfxType.START)
 
@@ -150,8 +147,8 @@ class GameViewModel(
                 state
             }
         }
-        // Task 5.1: Trigger SFX_TOUCH on jump/tap (if not game over and in game)
-        if (!currentState.isGameOver && currentState.isGameStarted && !currentState.isStartSequenceActive) {
+
+        if (currentState.isGameStarted && !currentState.isStartSequenceActive) {
             if (currentSfxEnabled) audioManager.playSfx(SfxType.TOUCH)
         }
     }
@@ -184,7 +181,6 @@ class GameViewModel(
         val shouldDie = hasCollided && !state.shieldActive && !state.isAutoPlayActive && !state.multiplierActive
 
         if (shouldDie) {
-            // Task 4.3: Orchestrate BGM/SFX on game over
             if (currentSfxEnabled) audioManager.playSfx(SfxType.GAMEOVER)
             audioManager.stopBgm()
 
@@ -217,7 +213,6 @@ class GameViewModel(
                         PowerUpType.AUTO_PLAY, PowerUpType.BOOST -> state.copy(isAutoPlayActive = true, autoPlayTimeLeft = 10f)
                     }
                     if (state.isGameOver) {
-                        // Restart BGM if we revive using a power-up and music is enabled
                         if (currentMusicEnabled) {
                             audioManager.playBgm()
                         }
@@ -249,7 +244,6 @@ class GameViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        // AudioManager is Application-scoped; do not release it here.
         audioManager.stopBgm()
     }
 }

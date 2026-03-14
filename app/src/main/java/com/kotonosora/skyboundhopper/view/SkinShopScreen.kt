@@ -47,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kotonosora.skyboundhopper.model.ShopItem
+import com.kotonosora.skyboundhopper.model.SkinIds
 import com.kotonosora.skyboundhopper.view.components.CoinBadge
 import com.kotonosora.skyboundhopper.view.components.GameButton
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
@@ -231,12 +232,12 @@ fun SkinShopItemCard(
                 text = item.name.uppercase(),
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black,
-                maxLines = 1,
+                maxLines = 2,
                 textAlign = TextAlign.Center,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
             
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
             ItemStatusText(item = item, isSelected = isSelected, ownedCount = ownedCount)
 
@@ -334,9 +335,9 @@ private fun getActionVisuals(item: ShopItem, isSelected: Boolean): ActionVisuals
         )
     } else {
         val (color, shadow) = when (item.id) {
-            "skin_space" -> Color(0xFF5C6BC0) to Color(0xFF3F51B5)
-            "skin_golden" -> Color(0xFFFFA726) to Color(0xFFF57C00)
-            "skin_steampunk" -> Color(0xFF8D6E63) to Color(0xFF6D4C41)
+            SkinIds.SKIN_SPACE_ID -> Color(0xFF5C6BC0) to Color(0xFF3F51B5)
+            SkinIds.SKIN_GOLDEN_ID -> Color(0xFFFFA726) to Color(0xFFF57C00)
+            SkinIds.SKIN_STEAMPUNK_ID -> Color(0xFF8D6E63) to Color(0xFF6D4C41)
             else -> Color(0xFF29B6F6) to Color(0xFF0288D1)
         }
         ActionVisuals(

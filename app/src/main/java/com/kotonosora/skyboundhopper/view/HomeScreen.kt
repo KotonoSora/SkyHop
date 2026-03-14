@@ -46,6 +46,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.model.SkinData
 import com.kotonosora.skyboundhopper.view.components.GameBackground
@@ -65,7 +68,10 @@ fun HomeScreen(
         GameBackground(opacity = 0.3f)
 
         SettingsIconButton(
-            onClick = onSettingsClick,
+            onClick = {
+                Firebase.analytics.logEvent("click_settings", null)
+                onSettingsClick()
+            },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
@@ -88,7 +94,10 @@ fun HomeScreen(
 
             HomeMenuButton(
                 text = "PLAY",
-                onClick = onPlayClick,
+                onClick = {
+                    Firebase.analytics.logEvent("click_play", null)
+                    onPlayClick()
+                },
                 modifier = Modifier.fillMaxWidth(0.75f),
                 backgroundColor = MaterialTheme.colorScheme.primary, 
                 shadowColor = Color.Black,
@@ -100,7 +109,12 @@ fun HomeScreen(
 
             HomeMenuButton(
                 text = "GET COINS",
-                onClick = onGetCoinsClick,
+                onClick = {
+                    Firebase.analytics.logEvent("click_get_coins") {
+                        param("source_screen", "home")
+                    }
+                    onGetCoinsClick()
+                },
                 modifier = Modifier.fillMaxWidth(0.75f),
                 backgroundColor = Color(0xFFFFCA28),
                 shadowColor = Color(0xFFFFA000),
@@ -112,7 +126,10 @@ fun HomeScreen(
 
             HomeMenuButton(
                 text = "SKIN SHOP",
-                onClick = onShopClick,
+                onClick = {
+                    Firebase.analytics.logEvent("click_shop", null)
+                    onShopClick()
+                },
                 modifier = Modifier.fillMaxWidth(0.75f),
                 backgroundColor = Color(0xFF66BB6A),
                 shadowColor = Color(0xFF388E3C),
@@ -154,7 +171,7 @@ fun AnimatedHomeScreenElements(
     Text(
         text = "SKYHOP",
         color = Color(0xFFFFD54F),
-        style = MaterialTheme.typography.displayLarge,
+        style = MaterialTheme.typography.displayMedium,
         modifier = Modifier
             .scale(logoScale)
             .clickable(

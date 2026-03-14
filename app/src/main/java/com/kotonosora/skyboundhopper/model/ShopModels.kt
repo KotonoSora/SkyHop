@@ -29,18 +29,18 @@ data class CoinPackDefinition(
 
 object ShopData {
     private val coinPackDefinitions = listOf(
-        CoinPackDefinition(productId = "coins_100", coinAmount = 100, debugPrice = "$0.29"),
-        CoinPackDefinition(productId = "coins_500", coinAmount = 500, debugPrice = "$0.49"),
-        CoinPackDefinition(productId = "coins_1000", coinAmount = 1000, debugPrice = "$0.69"),
-        CoinPackDefinition(productId = "coins_1500", coinAmount = 1500, debugPrice = "$0.99"),
-        CoinPackDefinition(productId = "coins_2000", coinAmount = 2000, debugPrice = "$1.99"),
-        CoinPackDefinition(productId = "coins_2500", coinAmount = 2500, debugPrice = "$3.99"),
-        CoinPackDefinition(productId = "coins_3000", coinAmount = 3000, debugPrice = "$4.99"),
-        CoinPackDefinition(productId = "coins_3500", coinAmount = 3500, debugPrice = "$7.99"),
-        CoinPackDefinition(productId = "coins_4000", coinAmount = 4000, debugPrice = "$9.99")
+        CoinPackDefinition(productId = CoinPackIds.COINS_100, coinAmount = 100, debugPrice = "$0.29"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_500, coinAmount = 500, debugPrice = "$0.49"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_1000, coinAmount = 1000, debugPrice = "$0.69"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_1500, coinAmount = 1500, debugPrice = "$0.99"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_2000, coinAmount = 2000, debugPrice = "$1.99"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_2500, coinAmount = 2500, debugPrice = "$3.99"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_3000, coinAmount = 3000, debugPrice = "$4.99"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_3500, coinAmount = 3500, debugPrice = "$7.99"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_4000, coinAmount = 4000, debugPrice = "$9.99")
     )
 
-    val coinProductIds: List<String> = coinPackDefinitions.map { it.productId }
+    val coinProductIds: List<String> = CoinPackIds.ALL
 
     fun getCoinAmount(productId: String): Int? =
         coinPackDefinitions.firstOrNull { it.productId == productId }?.coinAmount
@@ -59,7 +59,7 @@ object ShopData {
     fun getPowerUpItems(): List<ShopItem> {
         return listOf(
             ShopItem(
-                id = "powerup_shield",
+                id = PowerUpIds.POWERUP_SHIELD_ID,
                 name = "Energy Shield",
                 description = "Invincible for 10s",
                 price = 150,
@@ -67,7 +67,7 @@ object ShopData {
                 isUnlocked = false
             ),
             ShopItem(
-                id = "powerup_multiplier",
+                id = PowerUpIds.POWERUP_MULTIPLIER_ID,
                 name = "Score Booster",
                 description = "Double points for one run",
                 price = 200,
@@ -79,13 +79,13 @@ object ShopData {
 
     fun getSkinItems(purchasedIds: Set<String>): List<ShopItem> {
         return listOf(
-            ShopItem("default", "Blue Bird", "", 0, R.drawable.img_bird_hero, true),
-            ShopItem("skin_pirate", "Pirate", "", 50, R.drawable.img_skin_pirate, purchasedIds.contains("skin_pirate")),
-            ShopItem("skin_ninja", "Ninja", "", 50, R.drawable.img_skin_ninja, purchasedIds.contains("skin_ninja")),
-            ShopItem("skin_robot", "Robot", "", 50, R.drawable.img_skin_robot, purchasedIds.contains("skin_robot")),
-            ShopItem("skin_space", "Space Voyager", "", 300, R.drawable.img_skin_space_voyager, purchasedIds.contains("skin_space")),
-            ShopItem("skin_golden", "Golden Phoenix", "", 500, R.drawable.img_skin_golden_phoenix, purchasedIds.contains("skin_golden")),
-            ShopItem("skin_steampunk", "Steam-Powered Flyer", "", 400, R.drawable.img_skin_steampunk_flyer, purchasedIds.contains("skin_steampunk"))
+            ShopItem(SkinIds.SKIN_DEFAULT_ID, "Blue Bird", "", 0, R.drawable.img_bird_hero, true),
+            ShopItem(SkinIds.SKIN_PIRATE_ID, "Pirate", "", 50, R.drawable.img_skin_pirate, purchasedIds.contains(SkinIds.SKIN_PIRATE_ID)),
+            ShopItem(SkinIds.SKIN_NINJA_ID, "Ninja", "", 50, R.drawable.img_skin_ninja, purchasedIds.contains(SkinIds.SKIN_NINJA_ID)),
+            ShopItem(SkinIds.SKIN_ROBOT_ID, "Robot", "", 50, R.drawable.img_skin_robot, purchasedIds.contains(SkinIds.SKIN_ROBOT_ID)),
+            ShopItem(SkinIds.SKIN_SPACE_ID, "Space Voyager", "", 300, R.drawable.img_skin_space_voyager, purchasedIds.contains(SkinIds.SKIN_SPACE_ID)),
+            ShopItem(SkinIds.SKIN_GOLDEN_ID, "Golden Phoenix", "", 500, R.drawable.img_skin_golden_phoenix, purchasedIds.contains(SkinIds.SKIN_GOLDEN_ID)),
+            ShopItem(SkinIds.SKIN_STEAMPUNK_ID, "Steam-Powered Flyer", "", 400, R.drawable.img_skin_steampunk_flyer, purchasedIds.contains(SkinIds.SKIN_STEAMPUNK_ID))
         )
     }
 

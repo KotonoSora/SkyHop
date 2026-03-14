@@ -4,13 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
 import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.billing.BillingManager
 import com.kotonosora.skyboundhopper.billing.BillingStatus
 import com.kotonosora.skyboundhopper.data.SettingsRepository
+import com.kotonosora.skyboundhopper.model.CoinPackIds
 import com.kotonosora.skyboundhopper.model.CoinPackItem
 import com.kotonosora.skyboundhopper.model.ShopData
 import com.kotonosora.skyboundhopper.model.ShopItem
+import com.kotonosora.skyboundhopper.model.SkinIds
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,10 +39,10 @@ class ShopViewModel(
     )
 
     val purchasedItems: StateFlow<Set<String>> = settingsRepository.purchasedItemsFlow.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), setOf("default")
+        viewModelScope, SharingStarted.WhileSubscribed(5000), setOf(SkinIds.SKIN_DEFAULT_ID)
     )
 
-    private val _selectedSkinId = MutableStateFlow("default")
+    private val _selectedSkinId = MutableStateFlow(SkinIds.SKIN_DEFAULT_ID)
     val selectedSkinId = _selectedSkinId.asStateFlow()
 
     private val _purchaseLaunchRequests = MutableSharedFlow<ProductDetails>(extraBufferCapacity = 1)
@@ -44,7 +50,6 @@ class ShopViewModel(
 
     val products: StateFlow<List<ProductDetails>> = billingManager.products
 
-    // Force CONNECTED in debug mode so mock packs stay visible during local testing.
     val billingStatus: StateFlow<BillingStatus> = billingManager.status.map { status ->
         if (isDebug) {
             when (status) {
@@ -76,11 +81,10 @@ class ShopViewModel(
         }
     }
 
-    // Show mock packs in debug mode if no real products are found.
     val coinPacks: StateFlow<List<CoinPackItem>> = products.map { productList ->
         val packs = productList.filter { it.productId.startsWith("coins_") }
             .map { product -> ShopData.mapToCoinPack(product) }
-            .sortedBy { it.id }
+            .sortedBy { CoinPackIds.ALL.indexOf(it.id) }
 
         if (isDebug && packs.isEmpty()) {
             getMockPacks()
@@ -108,6 +112,12 @@ class ShopViewModel(
     }
 
     fun buyItem(item: ShopItem) {
+        Firebase.analytics.logEvent("buy_action") {
+            param(FirebaseAnalytics.Param.ITEM_ID, item.id)
+            param(FirebaseAnalytics.Param.ITEM_NAME, item.name)
+            param(FirebaseAnalytics.Param.PRICE, item.price.toLong())
+            param(FirebaseAnalytics.Param.CURRENCY, "virtual_coins")
+        }
         viewModelScope.launch {
             if (settingsRepository.spendCoins(item.price)) {
                 if (item.id.startsWith("skin")) {
@@ -121,6 +131,9 @@ class ShopViewModel(
     }
 
     fun buyCoinPack(item: CoinPackItem) {
+        Firebase.analytics.logEvent("buy_action") {
+            param(FirebaseAnalytics.Param.ITEM_ID, item.id)
+        }
         if (item.id.startsWith("mock_")) {
             val amountStr = item.id.removePrefix("mock_")
             val amount = amountStr.toIntOrNull() ?: 0

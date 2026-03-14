@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.android.billingclient.api.ProductDetails
 import com.kotonosora.skyboundhopper.R
@@ -296,15 +297,26 @@ fun CoinPackCard(item: CoinPackItem, onBuy: () -> Unit) {
 
             Text(
                 text = item.name.uppercase(),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 color = Color.Black,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
-            
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
-                text = item.price.uppercase(),
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.Gray
+                text = item.price,
+                style = MaterialTheme.typography.titleSmall,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             )
 
             Spacer(modifier = Modifier.height(24.dp))

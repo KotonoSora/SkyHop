@@ -52,6 +52,13 @@ val Typography = Typography(
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     ),
+    headlineSmall = TextStyle(
+        fontFamily = PressStart2P,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
     // Used for section titles (e.g., "SKINS", "LEGAL")
     titleLarge = TextStyle(
         fontFamily = PressStart2P,
@@ -66,6 +73,13 @@ val Typography = Typography(
         fontSize = 18.sp,
         lineHeight = 26.sp,
         letterSpacing = 0.15.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = PressStart2P,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.1.sp
     ),
     // Used for list items or body text
     bodyLarge = TextStyle(

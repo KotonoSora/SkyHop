@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.kotonosora.skyboundhopper.model.PowerUpType
+import com.kotonosora.skyboundhopper.model.SkinIds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -38,7 +39,7 @@ class SettingsRepository(private val context: Context) {
 
     val selectedSkinFlow: Flow<String> = context.settingsDataStore.data
         .map { preferences ->
-            preferences[SELECTED_SKIN_KEY] ?: "default"
+            preferences[SELECTED_SKIN_KEY] ?: SkinIds.SKIN_DEFAULT_ID
         }
 
     val coinsFlow: Flow<Int> = context.settingsDataStore.data
@@ -48,7 +49,7 @@ class SettingsRepository(private val context: Context) {
 
     val purchasedItemsFlow: Flow<Set<String>> = context.settingsDataStore.data
         .map { preferences ->
-            preferences[PURCHASED_ITEMS_KEY] ?: setOf("default")
+            preferences[PURCHASED_ITEMS_KEY] ?: setOf(SkinIds.SKIN_DEFAULT_ID)
         }
 
     val shieldCountFlow: Flow<Int> = context.settingsDataStore.data
@@ -98,7 +99,7 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun purchaseItem(itemId: String) {
         context.settingsDataStore.edit { preferences ->
-            val current = preferences[PURCHASED_ITEMS_KEY] ?: setOf("default")
+            val current = preferences[PURCHASED_ITEMS_KEY] ?: setOf(SkinIds.SKIN_DEFAULT_ID)
             preferences[PURCHASED_ITEMS_KEY] = current + itemId
         }
     }

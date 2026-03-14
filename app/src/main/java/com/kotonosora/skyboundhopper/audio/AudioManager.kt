@@ -1,6 +1,7 @@
 package com.kotonosora.skyboundhopper.audio
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
 import androidx.annotation.RawRes
@@ -22,13 +23,33 @@ class AudioManager(context: Context) {
     private var sfxEnabled: Boolean = true
 
     init {
-        bgmPlayer = MediaPlayer.create(context, R.raw.bg_music).apply {
-            isLooping = true
-            setVolume(0.5f, 0.5f)
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        try {
+            bgmPlayer = MediaPlayer().apply {
+                setAudioAttributes(audioAttributes)
+                val afd = context.resources.openRawResourceFd(R.raw.bg_music)
+                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                afd.close()
+                isLooping = true
+                setVolume(0.5f, 0.5f)
+                prepare()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Fallback
+            bgmPlayer = MediaPlayer.create(context, R.raw.bg_music)?.apply {
+                isLooping = true
+                setVolume(0.5f, 0.5f)
+            }
         }
 
         soundPool = SoundPool.Builder()
             .setMaxStreams(3)
+            .setAudioAttributes(audioAttributes)
             .build()
 
         loadedSfx[SfxType.START] = soundPool?.load(context, SfxType.START.rawResId, 1) ?: 0
@@ -57,9 +78,7 @@ class AudioManager(context: Context) {
 
     fun playSfx(type: SfxType) {
         if (!sfxEnabled) return
-
         val sampleId = loadedSfx[type] ?: return
-
         soundPool?.play(sampleId, 1.0f, 1.0f, 1, 0, 1.0f)
     }
 

@@ -35,4 +35,9 @@
     <string name="dialog_leaving_msg">YOU ARE ABOUT TO OPEN AN EXTERNAL WEBSITE. DO YOU WANT TO CONTINUE?</string>
     <string name="btn_continue">CONTINUE</string>
     <string name="btn_cancel">CANCEL</string>
+
+    <string name="btn_test_crash">TEST CRASH</string>
+
+    <string name="privacy_url">https://skyhop.kotonosora.com/privacy</string>
+    <string name="terms_url">https://skyhop.kotonosora.com/terms</string>
 </resources>
