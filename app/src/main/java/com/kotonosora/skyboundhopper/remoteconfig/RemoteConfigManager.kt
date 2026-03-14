@@ -15,7 +15,8 @@ class RemoteConfigManager {
 
     private val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
 
-    private val _coinProductIds = MutableStateFlow(CoinPackIds.ALL)
+    // Initialize with empty list so BillingManager waits until fetch completes
+    private val _coinProductIds = MutableStateFlow<List<String>>(emptyList())
     val coinProductIds = _coinProductIds.asStateFlow()
 
     init {
@@ -36,6 +37,11 @@ class RemoteConfigManager {
             }
         } catch (e: Exception) {
             Log.e("RemoteConfigManager", "Error fetching remote config", e)
+        } finally {
+            // Always update configs so we apply defaults if network fails
+            if (_coinProductIds.value.isEmpty()) {
+                updateConfigs()
+            }
         }
     }
 

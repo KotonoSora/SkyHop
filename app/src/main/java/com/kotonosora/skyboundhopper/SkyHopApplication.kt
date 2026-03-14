@@ -39,8 +39,5 @@ class SkyHopApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        applicationScope.launch {
-            remoteConfigManager.fetchAndActivate()
-        }
     }
 }

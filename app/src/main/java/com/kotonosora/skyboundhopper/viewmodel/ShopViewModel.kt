@@ -35,7 +35,7 @@ import java.util.UUID
 class ShopViewModel(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
-    remoteConfigManager: RemoteConfigManager,
+    private val remoteConfigManager: RemoteConfigManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModel() {
 
@@ -78,11 +78,22 @@ class ShopViewModel(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
     )
 
+    private val _isFetchingConfig = MutableStateFlow(false)
+    val isFetchingConfig = _isFetchingConfig.asStateFlow()
+
     init {
         viewModelScope.launch {
             settingsRepository.selectedSkinFlow.collect { skinId ->
                 _selectedSkinId.value = skinId
             }
+        }
+    }
+
+    fun fetchRemoteConfig() {
+        viewModelScope.launch {
+            _isFetchingConfig.value = true
+            remoteConfigManager.fetchAndActivate()
+            _isFetchingConfig.value = false
         }
     }
 

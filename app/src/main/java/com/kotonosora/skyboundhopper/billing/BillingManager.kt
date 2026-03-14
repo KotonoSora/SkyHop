@@ -69,7 +69,7 @@ class BillingManager(
     private fun observeRemoteConfig() {
         managerScope.launch {
             remoteConfigManager.coinProductIds.collect { ids ->
-                if (_status.value == BillingStatus.CONNECTED) {
+                if (_status.value == BillingStatus.CONNECTED && ids.isNotEmpty()) {
                     queryProducts(ids)
                 }
             }
@@ -84,7 +84,10 @@ class BillingManager(
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _status.value = BillingStatus.CONNECTED
-                    queryProducts(remoteConfigManager.coinProductIds.value)
+                    val currentIds = remoteConfigManager.coinProductIds.value
+                    if (currentIds.isNotEmpty()) {
+                        queryProducts(currentIds)
+                    }
                     queryPurchases()
                 } else {
                     _status.value = BillingStatus.ERROR
