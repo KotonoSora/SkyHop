@@ -31,17 +31,12 @@ class RemoteConfigManager {
 
     suspend fun fetchAndActivate() {
         try {
-            val activated = remoteConfig.fetchAndActivate().await()
-            if (activated || remoteConfig.info.lastFetchStatus == FirebaseRemoteConfig.LAST_FETCH_STATUS_SUCCESS) {
-                updateConfigs()
-            }
+            remoteConfig.fetch(0L).await()
+            remoteConfig.activate().await()
         } catch (e: Exception) {
             Log.e("RemoteConfigManager", "Error fetching remote config", e)
         } finally {
-            // Always update configs so we apply defaults if network fails
-            if (_coinProductIds.value.isEmpty()) {
-                updateConfigs()
-            }
+            updateConfigs()
         }
     }
 
