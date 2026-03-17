@@ -67,7 +67,7 @@ fun AudioSettingsGroup(
     onSfxToggle: (Boolean) -> Unit
 ) {
     Text(
-        text = stringResource(R.string.title_settings),
+        text = stringResource(R.string.title_sound),
         style = MaterialTheme.typography.titleLarge,
         color = Color.DarkGray,
         modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)

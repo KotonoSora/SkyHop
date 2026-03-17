@@ -9,8 +9,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,9 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,10 +42,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.analytics
-import com.google.firebase.analytics.logEvent
-import com.kotonosora.skyboundhopper.BuildConfig
+import androidx.compose.ui.zIndex
 import com.kotonosora.skyboundhopper.model.SkinData
 import com.kotonosora.skyboundhopper.view.components.GameBackground
 import com.kotonosora.skyboundhopper.view.components.GameButton
@@ -69,13 +62,13 @@ fun HomeScreen(
 
         SettingsIconButton(
             onClick = {
-                Firebase.analytics.logEvent("click_settings", null)
                 onSettingsClick()
             },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
                 .padding(16.dp)
+                .zIndex(1f)
         )
 
         Column(
@@ -86,8 +79,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             AnimatedHomeScreenElements(
-                selectedSkinId = selectedSkinId,
-                onLogoDebugClick = onGetCoinsClick
+                selectedSkinId = selectedSkinId
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -95,7 +87,6 @@ fun HomeScreen(
             HomeMenuButton(
                 text = "PLAY",
                 onClick = {
-                    Firebase.analytics.logEvent("click_play", null)
                     onPlayClick()
                 },
                 modifier = Modifier.fillMaxWidth(0.75f),
@@ -110,9 +101,6 @@ fun HomeScreen(
             HomeMenuButton(
                 text = "GET COINS",
                 onClick = {
-                    Firebase.analytics.logEvent("click_get_coins") {
-                        param("source_screen", "home")
-                    }
                     onGetCoinsClick()
                 },
                 modifier = Modifier.fillMaxWidth(0.75f),
@@ -127,7 +115,6 @@ fun HomeScreen(
             HomeMenuButton(
                 text = "SKIN SHOP",
                 onClick = {
-                    Firebase.analytics.logEvent("click_shop", null)
                     onShopClick()
                 },
                 modifier = Modifier.fillMaxWidth(0.75f),
@@ -142,11 +129,9 @@ fun HomeScreen(
 
 @Composable
 fun AnimatedHomeScreenElements(
-    selectedSkinId: String,
-    onLogoDebugClick: () -> Unit = {}
+    selectedSkinId: String
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "HomeAnimations")
-    var debugTapCount by remember { mutableIntStateOf(0) }
     
     val birdOffset by infiniteTransition.animateFloat(
         initialValue = -10f,
@@ -172,19 +157,7 @@ fun AnimatedHomeScreenElements(
         text = "SKYHOP",
         color = Color(0xFFFFD54F),
         style = MaterialTheme.typography.displayMedium,
-        modifier = Modifier
-            .scale(logoScale)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-                enabled = BuildConfig.DEBUG
-            ) {
-                debugTapCount++
-                if (debugTapCount >= 5) {
-                    onLogoDebugClick()
-                    debugTapCount = 0
-                }
-            }
+        modifier = Modifier.scale(logoScale)
     )
 
     Spacer(modifier = Modifier.height(32.dp))

@@ -17,11 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Info
@@ -48,10 +49,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.analytics
-import com.google.firebase.analytics.logEvent
-import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.view.components.AudioSettingsGroup
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
@@ -90,10 +87,10 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             SettingsHeader(onBack = {
-                Firebase.analytics.logEvent("click_back_from_settings", null)
                 onBack()
             })
 
@@ -103,15 +100,9 @@ fun SettingsScreen(
                 musicEnabled = musicEnabled,
                 sfxEnabled = sfxEnabled,
                 onMusicToggle = { 
-                    Firebase.analytics.logEvent("toggle_music") {
-                        param("enabled", if (it) 1L else 0L)
-                    }
                     settingsViewModel.toggleMusic(it) 
                 },
                 onSfxToggle = { 
-                    Firebase.analytics.logEvent("toggle_sfx") {
-                        param("enabled", if (it) 1L else 0L)
-                    }
                     settingsViewModel.toggleSfx(it) 
                 }
             )
@@ -121,12 +112,10 @@ fun SettingsScreen(
             SettingsGroupList(
                 versionName = versionName,
                 onPolicyClick = {
-                    Firebase.analytics.logEvent("click_privacy_policy", null)
                     pendingUrl = privacyUrl
                     showWarningDialog = true
                 },
                 onTermsClick = {
-                    Firebase.analytics.logEvent("click_terms", null)
                     pendingUrl = termsUrl
                     showWarningDialog = true
                 }
@@ -216,20 +205,6 @@ fun SettingsGroupList(
                 color = Color(0xFF388E3C)
             )
         }
-    }
-
-    if (BuildConfig.DEBUG) {
-        Spacer(modifier = Modifier.height(32.dp))
-
-        SettingsItem(
-            icon = Icons.Default.BugReport,
-            title = stringResource(R.string.btn_test_crash),
-            color = Color.Red,
-            onClick = {
-                Firebase.analytics.logEvent("click_test_crash", null)
-                throw RuntimeException("Test Crash") 
-            } // Force a crash
-        )
     }
 }
 

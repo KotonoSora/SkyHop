@@ -75,12 +75,7 @@ fun CoinStoreScreen(
     val coins by viewModel.coins.collectAsState()
     val coinPacks by viewModel.coinPacks.collectAsState()
     val billingStatus by viewModel.billingStatus.collectAsState()
-    val isFetchingConfig by viewModel.isFetchingConfig.collectAsState()
     val activity = LocalContext.current.findActivity()
-
-    LaunchedEffect(Unit) {
-        viewModel.fetchRemoteConfig()
-    }
 
     LaunchedEffect(activity, viewModel) {
         val currentActivity = activity ?: return@LaunchedEffect
@@ -110,10 +105,8 @@ fun CoinStoreScreen(
             CoinStoreContent(
                 modifier = Modifier.weight(1f),
                 billingStatus = billingStatus,
-                isFetchingConfig = isFetchingConfig,
                 coinPacks = coinPacks,
                 onRetry = { 
-                    viewModel.fetchRemoteConfig()
                     viewModel.retryConnection() 
                 },
                 onBuy = viewModel::buyCoinPack
@@ -168,13 +161,12 @@ fun CoinStoreHeader(
 fun CoinStoreContent(
     modifier: Modifier = Modifier,
     billingStatus: BillingStatus,
-    isFetchingConfig: Boolean,
     coinPacks: List<CoinPackItem>,
     onRetry: () -> Unit,
     onBuy: (CoinPackItem) -> Unit
 ) {
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        if (isFetchingConfig || billingStatus == BillingStatus.CONNECTING || billingStatus == BillingStatus.IDLE) {
+        if (billingStatus == BillingStatus.CONNECTING || billingStatus == BillingStatus.IDLE) {
             ConnectionLoadingView()
             return@Box
         }

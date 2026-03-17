@@ -4,21 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.logEvent
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.analytics
-import com.kotonosora.skyboundhopper.analytics.CoinPackRevenueEvent
-import com.kotonosora.skyboundhopper.analytics.RevenueAnalyticsLogger
 import com.kotonosora.skyboundhopper.BuildConfig
 import com.kotonosora.skyboundhopper.billing.BillingManager
 import com.kotonosora.skyboundhopper.billing.BillingStatus
 import com.kotonosora.skyboundhopper.data.SettingsRepository
+import com.kotonosora.skyboundhopper.model.CoinPackIds
 import com.kotonosora.skyboundhopper.model.CoinPackItem
 import com.kotonosora.skyboundhopper.model.ShopData
 import com.kotonosora.skyboundhopper.model.ShopItem
 import com.kotonosora.skyboundhopper.model.SkinIds
-import com.kotonosora.skyboundhopper.remoteconfig.RemoteConfigManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,16 +20,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class ShopViewModel(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
-    private val remoteConfigManager: RemoteConfigManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModel() {
 
@@ -78,9 +69,6 @@ class ShopViewModel(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
     )
 
-    private val _isFetchingConfig = MutableStateFlow(false)
-    val isFetchingConfig = _isFetchingConfig.asStateFlow()
-
     init {
         viewModelScope.launch {
             settingsRepository.selectedSkinFlow.collect { skinId ->
@@ -89,18 +77,8 @@ class ShopViewModel(
         }
     }
 
-    fun fetchRemoteConfig() {
-        viewModelScope.launch {
-            _isFetchingConfig.value = true
-            remoteConfigManager.fetchAndActivate()
-            _isFetchingConfig.value = false
-        }
-    }
-
-    val coinPacks: StateFlow<List<CoinPackItem>> = combine(
-        products,
-        remoteConfigManager.coinProductIds
-    ) { productList, allowedIds ->
+    val coinPacks: StateFlow<List<CoinPackItem>> = products.map { productList ->
+        val allowedIds = CoinPackIds.ALL
         val packs = productList.filter { it.productId.startsWith("coins_") }
             .map { product -> ShopData.mapToCoinPack(product) }
             .sortedBy { allowedIds.indexOf(it.id) }
@@ -113,7 +91,7 @@ class ShopViewModel(
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        if (isDebug) ShopData.getDebugCoinPacks(remoteConfigManager.coinProductIds.value) else emptyList()
+        if (isDebug) ShopData.getDebugCoinPacks(CoinPackIds.ALL) else emptyList()
     )
 
     val skinItems = purchasedItems.map { purchasedIds ->
@@ -129,12 +107,6 @@ class ShopViewModel(
     }
 
     fun buyItem(item: ShopItem) {
-        Firebase.analytics.logEvent("buy_action") {
-            param(FirebaseAnalytics.Param.ITEM_ID, item.id)
-            param(FirebaseAnalytics.Param.ITEM_NAME, item.name)
-            param(FirebaseAnalytics.Param.PRICE, item.price.toLong())
-            param(FirebaseAnalytics.Param.CURRENCY, "virtual_coins")
-        }
         viewModelScope.launch {
             if (settingsRepository.spendCoins(item.price)) {
                 if (item.id.startsWith("skin")) {
@@ -148,43 +120,15 @@ class ShopViewModel(
     }
 
     fun buyCoinPack(item: CoinPackItem) {
-        Firebase.analytics.logEvent("buy_action") {
-            param(FirebaseAnalytics.Param.ITEM_ID, item.id)
-        }
         if (item.id.startsWith("mock_")) {
             val amountStr = item.id.removePrefix("mock_")
             val amount = amountStr.toIntOrNull() ?: 0
-            if (isDebug) {
-                logDebugMockRevenue(item = item, coinAmount = amount)
-            }
             addMockCoins(amount)
         } else {
             item.productDetails?.let { details ->
                 _purchaseLaunchRequests.tryEmit(details)
             }
         }
-    }
-
-    private fun logDebugMockRevenue(item: CoinPackItem, coinAmount: Int) {
-        val normalizedPrice = item.price.replace(',', '.')
-        val parsedValue = normalizedPrice
-            .filter { it.isDigit() || it == '.' }
-            .toDoubleOrNull() ?: 0.0
-        val transactionId = "debug_${item.id}_${UUID.randomUUID()}"
-
-        RevenueAnalyticsLogger.logCoinPackRevenue(
-            CoinPackRevenueEvent(
-                eventName = "debug_mock_purchase",
-                transactionId = transactionId,
-                itemId = item.id,
-                itemName = item.name,
-                value = parsedValue,
-                currency = "USD",
-                paymentType = "debug_mock",
-                purchaseSource = "debug_mock",
-                coinAmount = coinAmount.toLong()
-            )
-        )
     }
 
     private fun addMockCoins(amount: Int) {
@@ -202,13 +146,12 @@ class ShopViewModel(
 class ShopViewModelFactory(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
-    private val remoteConfigManager: RemoteConfigManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ShopViewModel::class.java)) {
-            return ShopViewModel(settingsRepository, billingManager, remoteConfigManager, isDebug) as T
+            return ShopViewModel(settingsRepository, billingManager, isDebug) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

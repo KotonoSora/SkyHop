@@ -29,15 +29,15 @@ data class CoinPackDefinition(
 
 object ShopData {
     private val coinPackDefinitions = listOf(
-        CoinPackDefinition(productId = CoinPackIds.COINS_100, coinAmount = 100, debugPrice = "$0.29"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_500, coinAmount = 500, debugPrice = "$0.49"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_1000, coinAmount = 1000, debugPrice = "$0.69"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_1500, coinAmount = 1500, debugPrice = "$0.99"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_2000, coinAmount = 2000, debugPrice = "$1.99"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_2500, coinAmount = 2500, debugPrice = "$3.99"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_3000, coinAmount = 3000, debugPrice = "$4.99"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_3500, coinAmount = 3500, debugPrice = "$7.99"),
-        CoinPackDefinition(productId = CoinPackIds.COINS_4000, coinAmount = 4000, debugPrice = "$9.99")
+        CoinPackDefinition(productId = CoinPackIds.COINS_100, coinAmount = 100, debugPrice = "$0.29~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_500, coinAmount = 500, debugPrice = "$0.49~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_1000, coinAmount = 1000, debugPrice = "$0.69~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_1500, coinAmount = 1500, debugPrice = "$0.99~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_2000, coinAmount = 2000, debugPrice = "$1.99~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_2500, coinAmount = 2500, debugPrice = "$3.99~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_3000, coinAmount = 3000, debugPrice = "$4.99~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_3500, coinAmount = 3500, debugPrice = "$7.99~"),
+        CoinPackDefinition(productId = CoinPackIds.COINS_4000, coinAmount = 4000, debugPrice = "$9.99~")
     )
 
     val coinProductIds: List<String> = CoinPackIds.ALL

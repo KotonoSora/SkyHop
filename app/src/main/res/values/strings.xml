@@ -22,6 +22,7 @@
     <string name="desc_multiplier">Multiplier Booster</string>
 
     <string name="title_settings">SETTINGS</string>
+    <string name="title_sound">SOUND</string>
     <string name="label_music">Background Music</string>
     <string name="desc_music_toggle">Toggle for background music</string>
     <string name="label_sfx">Sound Effects</string>
@@ -35,8 +36,6 @@
     <string name="dialog_leaving_msg">YOU ARE ABOUT TO OPEN AN EXTERNAL WEBSITE. DO YOU WANT TO CONTINUE?</string>
     <string name="btn_continue">CONTINUE</string>
     <string name="btn_cancel">CANCEL</string>
-
-    <string name="btn_test_crash">TEST CRASH</string>
 
     <string name="privacy_url">https://skyhop.kotonosora.com/privacy</string>
     <string name="terms_url">https://skyhop.kotonosora.com/terms</string>

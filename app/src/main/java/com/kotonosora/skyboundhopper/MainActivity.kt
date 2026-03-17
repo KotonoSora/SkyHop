@@ -91,8 +91,7 @@ fun MainApp() {
     val shopViewModel: ShopViewModel = viewModel(
         factory = ShopViewModelFactory(
             settingsRepository = app.settingsRepository,
-            billingManager = app.billingManager,
-            remoteConfigManager = app.remoteConfigManager
+            billingManager = app.billingManager
         )
     )
 

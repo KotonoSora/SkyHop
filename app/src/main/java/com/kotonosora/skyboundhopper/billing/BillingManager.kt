@@ -14,12 +14,9 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.kotonosora.skyboundhopper.analytics.CoinPackRevenueEvent
-import com.kotonosora.skyboundhopper.analytics.RevenueAnalyticsLogger
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.kotonosora.skyboundhopper.data.SettingsRepository
+import com.kotonosora.skyboundhopper.model.CoinPackIds
 import com.kotonosora.skyboundhopper.model.ShopData
-import com.kotonosora.skyboundhopper.remoteconfig.RemoteConfigManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,8 +32,7 @@ enum class BillingStatus {
 
 class BillingManager(
     context: Context,
-    private val settingsRepository: SettingsRepository,
-    private val remoteConfigManager: RemoteConfigManager
+    private val settingsRepository: SettingsRepository
 ) {
 
     private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -63,17 +59,6 @@ class BillingManager(
 
     init {
         startConnection()
-        observeRemoteConfig()
-    }
-
-    private fun observeRemoteConfig() {
-        managerScope.launch {
-            remoteConfigManager.coinProductIds.collect { ids ->
-                if (_status.value == BillingStatus.CONNECTED && ids.isNotEmpty()) {
-                    queryProducts(ids)
-                }
-            }
-        }
     }
 
     fun startConnection() {
@@ -84,10 +69,7 @@ class BillingManager(
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _status.value = BillingStatus.CONNECTED
-                    val currentIds = remoteConfigManager.coinProductIds.value
-                    if (currentIds.isNotEmpty()) {
-                        queryProducts(currentIds)
-                    }
+                    queryProducts(CoinPackIds.ALL)
                     queryPurchases()
                 } else {
                     _status.value = BillingStatus.ERROR
@@ -189,7 +171,6 @@ class BillingManager(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 managerScope.launch {
                     purchase.products.forEach { productId ->
-                        logRevenueIfNeeded(purchase, productId)
                         ShopData.getCoinAmount(productId)?.let { coinAmount ->
                             settingsRepository.addCoins(coinAmount)
                         }
@@ -198,34 +179,6 @@ class BillingManager(
                 queryPurchases()
             }
         }
-    }
-
-    private fun logRevenueIfNeeded(purchase: Purchase, productId: String) {
-        val productDetails = _products.value.firstOrNull { it.productId == productId }
-        val oneTimeDetails = productDetails?.oneTimePurchaseOfferDetails ?: return
-        val priceMicros = oneTimeDetails.priceAmountMicros
-        if (priceMicros <= 0L) return
-
-        val purchaseKey = "${purchase.purchaseToken}:$productId"
-        if (!trackedPurchaseKeys.add(purchaseKey)) return
-
-        val value = priceMicros / 1_000_000.0
-        val currency = oneTimeDetails.priceCurrencyCode
-        val transactionId = purchase.orderId ?: purchase.purchaseToken
-
-        RevenueAnalyticsLogger.logCoinPackRevenue(
-            CoinPackRevenueEvent(
-                eventName = FirebaseAnalytics.Event.PURCHASE,
-                transactionId = transactionId,
-                itemId = productId,
-                itemName = productDetails.name,
-                value = value,
-                currency = currency,
-                paymentType = "google_play",
-                purchaseSource = "in_app_billing",
-                purchaseState = purchase.purchaseState.toString()
-            )
-        )
     }
 
     fun release() {
