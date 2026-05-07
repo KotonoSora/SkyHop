@@ -13,8 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -45,12 +46,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kotonosora.skyboundhopper.model.ShopData
 import com.kotonosora.skyboundhopper.model.ShopItem
 import com.kotonosora.skyboundhopper.model.SkinIds
 import com.kotonosora.skyboundhopper.view.components.CoinBadge
 import com.kotonosora.skyboundhopper.view.components.GameButton
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
+import com.kotonosora.skyboundhopper.view.theme.SkyHopTheme
 import com.kotonosora.skyboundhopper.viewmodel.ShopViewModel
 
 @Composable
@@ -76,7 +80,7 @@ fun SkinShopScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
+                .safeContentPadding()
         ) {
             SkinShopHeader(
                 onClose = onClose,
@@ -125,11 +129,15 @@ fun SkinShopHeader(
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
         }
 
+        Spacer(modifier = Modifier.width(16.dp))
+
         Text(
             text = "SHOP",
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineSmall,
             color = Color.Black
         )
+
+        Spacer(modifier = Modifier.weight(1f))
 
         CoinBadge(coins = coins)
     }
@@ -355,3 +363,33 @@ private data class ActionVisuals(
     val btnText: String,
     val btnIcon: ImageVector
 )
+
+@Preview(showBackground = true, showSystemUi = true, name = "Skin Shop Screen")
+@Composable
+private fun SkinShopScreenPreview() {
+    SkyHopTheme(dynamicColor = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SkyBlue)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeContentPadding()
+            ) {
+                SkinShopHeader(onClose = {}, coins = 1250)
+                ShopGridContent(
+                    skinItems = ShopData.getSkinItems(setOf(SkinIds.SKIN_PIRATE_ID)),
+                    powerUpItems = ShopData.getPowerUpItems(),
+                    selectedSkinId = SkinIds.SKIN_DEFAULT_ID,
+                    shieldCount = 2,
+                    multiplierCount = 1,
+                    onSkinSelectOrBuy = {},
+                    onGoToCoinStore = {}
+                )
+            }
+        }
+    }
+}
+

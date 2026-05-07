@@ -1,57 +1,39 @@
 package com.kotonosora.skyboundhopper.view
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Policy
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.view.components.AudioSettingsGroup
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
+import com.kotonosora.skyboundhopper.view.theme.SkyHopTheme
 import com.kotonosora.skyboundhopper.viewmodel.SettingsViewModel
 
 @Composable
@@ -59,24 +41,26 @@ fun SettingsScreen(
     onBack: () -> Unit,
     settingsViewModel: SettingsViewModel
 ) {
-    val context = LocalContext.current
-    val versionName = settingsViewModel.versionName
-    var showWarningDialog by remember { mutableStateOf(false) }
-    var pendingUrl by remember { mutableStateOf("") }
-
     val musicEnabled by settingsViewModel.musicEnabled.collectAsState()
     val sfxEnabled by settingsViewModel.sfxEnabled.collectAsState()
 
-    val privacyUrl = stringResource(R.string.privacy_url)
-    val termsUrl = stringResource(R.string.terms_url)
-
-    ExternalLinkAlertDialog(
-        showDialog = showWarningDialog,
-        onDismiss = { showWarningDialog = false },
-        url = pendingUrl,
-        context = context
+    SettingsScreenContent(
+        onBack = onBack,
+        musicEnabled = musicEnabled,
+        sfxEnabled = sfxEnabled,
+        onMusicToggle = { settingsViewModel.toggleMusic(it) },
+        onSfxToggle = { settingsViewModel.toggleSfx(it) }
     )
+}
 
+@Composable
+fun SettingsScreenContent(
+    onBack: () -> Unit,
+    musicEnabled: Boolean,
+    sfxEnabled: Boolean,
+    onMusicToggle: (Boolean) -> Unit,
+    onSfxToggle: (Boolean) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -85,40 +69,19 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
+                .safeContentPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            SettingsHeader(onBack = {
-                onBack()
-            })
+            SettingsHeader(onBack = onBack)
 
             Spacer(modifier = Modifier.height(32.dp))
 
             AudioSettingsGroup(
                 musicEnabled = musicEnabled,
                 sfxEnabled = sfxEnabled,
-                onMusicToggle = { 
-                    settingsViewModel.toggleMusic(it) 
-                },
-                onSfxToggle = { 
-                    settingsViewModel.toggleSfx(it) 
-                }
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            SettingsGroupList(
-                versionName = versionName,
-                onPolicyClick = {
-                    pendingUrl = privacyUrl
-                    showWarningDialog = true
-                },
-                onTermsClick = {
-                    pendingUrl = termsUrl
-                    showWarningDialog = true
-                }
+                onMusicToggle = onMusicToggle,
+                onSfxToggle = onSfxToggle
             )
         }
     }
@@ -148,164 +111,23 @@ fun SettingsHeader(
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = stringResource(R.string.title_settings),
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineSmall,
             color = Color.Black
         )
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true, name = "Settings Screen")
 @Composable
-fun SettingsGroupList(
-    versionName: String,
-    onPolicyClick: () -> Unit,
-    onTermsClick: () -> Unit
-) {
-    Text(
-        text = stringResource(R.string.title_legal),
-        style = MaterialTheme.typography.titleLarge,
-        color = Color.DarkGray,
-        modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
-    )
-
-    SettingsItem(
-        icon = Icons.Default.Policy,
-        title = stringResource(R.string.label_privacy_policy),
-        color = Color(0xFF1976D2),
-        onClick = onPolicyClick
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    SettingsItem(
-        icon = Icons.Default.Description,
-        title = stringResource(R.string.label_terms_of_service),
-        color = Color(0xFFF4511E),
-        onClick = onTermsClick
-    )
-
-    Spacer(modifier = Modifier.height(32.dp))
-
-    Text(
-        text = stringResource(R.string.title_about),
-        style = MaterialTheme.typography.titleLarge,
-        color = Color.DarkGray,
-        modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
-    )
-
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.8f),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            AboutRow(
-                icon = Icons.Default.Info,
-                title = stringResource(R.string.label_game_version),
-                value = "V$versionName",
-                color = Color(0xFF388E3C)
-            )
-        }
-    }
-}
-
-@Composable
-fun ExternalLinkAlertDialog(
-    showDialog: Boolean,
-    onDismiss: () -> Unit,
-    url: String,
-    context: Context
-) {
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(stringResource(R.string.dialog_leaving_title), style = MaterialTheme.typography.headlineSmall) },
-            text = { Text(stringResource(R.string.dialog_leaving_msg), style = MaterialTheme.typography.bodyMedium) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDismiss()
-                        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                        context.startActivity(intent)
-                    }
-                ) {
-                    Text(stringResource(R.string.btn_continue), style = MaterialTheme.typography.labelLarge)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.btn_cancel), style = MaterialTheme.typography.labelLarge)
-                }
-            }
+private fun SettingsScreenPreview() {
+    SkyHopTheme(dynamicColor = false) {
+        SettingsScreenContent(
+            onBack = {},
+            musicEnabled = true,
+            sfxEnabled = false,
+            onMusicToggle = {},
+            onSfxToggle = {},
         )
     }
 }
 
-@Composable
-fun SettingsItem(
-    icon: ImageVector,
-    title: String,
-    color: Color,
-    onClick: () -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.8f),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                icon,
-                contentDescription = title,
-                tint = color,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.Gray)
-        }
-    }
-}
-
-@Composable
-fun AboutRow(
-    icon: ImageVector,
-    title: String,
-    value: String,
-    color: Color
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Black
-            )
-        }
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.DarkGray
-        )
-    }
-}

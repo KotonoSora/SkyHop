@@ -16,14 +16,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import com.kotonosora.skyboundhopper.model.GameState
+import com.kotonosora.skyboundhopper.model.PipeState
 import com.kotonosora.skyboundhopper.model.SkinData
 import com.kotonosora.skyboundhopper.view.components.Bird
 import com.kotonosora.skyboundhopper.view.components.GameBackground
 import com.kotonosora.skyboundhopper.view.components.GameHUD
 import com.kotonosora.skyboundhopper.view.components.GameOverShopOverlay
 import com.kotonosora.skyboundhopper.view.components.PipesCanvas
+import com.kotonosora.skyboundhopper.view.theme.SkyHopTheme
 import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
 
 @Composable
@@ -107,3 +110,49 @@ fun GameContent(
         )
     }
 }
+
+@Preview(showBackground = true, showSystemUi = true, name = "Game Screen – playing")
+@Composable
+private fun GameScreenPlayingPreview() {
+    SkyHopTheme(dynamicColor = false) {
+        GameContent(
+            gameState = GameState(
+                score = 42,
+                level = 2,
+                isGameStarted = true,
+                pipes = listOf(
+                    PipeState(x = 600f, gapTop = 300f),
+                    PipeState(x = 1000f, gapTop = 500f)
+                )
+            ),
+            birdSkinRes = SkinData.getBirdSkinResource(""),
+            rotation = -10f,
+            density = Density(3f),
+            onUsePowerUp = {},
+            onHome = {},
+            onPlayAgain = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Game Screen – game over")
+@Composable
+private fun GameScreenGameOverPreview() {
+    SkyHopTheme(dynamicColor = false) {
+        GameContent(
+            gameState = GameState(
+                score = 15,
+                level = 1,
+                highScore = 42,
+                isGameOver = true
+            ),
+            birdSkinRes = SkinData.getBirdSkinResource(""),
+            rotation = 90f,
+            density = Density(3f),
+            onUsePowerUp = {},
+            onHome = {},
+            onPlayAgain = {}
+        )
+    }
+}
+

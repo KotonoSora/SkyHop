@@ -186,6 +186,7 @@ class GameViewModel(
 
             viewModelScope.launch {
                 scoreRepository.updateHighScore(state.score)
+                scoreRepository.saveScore(state.score)
                 settingsRepository.addCoins(state.score / 2)
             }
             return state.copy(isGameOver = true)

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -27,9 +28,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -54,11 +55,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.android.billingclient.api.ProductDetails
 import com.kotonosora.skyboundhopper.R
 import com.kotonosora.skyboundhopper.billing.BillingStatus
 import com.kotonosora.skyboundhopper.model.CoinPackItem
+import com.kotonosora.skyboundhopper.model.ShopData
 import com.kotonosora.skyboundhopper.view.components.CoinBadge
 import com.kotonosora.skyboundhopper.view.components.GameButton
 import com.kotonosora.skyboundhopper.view.theme.CoinButtonPrimary
@@ -66,6 +69,7 @@ import com.kotonosora.skyboundhopper.view.theme.CoinButtonShadow
 import com.kotonosora.skyboundhopper.view.theme.CoinGoldDark
 import com.kotonosora.skyboundhopper.view.theme.CoinGoldLight
 import com.kotonosora.skyboundhopper.view.theme.SkyBlue
+import com.kotonosora.skyboundhopper.view.theme.SkyHopTheme
 import com.kotonosora.skyboundhopper.viewmodel.ShopViewModel
 
 @Composable
@@ -102,8 +106,7 @@ fun CoinStoreScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
+                .safeContentPadding()
         ) {
             CoinStoreHeader(
                 onClose = onClose,
@@ -160,7 +163,7 @@ fun CoinStoreHeader(
 
             Text(
                 text = stringResource(R.string.title_coins),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 color = Color.Black
             )
         }
@@ -313,20 +316,21 @@ fun AdRewardCard(canWatch: Boolean, onWatch: () -> Unit) {
 
 @Composable
 fun ConnectionLoadingView() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         CircularProgressIndicator(color = Color.White)
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.msg_connecting_play_store),
             color = Color.White,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
         )
     }
 }
 
 @Composable
 fun ConnectionErrorView(onRetry: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Icon(
             imageVector = Icons.Default.Warning,
             contentDescription = null,
@@ -458,4 +462,95 @@ private fun Context.findActivity(): Activity? {
         context = context.baseContext
     }
     return null
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Coin Store – connected")
+@Composable
+private fun CoinStoreScreenPreview() {
+    SkyHopTheme(dynamicColor = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SkyBlue)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeContentPadding()
+            ) {
+                CoinStoreHeader(onClose = {}, coins = 750)
+                Spacer(modifier = Modifier.height(32.dp))
+                CoinStoreContent(
+                    modifier = Modifier.weight(1f),
+                    billingStatus = BillingStatus.CONNECTED,
+                    coinPacks = ShopData.getDebugCoinPacks(),
+                    canWatchAd = true,
+                    onRetry = {},
+                    onBuy = {},
+                    onWatchAd = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Coin Store – loading")
+@Composable
+private fun CoinStoreLoadingPreview() {
+    SkyHopTheme(dynamicColor = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SkyBlue)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeContentPadding()
+            ) {
+                CoinStoreHeader(onClose = {}, coins = 0)
+                Spacer(modifier = Modifier.height(32.dp))
+                CoinStoreContent(
+                    modifier = Modifier.weight(1f),
+                    billingStatus = BillingStatus.CONNECTING,
+                    coinPacks = emptyList(),
+                    canWatchAd = false,
+                    onRetry = {},
+                    onBuy = {},
+                    onWatchAd = {}
+                )
+            }
+        }
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true, name = "Coin Store – loading")
+@Composable
+private fun CoinStoreErrorPreview() {
+    SkyHopTheme(dynamicColor = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SkyBlue)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeContentPadding()
+            ) {
+                CoinStoreHeader(onClose = {}, coins = 0)
+                Spacer(modifier = Modifier.height(32.dp))
+                CoinStoreContent(
+                    modifier = Modifier.weight(1f),
+                    billingStatus = BillingStatus.ERROR,
+                    coinPacks = emptyList(),
+                    canWatchAd = false,
+                    onRetry = {},
+                    onBuy = {},
+                    onWatchAd = {}
+                )
+            }
+        }
+    }
 }

@@ -15,7 +15,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -24,10 +24,21 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -36,11 +47,14 @@ import com.android.billingclient.api.ProductDetails
 import com.kotonosora.skyboundhopper.view.CoinStoreScreen
 import com.kotonosora.skyboundhopper.view.GameScreen
 import com.kotonosora.skyboundhopper.view.HomeScreen
+import com.kotonosora.skyboundhopper.view.LeaderboardScreen
 import com.kotonosora.skyboundhopper.view.SettingsScreen
 import com.kotonosora.skyboundhopper.view.SkinShopScreen
 import com.kotonosora.skyboundhopper.view.theme.SkyHopTheme
 import com.kotonosora.skyboundhopper.viewmodel.GameViewModel
 import com.kotonosora.skyboundhopper.viewmodel.GameViewModelFactory
+import com.kotonosora.skyboundhopper.viewmodel.LeaderboardViewModel
+import com.kotonosora.skyboundhopper.viewmodel.LeaderboardViewModelFactory
 import com.kotonosora.skyboundhopper.viewmodel.NavigationViewModel
 import com.kotonosora.skyboundhopper.viewmodel.Screen
 import com.kotonosora.skyboundhopper.viewmodel.SettingsViewModel
@@ -51,7 +65,16 @@ import com.kotonosora.skyboundhopper.viewmodel.ShopViewModelFactory
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Draw edge-to-edge (content behind system bars)
         enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Hide status bar + nav bar — sticky immersive (re-appear on swipe, then auto-hide)
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         setContent {
             SkyHopTheme {
@@ -97,6 +120,12 @@ fun MainApp() {
         )
     )
 
+    val leaderboardViewModel: LeaderboardViewModel = viewModel(
+        factory = LeaderboardViewModelFactory(
+            scoreRepository = app.scoreRepository
+        )
+    )
+
     DisposableEffect(lifecycleOwner, gameViewModel, app) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
@@ -122,11 +151,35 @@ fun MainApp() {
         }
     }
 
-    Scaffold { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold(contentWindowInsets = WindowInsets(0)) { paddingValues ->
+        var totalDrag by remember(currentScreen) { mutableFloatStateOf(0f) }
+        val swipeBackEnabled = currentScreen != Screen.Home && currentScreen != Screen.Game
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .then(
+                    if (swipeBackEnabled) {
+                        Modifier.pointerInput(currentScreen) {
+                            detectHorizontalDragGestures(
+                                onDragEnd = {
+                                    if (totalDrag < -80.dp.toPx()) navViewModel.navigateBack()
+                                    totalDrag = 0f
+                                },
+                                onDragCancel = { totalDrag = 0f },
+                                onHorizontalDrag = { change, dragAmount ->
+                                    change.consume()
+                                    totalDrag += dragAmount
+                                }
+                            )
+                        }
+                    } else Modifier
+                )
+        ) {
             AnimatedContent(
                 targetState = currentScreen,
-                modifier = Modifier.padding(if (currentScreen == Screen.Game) PaddingValues(0.dp) else innerPadding),
+                modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars),
                 transitionSpec = { getScreenTransitionSpec(targetState, initialState) },
                 label = "ScreenTransition"
             ) { screen ->
@@ -137,6 +190,7 @@ fun MainApp() {
                     gameViewModel = gameViewModel,
                     settingsViewModel = settingsViewModel,
                     shopViewModel = shopViewModel,
+                    leaderboardViewModel = leaderboardViewModel,
                     navigateTo = navViewModel::navigateTo,
                     launchPurchaseFlow = app.billingManager::launchPurchaseFlow,
                     showRewardedAd = app.adManager::showRewardedAd,
@@ -155,6 +209,7 @@ private fun ScreenContent(
     gameViewModel: GameViewModel,
     settingsViewModel: SettingsViewModel,
     shopViewModel: ShopViewModel,
+    leaderboardViewModel: LeaderboardViewModel,
     navigateTo: (Screen) -> Unit,
     launchPurchaseFlow: (Activity, ProductDetails) -> Unit,
     showRewardedAd: (Activity, () -> Unit) -> Unit,
@@ -162,13 +217,15 @@ private fun ScreenContent(
 ) {
     when (screen) {
         Screen.Home -> HomeScreen(
-            onPlayClick = { 
+            onPlayClick = {
                 gameViewModel.startGame()
-                navigateTo(Screen.Game) 
+                navigateTo(Screen.Game)
             },
             onShopClick = { navigateTo(Screen.Shop) },
             onGetCoinsClick = { navigateTo(Screen.CoinStore) },
             onSettingsClick = { navigateTo(Screen.Settings) },
+            onLeaderboardClick = { navigateTo(Screen.Leaderboard) },
+            coins = shopViewModel.coins.collectAsState().value,
             selectedSkinId = selectedSkinId
         )
         Screen.Game -> GameScreen(
@@ -181,7 +238,7 @@ private fun ScreenContent(
             viewModel = shopViewModel
         )
         Screen.CoinStore -> CoinStoreScreen(
-            onClose = { 
+            onClose = {
                 if (previousScreen == Screen.Game) navigateTo(Screen.Home)
                 else navigateTo(previousScreen)
             },
@@ -194,6 +251,10 @@ private fun ScreenContent(
         Screen.Settings -> SettingsScreen(
             onBack = { navigateTo(Screen.Home) },
             settingsViewModel = settingsViewModel
+        )
+        Screen.Leaderboard -> LeaderboardScreen(
+            viewModel = leaderboardViewModel,
+            onBack = { navigateTo(Screen.Home) }
         )
     }
 }
