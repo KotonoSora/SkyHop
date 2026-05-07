@@ -8,6 +8,10 @@
     <string name="msg_connection_error">FAILED TO CONNECT TO GOOGLE PLAY. PLEASE CHECK YOUR INTERNET CONNECTION.</string>
     <string name="btn_retry">RETRY</string>
     <string name="btn_buy">BUY</string>
+    <string name="btn_watch">WATCH</string>
+    <string name="btn_watched">WATCHED</string>
+    <string name="label_daily_reward">DAILY REWARD</string>
+    <string name="msg_ad_reward">WATCH AN AD TO GET 500 COINS!</string>
 
     <string name="title_score">SCORE</string>
     <string name="title_level">LEVEL</string>

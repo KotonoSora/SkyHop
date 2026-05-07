@@ -91,7 +91,9 @@ fun MainApp() {
     val shopViewModel: ShopViewModel = viewModel(
         factory = ShopViewModelFactory(
             settingsRepository = app.settingsRepository,
-            billingManager = app.billingManager
+            billingManager = app.billingManager,
+            adRewardRepository = app.adRewardRepository,
+            adManager = app.adManager
         )
     )
 
@@ -136,7 +138,9 @@ fun MainApp() {
                     settingsViewModel = settingsViewModel,
                     shopViewModel = shopViewModel,
                     navigateTo = navViewModel::navigateTo,
-                    launchPurchaseFlow = app.billingManager::launchPurchaseFlow
+                    launchPurchaseFlow = app.billingManager::launchPurchaseFlow,
+                    showRewardedAd = app.adManager::showRewardedAd,
+                    onAdRewardEarned = shopViewModel::onAdRewardEarned
                 )
             }
         }
@@ -152,7 +156,9 @@ private fun ScreenContent(
     settingsViewModel: SettingsViewModel,
     shopViewModel: ShopViewModel,
     navigateTo: (Screen) -> Unit,
-    launchPurchaseFlow: (Activity, ProductDetails) -> Unit
+    launchPurchaseFlow: (Activity, ProductDetails) -> Unit,
+    showRewardedAd: (Activity, () -> Unit) -> Unit,
+    onAdRewardEarned: () -> Unit
 ) {
     when (screen) {
         Screen.Home -> HomeScreen(
@@ -180,7 +186,10 @@ private fun ScreenContent(
                 else navigateTo(previousScreen)
             },
             viewModel = shopViewModel,
-            onLaunchPurchase = launchPurchaseFlow
+            onLaunchPurchase = launchPurchaseFlow,
+            onShowAd = { activity ->
+                showRewardedAd(activity, onAdRewardEarned)
+            }
         )
         Screen.Settings -> SettingsScreen(
             onBack = { navigateTo(Screen.Home) },

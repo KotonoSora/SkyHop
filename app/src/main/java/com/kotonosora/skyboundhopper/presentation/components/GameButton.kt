@@ -29,6 +29,7 @@ fun GameButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     backgroundColor: Color = Color(0xFFFFCA28),
     shadowColor: Color = Color(0xFFD4A017),
     textColor: Color = Color.Black,
@@ -57,12 +58,18 @@ fun GameButton(
 
     Box(
         modifier = modifier
-            .scale(scale)
+            .scale(if (enabled) scale else 1f)
             .height(height + 8.dp)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
+            .then(
+                if (enabled) {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = onClick
+                    )
+                } else {
+                    Modifier
+                }
             ),
         contentAlignment = Alignment.BottomCenter
     ) {
@@ -79,14 +86,21 @@ fun GameButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(height)
-                .offset(y = offsetY.dp)
+                .offset(y = if (enabled) offsetY.dp else 0.dp)
                 .clip(shape)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            backgroundColor.copy(alpha = 0.8f),
-                            backgroundColor
-                        )
+                        colors = if (enabled) {
+                            listOf(
+                                backgroundColor.copy(alpha = 0.8f),
+                                backgroundColor
+                            )
+                        } else {
+                            listOf(
+                                Color.LightGray.copy(alpha = 0.8f),
+                                Color.LightGray
+                            )
+                        }
                     )
                 )
                 .border(borderWidth, borderColor, shape),

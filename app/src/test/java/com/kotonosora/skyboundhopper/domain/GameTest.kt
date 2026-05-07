@@ -1,6 +1,6 @@
 package com.kotonosora.skyboundhopper.domain
 
-import com.kotonosora.skyboundhopper.domain.model.Game
+import com.kotonosora.skyboundhopper.feature.game.Game
 import org.junit.Assert.assertEquals
 
 import org.junit.Test

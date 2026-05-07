@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -70,7 +72,8 @@ import com.kotonosora.skyboundhopper.viewmodel.ShopViewModel
 fun CoinStoreScreen(
     onClose: () -> Unit,
     viewModel: ShopViewModel,
-    onLaunchPurchase: (Activity, ProductDetails) -> Unit
+    onLaunchPurchase: (Activity, ProductDetails) -> Unit,
+    onShowAd: (Activity) -> Unit
 ) {
     val coins by viewModel.coins.collectAsState()
     val coinPacks by viewModel.coinPacks.collectAsState()
@@ -81,6 +84,13 @@ fun CoinStoreScreen(
         val currentActivity = activity ?: return@LaunchedEffect
         viewModel.purchaseLaunchRequests.collect { productDetails ->
             onLaunchPurchase(currentActivity, productDetails)
+        }
+    }
+
+    LaunchedEffect(activity, viewModel) {
+        val currentActivity = activity ?: return@LaunchedEffect
+        viewModel.adShowRequests.collect {
+            onShowAd(currentActivity)
         }
     }
 
@@ -106,10 +116,12 @@ fun CoinStoreScreen(
                 modifier = Modifier.weight(1f),
                 billingStatus = billingStatus,
                 coinPacks = coinPacks,
+                canWatchAd = viewModel.canWatchAd.collectAsState().value,
                 onRetry = { 
                     viewModel.retryConnection() 
                 },
-                onBuy = viewModel::buyCoinPack
+                onBuy = viewModel::buyCoinPack,
+                onWatchAd = viewModel::watchRewardedAd
             )
             
             Spacer(modifier = Modifier.height(64.dp))
@@ -162,8 +174,10 @@ fun CoinStoreContent(
     modifier: Modifier = Modifier,
     billingStatus: BillingStatus,
     coinPacks: List<CoinPackItem>,
+    canWatchAd: Boolean,
     onRetry: () -> Unit,
-    onBuy: (CoinPackItem) -> Unit
+    onBuy: (CoinPackItem) -> Unit,
+    onWatchAd: () -> Unit
 ) {
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         if (billingStatus == BillingStatus.CONNECTING || billingStatus == BillingStatus.IDLE) {
@@ -173,7 +187,7 @@ fun CoinStoreContent(
 
         val emptyMessage = when (billingStatus) {
             BillingStatus.EMPTY -> stringResource(R.string.msg_no_packs_available)
-            BillingStatus.CONNECTED -> if (coinPacks.isEmpty()) stringResource(R.string.msg_no_packs_found) else null
+            BillingStatus.CONNECTED -> if (coinPacks.isEmpty() && !canWatchAd) stringResource(R.string.msg_no_packs_found) else null
             else -> null
         }
 
@@ -193,6 +207,12 @@ fun CoinStoreContent(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    item {
+                        AdRewardCard(
+                            canWatch = canWatchAd,
+                            onWatch = onWatchAd
+                        )
+                    }
                     items(coinPacks) { item ->
                         CoinPackCard(item) {
                             onBuy(item)
@@ -201,6 +221,92 @@ fun CoinStoreContent(
                 }
             }
             else -> {}
+        }
+    }
+}
+
+@Composable
+fun AdRewardCard(canWatch: Boolean, onWatch: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(32.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .widthIn(max = 280.dp)
+            .aspectRatio(0.7f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_coins_500),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(0.8f),
+                    contentScale = ContentScale.Fit,
+                    alpha = if (canWatch) 1f else 0.5f
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(R.string.label_daily_reward).uppercase(),
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = stringResource(R.string.msg_ad_reward),
+                style = MaterialTheme.typography.titleSmall,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            GameButton(
+                text = if (canWatch) stringResource(R.string.btn_watch) else stringResource(R.string.btn_watched),
+                onClick = onWatch,
+                enabled = canWatch,
+                modifier = Modifier.fillMaxWidth(),
+                height = 56.dp,
+                backgroundColor = CoinButtonPrimary,
+                shadowColor = CoinButtonShadow,
+                textColor = if (canWatch) Color.Black else Color.DarkGray,
+                icon = { 
+                    Icon(
+                        imageVector = if (canWatch) Icons.Default.PlayArrow else Icons.Default.Check,
+                        contentDescription = null,
+                        tint = if (canWatch) Color.Black else Color.DarkGray
+                    ) 
+                }
+            )
         }
     }
 }

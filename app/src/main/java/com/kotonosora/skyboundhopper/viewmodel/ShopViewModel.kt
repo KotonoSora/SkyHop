@@ -23,12 +23,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.kotonosora.skyboundhopper.ads.AdManager
+import com.kotonosora.skyboundhopper.domain.repository.AdRewardRepository
+import kotlinx.coroutines.flow.first
+
 
 class ShopViewModel(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
+    private val adRewardRepository: AdRewardRepository,
+    private val adManager: AdManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModel() {
+
+    val canWatchAd: StateFlow<Boolean> = adRewardRepository.canWatchAdFlow.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), false
+    )
 
     val coins: StateFlow<Int> = settingsRepository.coinsFlow.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
@@ -131,6 +141,25 @@ class ShopViewModel(
         }
     }
 
+    private val _adShowRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val adShowRequests: SharedFlow<Unit> = _adShowRequests.asSharedFlow()
+
+    fun watchRewardedAd() {
+        viewModelScope.launch {
+            if (adRewardRepository.canWatchAdFlow.first()) {
+                _adShowRequests.tryEmit(Unit)
+            }
+        }
+    }
+
+    fun onAdRewardEarned() {
+        viewModelScope.launch {
+            settingsRepository.addCoins(500)
+            adRewardRepository.recordAdWatched()
+            adManager.loadRewardedAd() // Preload next ad
+        }
+    }
+
     private fun addMockCoins(amount: Int) {
         viewModelScope.launch {
             settingsRepository.addCoins(amount)
@@ -146,12 +175,14 @@ class ShopViewModel(
 class ShopViewModelFactory(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
+    private val adRewardRepository: AdRewardRepository,
+    private val adManager: AdManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ShopViewModel::class.java)) {
-            return ShopViewModel(settingsRepository, billingManager, isDebug) as T
+            return ShopViewModel(settingsRepository, billingManager, adRewardRepository, adManager, isDebug) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

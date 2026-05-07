@@ -1,6 +1,7 @@
 package com.kotonosora.skyboundhopper.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.kotonosora.skyboundhopper.feature.game.GameRepositoryImpl
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

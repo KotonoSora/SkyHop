@@ -1,7 +1,8 @@
 package com.kotonosora.skyboundhopper.application
 
-import com.kotonosora.skyboundhopper.domain.model.Game
-import com.kotonosora.skyboundhopper.domain.repository.GameRepository
+import com.kotonosora.skyboundhopper.feature.game.Game
+import com.kotonosora.skyboundhopper.feature.game.GameRepository
+import com.kotonosora.skyboundhopper.feature.game.GameUseCases
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
