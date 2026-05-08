@@ -103,7 +103,7 @@ object ShopData {
             id = product.productId,
             name = coinAmount?.let(::formatCoinPackName) ?: product.name,
             price = product.oneTimePurchaseOfferDetails?.formattedPrice ?: "---",
-            imageRes = coinAmount?.let(::getCoinPackImageRes) ?: R.drawable.placeholder,
+            imageRes = coinAmount?.let(::getCoinPackImageRes) ?: R.drawable.img_coins_500,
             productDetails = product
         )
     }
