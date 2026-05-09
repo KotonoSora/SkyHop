@@ -1,4 +1,4 @@
-# SkyHop ProGuard Rules
+# FlagFang ProGuard Rules
 
 # -----------------------------------------------------------------------------------
 # General Rules
@@ -74,7 +74,7 @@
 }
 
 # -----------------------------------------------------------------------------------
-# SkyHop Models
+# FlagFang Models
 # -----------------------------------------------------------------------------------
 # Ensure your data models are not obfuscated to avoid issues with Room or Moshi
--keepclassmembers class com.kotonosora.skyboundhopper.model.** { *; }
+-keepclassmembers class com.jn.flagfang.model.** { *; }

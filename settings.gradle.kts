@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SkyHop"
+rootProject.name = "FlagFang"
 include(":app")

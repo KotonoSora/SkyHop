@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.kotonosora.skyboundhopper"
-    compileSdk = 36
+    namespace = "com.jn.flagfang"
+    compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.kotonosora.skyboundhopper"
+        applicationId = "com.jn.flagfang"
         minSdk = 24
         targetSdk = 36
         versionCode = 6
