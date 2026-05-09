@@ -1,4 +1,4 @@
-# SkyHop ProGuard Rules
+# FlagFang ProGuard Rules
 
 # -----------------------------------------------------------------------------------
 # General Rules
@@ -36,8 +36,13 @@
 # -----------------------------------------------------------------------------------
 # Moshi (for JSON parsing)
 # -----------------------------------------------------------------------------------
-# Keep classes used with Moshi for serialization
--keep class com.kotonosora.skyboundhopper.model.** { *; }
+# Retain generic type information for use by Moshi’s adapters.
+-keep class com.squareup.moshi.* { *; }
+-keep class kotlin.reflect.jvm.internal.** { *; }
+-keep @com.squareup.moshi.JsonQualifier interface *
+-keep @com.squareup.moshi.JsonClass class * {
+    <init>(...);
+}
 
 # -----------------------------------------------------------------------------------
 # Coroutines
@@ -56,10 +61,20 @@
 # -----------------------------------------------------------------------------------
 # Coil (Image Loading)
 # -----------------------------------------------------------------------------------
--dontwarn coil.**
+-keep class coil.** { *; }
+-keep class coil.RealImageLoader
+-keepclassmembers class * extends coil.decode.Decoder {
+    public <init>(...);
+}
+-keepclassmembers class * extends coil.fetch.Fetcher {
+    public <init>(...);
+}
+-keepclassmembers class * extends coil.transition.Transition {
+    public <init>(...);
+}
 
 # -----------------------------------------------------------------------------------
-# SkyHop Models
+# FlagFang Models
 # -----------------------------------------------------------------------------------
 # Ensure your data models are not obfuscated to avoid issues with Room or Moshi
--keepclassmembers class com.kotonosora.skyboundhopper.model.** { *; }
+-keepclassmembers class com.jn.flagfang.model.** { *; }

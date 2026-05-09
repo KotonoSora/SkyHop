@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.kotonosora.skyboundhopper"
-    compileSdk = 36
+    namespace = "com.jn.flagfang"
+    compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.kotonosora.skyboundhopper"
+        applicationId = "com.jn.flagfang"
         minSdk = 24
         targetSdk = 36
         versionCode = 6
@@ -89,9 +89,13 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.material)
     implementation(libs.billing.ktx)
+    implementation(libs.play.services.ads)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
     testImplementation(libs.androidx.core)
     testImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -101,6 +105,6 @@ dependencies {
     androidTestImplementation(libs.androidx.runner)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    "ksp"(libs.androidx.room.compiler)
-    "ksp"(libs.moshi.kotlin.codegen)
+    ksp(libs.androidx.room.compiler)
+    ksp(libs.moshi.kotlin.codegen)
 }

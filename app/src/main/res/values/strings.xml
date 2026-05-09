@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SkyHop</string>
+    <string name="app_name">FlagFang</string>
     <string name="title_coins">COINS</string>
     <string name="desc_back">Back</string>
     <string name="msg_no_packs_available">NO COIN PACKS AVAILABLE AT THE MOMENT.</string>
@@ -8,6 +8,10 @@
     <string name="msg_connection_error">FAILED TO CONNECT TO GOOGLE PLAY. PLEASE CHECK YOUR INTERNET CONNECTION.</string>
     <string name="btn_retry">RETRY</string>
     <string name="btn_buy">BUY</string>
+    <string name="btn_watch">WATCH</string>
+    <string name="btn_watched">WATCHED</string>
+    <string name="label_daily_reward">DAILY REWARD</string>
+    <string name="msg_ad_reward">WATCH AN AD TO GET 500 COINS!</string>
 
     <string name="title_score">SCORE</string>
     <string name="title_level">LEVEL</string>
@@ -36,7 +40,4 @@
     <string name="dialog_leaving_msg">YOU ARE ABOUT TO OPEN AN EXTERNAL WEBSITE. DO YOU WANT TO CONTINUE?</string>
     <string name="btn_continue">CONTINUE</string>
     <string name="btn_cancel">CANCEL</string>
-
-    <string name="privacy_url">https://skyhop.kotonosora.com/privacy</string>
-    <string name="terms_url">https://skyhop.kotonosora.com/terms</string>
 </resources>

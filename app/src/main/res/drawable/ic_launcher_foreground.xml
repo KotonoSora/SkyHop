@@ -1,7 +1,0 @@
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:drawable="@drawable/skyhop_bird_foreground"
-        android:gravity="center"
-        android:width="66dp"
-        android:height="66dp" />
-</layer-list>
