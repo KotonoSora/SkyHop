@@ -14,9 +14,9 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.jn.flagfang.data.SettingsRepository
-import com.jn.flagfang.model.CoinPackIds
-import com.jn.flagfang.model.ShopData
+import com.jn.flagfang.feature.shop.SettingsRepository
+import com.jn.flagfang.feature.shop.CentPackIds
+import com.jn.flagfang.feature.shop.ShopData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -69,7 +69,7 @@ class BillingManager(
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _status.value = BillingStatus.CONNECTED
-                    queryProducts(CoinPackIds.ALL)
+                    queryProducts(CentPackIds.ALL)
                     queryPurchases()
                 } else {
                     _status.value = BillingStatus.ERROR
@@ -141,7 +141,7 @@ class BillingManager(
 
     private fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            val isCoinPack = purchase.products.any { it.startsWith("coins_") }
+            val isCoinPack = purchase.products.any { it.startsWith("cents_") }
 
             if (isCoinPack) {
                 consumeCoinPack(purchase)
@@ -171,8 +171,8 @@ class BillingManager(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 managerScope.launch {
                     purchase.products.forEach { productId ->
-                        ShopData.getCoinAmount(productId)?.let { coinAmount ->
-                            settingsRepository.addCoins(coinAmount)
+                        ShopData.getCoinAmount(productId)?.let { centAmount ->
+                            settingsRepository.addCoins(centAmount)
                         }
                     }
                 }

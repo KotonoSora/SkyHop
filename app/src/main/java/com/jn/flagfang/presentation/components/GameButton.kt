@@ -1,4 +1,4 @@
-package com.jn.flagfang.view.components
+package com.jn.flagfang.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

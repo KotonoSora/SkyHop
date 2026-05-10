@@ -1,4 +1,4 @@
-package com.jn.flagfang.view
+package com.jn.flagfang.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,15 +31,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jn.flagfang.R
-import com.jn.flagfang.view.components.AudioSettingsGroup
-import com.jn.flagfang.view.theme.GameTheme
-import com.jn.flagfang.view.theme.SkyBlue
+import com.jn.flagfang.presentation.components.AudioSettingsGroup
+import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.SkyBlue
 import com.jn.flagfang.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit,
-    settingsViewModel: SettingsViewModel
+    onBack: () -> Unit, settingsViewModel: SettingsViewModel
 ) {
     val musicEnabled by settingsViewModel.musicEnabled.collectAsState()
     val sfxEnabled by settingsViewModel.sfxEnabled.collectAsState()
@@ -49,8 +48,7 @@ fun SettingsScreen(
         musicEnabled = musicEnabled,
         sfxEnabled = sfxEnabled,
         onMusicToggle = { settingsViewModel.toggleMusic(it) },
-        onSfxToggle = { settingsViewModel.toggleSfx(it) }
-    )
+        onSfxToggle = { settingsViewModel.toggleSfx(it) })
 }
 
 @Composable
@@ -92,8 +90,7 @@ fun SettingsHeader(
     onBack: () -> Unit
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 8.dp)
+        verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)
     ) {
         IconButton(
             onClick = onBack,

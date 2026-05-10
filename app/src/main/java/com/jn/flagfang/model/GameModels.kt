@@ -24,7 +24,7 @@ data class PipeState(
     val x: Float,
     val gapTop: Float,
     val gapHeight: Float = 350f,
-    val width: Float = 60f,
+    val width: Float = 100f,
     val scored: Boolean = false
 )
 
@@ -34,7 +34,7 @@ data class GameState(
     val score: Int = 0,
     val pipesPassed: Int = 0,
     val highScore: Int = 0,
-    val coins: Int = 0,
+    val cents: Int = 0,
     val level: Int = 1,
     val isGameOver: Boolean = false,
     val isGameStarted: Boolean = false,

@@ -6,13 +6,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jn.flagfang.audio.AudioManager
 import com.jn.flagfang.audio.SfxType
-import com.jn.flagfang.data.ScoreRepository
-import com.jn.flagfang.data.SettingsRepository
+import com.jn.flagfang.feature.shop.ScoreRepository
+import com.jn.flagfang.feature.shop.SettingsRepository
 import com.jn.flagfang.model.AnimalState
 import com.jn.flagfang.model.GamePhysics
 import com.jn.flagfang.model.GameState
 import com.jn.flagfang.model.PowerUpType
-import com.jn.flagfang.model.SkinIds
+import com.jn.flagfang.feature.shop.SkinIds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,8 +55,8 @@ class GameViewModel(
             }
         }
         viewModelScope.launch {
-            settingsRepository.coinsFlow.collect { coins ->
-                _gameState.update { it.copy(coins = coins) }
+            settingsRepository.centsFlow.collect { cents ->
+                _gameState.update { it.copy(cents = cents) }
             }
         }
         viewModelScope.launch {
@@ -119,7 +119,7 @@ class GameViewModel(
                 screenWidth = state.screenWidth,
                 screenHeight = state.screenHeight,
                 highScore = state.highScore,
-                coins = state.coins,
+                cents = state.cents,
                 shieldCount = state.shieldCount,
                 multiplierCount = state.multiplierCount,
                 autoPlayCount = state.autoPlayCount,

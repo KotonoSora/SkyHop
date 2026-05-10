@@ -2,7 +2,7 @@ package com.jn.flagfang.viewmodel
 
 import com.jn.flagfang.ads.AdManager
 import com.jn.flagfang.billing.BillingManager
-import com.jn.flagfang.data.SettingsRepository
+import com.jn.flagfang.feature.shop.SettingsRepository
 import com.jn.flagfang.domain.repository.AdRewardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,7 +37,7 @@ class ShopViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        whenever(settingsRepository.coinsFlow).thenReturn(flowOf(100))
+        whenever(settingsRepository.centsFlow).thenReturn(flowOf(100))
         whenever(settingsRepository.purchasedItemsFlow).thenReturn(flowOf(emptySet()))
         whenever(settingsRepository.selectedSkinFlow).thenReturn(flowOf("default"))
         whenever(settingsRepository.shieldCountFlow).thenReturn(flowOf(0))
@@ -74,7 +74,7 @@ class ShopViewModelTest {
     }
 
     @Test
-    fun `onAdRewardEarned adds coins and records ad watched`() = testScope.runTest {
+    fun `onAdRewardEarned adds cents and records ad watched`() = testScope.runTest {
         viewModel.onAdRewardEarned()
 
         verify(settingsRepository).addCoins(500)

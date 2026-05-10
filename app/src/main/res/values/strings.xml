@@ -1,17 +1,17 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">FlagFang</string>
-    <string name="title_coins">COINS</string>
+    <string name="title_cents">CENTS</string>
     <string name="desc_back">Back</string>
-    <string name="msg_no_packs_available">NO COIN PACKS AVAILABLE AT THE MOMENT.</string>
-    <string name="msg_no_packs_found">NO COIN PACKS FOUND IN THE STORE.</string>
-    <string name="msg_connecting_play_store">CONNECTING TO PLAY STORE...</string>
+    <string name="msg_no_packs_available">NO CENT PACKS AVAILABLE AT THE MOMENT.</string>
+    <string name="msg_no_packs_found">NO CENT PACKS FOUND IN THE STORE.</string>
+    <string name="msg_connecting_play_store">CONNECTING TO PLAY STORE…</string>
     <string name="msg_connection_error">FAILED TO CONNECT TO GOOGLE PLAY. PLEASE CHECK YOUR INTERNET CONNECTION.</string>
     <string name="btn_retry">RETRY</string>
     <string name="btn_buy">BUY</string>
     <string name="btn_watch">WATCH</string>
     <string name="btn_watched">WATCHED</string>
     <string name="label_daily_reward">DAILY REWARD</string>
-    <string name="msg_ad_reward">WATCH AN AD TO GET 500 COINS!</string>
+    <string name="msg_ad_reward">WATCH AN AD TO GET 500 CENTS!</string>
 
     <string name="title_score">SCORE</string>
     <string name="title_level">LEVEL</string>
@@ -21,7 +21,7 @@
 
     <string name="desc_star">Score Star</string>
     <string name="desc_play">Level Icon</string>
-    <string name="desc_coin">Coins</string>
+    <string name="desc_cent">Cents</string>
     <string name="desc_shield">Shield</string>
     <string name="desc_multiplier">Multiplier Booster</string>
 
@@ -39,5 +39,5 @@
     <string name="dialog_leaving_title">LEAVING THE APP</string>
     <string name="dialog_leaving_msg">YOU ARE ABOUT TO OPEN AN EXTERNAL WEBSITE. DO YOU WANT TO CONTINUE?</string>
     <string name="btn_continue">CONTINUE</string>
-    <string name="btn_cancel">CANCEL</string>
+    <string name="btn_cancel" tools:ignore="ButtonCase">CANCEL</string>
 </resources>

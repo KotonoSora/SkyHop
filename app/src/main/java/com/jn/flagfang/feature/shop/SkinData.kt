@@ -1,4 +1,4 @@
-package com.jn.flagfang.model
+package com.jn.flagfang.feature.shop
 
 import com.jn.flagfang.R
 

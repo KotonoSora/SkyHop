@@ -1,4 +1,4 @@
-package com.jn.flagfang.view.theme
+package com.jn.flagfang.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

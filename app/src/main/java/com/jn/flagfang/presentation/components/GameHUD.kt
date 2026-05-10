@@ -1,4 +1,4 @@
-package com.jn.flagfang.view.components
+package com.jn.flagfang.presentation.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -74,7 +74,7 @@ fun GameHUD(
         }
 
         CoinDisplayHUD(
-            coins = gameState.coins,
+            cents = gameState.cents,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
@@ -136,7 +136,7 @@ fun HUDBadge(text: String, icon: ImageVector, contentDescription: String?) {
 
 @Composable
 fun CoinDisplayHUD(
-    coins: Int,
+    cents: Int,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -150,13 +150,13 @@ fun CoinDisplayHUD(
         ) {
             Icon(
                 Icons.Default.MonetizationOn,
-                contentDescription = stringResource(R.string.desc_coin),
+                contentDescription = stringResource(R.string.desc_cent),
                 tint = Color(0xFFFFD54F),
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = String.format(Locale.getDefault(), "%,d", coins),
+                text = String.format(Locale.getDefault(), "%,d", cents),
                 color = Color.White,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.ExtraBold

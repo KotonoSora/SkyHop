@@ -1,4 +1,4 @@
-package com.jn.flagfang.data
+package com.jn.flagfang.feature.shop
 
 import android.content.Context
 import androidx.datastore.core.DataStore

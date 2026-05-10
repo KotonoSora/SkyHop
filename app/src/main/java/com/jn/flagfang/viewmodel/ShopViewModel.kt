@@ -8,13 +8,13 @@ import com.jn.flagfang.BuildConfig
 import com.jn.flagfang.ads.AdManager
 import com.jn.flagfang.billing.BillingManager
 import com.jn.flagfang.billing.BillingStatus
-import com.jn.flagfang.data.SettingsRepository
+import com.jn.flagfang.feature.shop.SettingsRepository
 import com.jn.flagfang.domain.repository.AdRewardRepository
-import com.jn.flagfang.model.CoinPackIds
-import com.jn.flagfang.model.CoinPackItem
-import com.jn.flagfang.model.ShopData
-import com.jn.flagfang.model.ShopItem
-import com.jn.flagfang.model.SkinIds
+import com.jn.flagfang.feature.shop.CentPackIds
+import com.jn.flagfang.feature.shop.CentPackItem
+import com.jn.flagfang.feature.shop.ShopData
+import com.jn.flagfang.feature.shop.ShopItem
+import com.jn.flagfang.feature.shop.SkinIds
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,7 +40,7 @@ class ShopViewModel(
         viewModelScope, SharingStarted.WhileSubscribed(5000), false
     )
 
-    val coins: StateFlow<Int> = settingsRepository.coinsFlow.stateIn(
+    val cents: StateFlow<Int> = settingsRepository.centsFlow.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
     )
 
@@ -87,9 +87,9 @@ class ShopViewModel(
         }
     }
 
-    val coinPacks: StateFlow<List<CoinPackItem>> = products.map { productList ->
-        val allowedIds = CoinPackIds.ALL
-        val packs = productList.filter { it.productId.startsWith("coins_") }
+    val centPacks: StateFlow<List<CentPackItem>> = products.map { productList ->
+        val allowedIds = CentPackIds.ALL
+        val packs = productList.filter { it.productId.startsWith("cents_") }
             .map { product -> ShopData.mapToCoinPack(product) }
             .sortedBy { allowedIds.indexOf(it.id) }
 
@@ -101,7 +101,7 @@ class ShopViewModel(
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        if (isDebug) ShopData.getDebugCoinPacks(CoinPackIds.ALL) else emptyList()
+        if (isDebug) ShopData.getDebugCoinPacks(CentPackIds.ALL) else emptyList()
     )
 
     val skinItems = purchasedItems.map { purchasedIds ->
@@ -129,7 +129,7 @@ class ShopViewModel(
         }
     }
 
-    fun buyCoinPack(item: CoinPackItem) {
+    fun buyCoinPack(item: CentPackItem) {
         if (item.id.startsWith("mock_")) {
             val amountStr = item.id.removePrefix("mock_")
             val amount = amountStr.toIntOrNull() ?: 0

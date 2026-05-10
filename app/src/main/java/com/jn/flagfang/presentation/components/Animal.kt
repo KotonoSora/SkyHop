@@ -1,4 +1,4 @@
-package com.jn.flagfang.view.components
+package com.jn.flagfang.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

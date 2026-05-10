@@ -14,8 +14,8 @@ android {
         applicationId = "com.jn.flagfang"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.0.5"
+        versionCode = 1
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -26,23 +26,12 @@ android {
         keystoreProperties.load(keystorePropertiesFile.inputStream())
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile = keystoreProperties.getProperty("RELEASE_STORE_FILE")?.let { file(it) }
-            storePassword = keystoreProperties.getProperty("RELEASE_STORE_PASSWORD")
-            keyAlias = keystoreProperties.getProperty("RELEASE_KEY_ALIAS")
-            keyPassword = keystoreProperties.getProperty("RELEASE_KEY_PASSWORD")
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
         }
     }

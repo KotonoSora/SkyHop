@@ -1,4 +1,4 @@
-package com.jn.flagfang.view
+package com.jn.flagfang.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,8 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jn.flagfang.view.components.GameBackground
-import com.jn.flagfang.view.theme.GameTheme
+import com.jn.flagfang.presentation.components.GameBackground
+import com.jn.flagfang.presentation.theme.GameTheme
 import com.jn.flagfang.viewmodel.LeaderboardViewModel
 
 private val Gold = Color(0xFFFFD700)
@@ -46,8 +46,7 @@ private val Bronze = Color(0xFFCD7F32)
 
 @Composable
 fun LeaderboardScreen(
-    viewModel: LeaderboardViewModel,
-    onBack: () -> Unit
+    viewModel: LeaderboardViewModel, onBack: () -> Unit
 ) {
     val topScores by viewModel.topScores.collectAsState()
     LeaderboardScreenContent(topScores = topScores, onBack = onBack)
@@ -55,8 +54,7 @@ fun LeaderboardScreen(
 
 @Composable
 fun LeaderboardScreenContent(
-    topScores: List<Int>,
-    onBack: () -> Unit
+    topScores: List<Int>, onBack: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         GameBackground(opacity = 0.3f)
@@ -106,11 +104,6 @@ fun LeaderboardScreenContent(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "🐦",
-                            fontSize = 64.sp
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
                             text = "No scores yet.\nPlay a game to get on the board!",
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.White,
@@ -141,25 +134,21 @@ fun LeaderboardScreenContent(
 private fun LeaderboardRow(rank: Int, score: Int) {
     val (rowBg, _, medalLabel) = when (rank) {
         1 -> Triple(
-            Brush.horizontalGradient(listOf(Color(0xFF7B5800), Color(0xFFFFD700))),
-            Gold, "🥇"
+            Brush.horizontalGradient(listOf(Color(0xFF7B5800), Color(0xFFFFD700))), Gold, "🥇"
         )
 
         2 -> Triple(
-            Brush.horizontalGradient(listOf(Color(0xFF555555), Color(0xFFC0C0C0))),
-            Silver, "🥈"
+            Brush.horizontalGradient(listOf(Color(0xFF555555), Color(0xFFC0C0C0))), Silver, "🥈"
         )
 
         3 -> Triple(
-            Brush.horizontalGradient(listOf(Color(0xFF4E2A00), Color(0xFFCD7F32))),
-            Bronze, "🥉"
+            Brush.horizontalGradient(listOf(Color(0xFF4E2A00), Color(0xFFCD7F32))), Bronze, "🥉"
         )
 
         else -> Triple(
             Brush.horizontalGradient(
                 listOf(Color.White, Color.White)
-            ),
-            Color.White, null
+            ), Color.White, null
         )
     }
 
@@ -171,8 +160,7 @@ private fun LeaderboardRow(rank: Int, score: Int) {
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
             // Medal / rank number
             if (medalLabel != null) {
@@ -218,9 +206,7 @@ private fun LeaderboardRow(rank: Int, score: Int) {
 private fun LeaderboardScreenPreview() {
     GameTheme(dynamicColor = false) {
         LeaderboardScreenContent(
-            topScores = listOf(9999, 7500, 5200, 3100, 1800, 900, 450),
-            onBack = {}
-        )
+            topScores = listOf(9999, 7500, 5200, 3100, 1800, 900, 450), onBack = {})
     }
 }
 
@@ -229,8 +215,6 @@ private fun LeaderboardScreenPreview() {
 private fun LeaderboardScreenEmptyPreview() {
     GameTheme(dynamicColor = false) {
         LeaderboardScreenContent(
-            topScores = emptyList(),
-            onBack = {}
-        )
+            topScores = emptyList(), onBack = {})
     }
 }
