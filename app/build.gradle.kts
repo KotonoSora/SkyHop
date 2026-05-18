@@ -1,4 +1,4 @@
-import java.util.Properties
+import com.android.build.api.dsl.ApplicationExtension
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "com.jn.flagfang"
     compileSdk = 37
 
@@ -18,12 +18,6 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    val keystorePropertiesFile = rootProject.file("local.properties")
-    val keystoreProperties = Properties()
-    if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(keystorePropertiesFile.inputStream())
     }
 
     buildTypes {
