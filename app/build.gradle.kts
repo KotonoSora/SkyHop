@@ -1,4 +1,4 @@
-import java.util.Properties
+import com.android.build.api.dsl.ApplicationExtension
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "com.jn.flagfang"
     compileSdk = 37
 
@@ -14,35 +14,18 @@ android {
         applicationId = "com.jn.flagfang"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.0.5"
+        versionCode = 2
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    val keystorePropertiesFile = rootProject.file("local.properties")
-    val keystoreProperties = Properties()
-    if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(keystorePropertiesFile.inputStream())
-    }
-
-    signingConfigs {
-        create("release") {
-            storeFile = keystoreProperties.getProperty("RELEASE_STORE_FILE")?.let { file(it) }
-            storePassword = keystoreProperties.getProperty("RELEASE_STORE_PASSWORD")
-            keyAlias = keystoreProperties.getProperty("RELEASE_KEY_ALIAS")
-            keyPassword = keystoreProperties.getProperty("RELEASE_KEY_PASSWORD")
-        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
         }
     }

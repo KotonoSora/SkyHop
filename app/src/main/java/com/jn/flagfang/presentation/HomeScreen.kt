@@ -1,4 +1,4 @@
-package com.jn.flagfang.view
+package com.jn.flagfang.presentation
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -47,20 +47,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.jn.flagfang.R
-import com.jn.flagfang.model.SkinData
-import com.jn.flagfang.view.components.CoinBadge
-import com.jn.flagfang.view.components.GameBackground
-import com.jn.flagfang.view.components.GameButton
-import com.jn.flagfang.view.theme.GameTheme
+import com.jn.flagfang.feature.shop.SkinData
+import com.jn.flagfang.presentation.components.CoinBadge
+import com.jn.flagfang.presentation.components.GameBackground
+import com.jn.flagfang.presentation.components.GameButton
+import com.jn.flagfang.presentation.theme.GameTheme
 
 @Composable
 fun HomeScreen(
     onPlayClick: () -> Unit,
     onShopClick: () -> Unit,
-    onGetCoinsClick: () -> Unit,
+    onGetCentsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onLeaderboardClick: () -> Unit,
-    coins: Int,
+    cents: Int,
     selectedSkinId: String
 ) {
     Box(
@@ -68,7 +68,7 @@ fun HomeScreen(
     ) {
         GameBackground(opacity = 0.3f)
 
-        // ── Top-right group: coins badge + settings button ────────────
+        // ── Top-right group: cents badge + settings button ────────────
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -78,9 +78,9 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-            CoinBadge(coins = coins)
+            CoinBadge(cents = cents)
             Spacer(modifier = Modifier.width(12.dp))
-            GetCoinsButton(onClick = onGetCoinsClick)
+            GetCoinsButton(onClick = onGetCentsClick)
             Spacer(modifier = Modifier.width(12.dp))
             SettingsIconButton(onClick = onSettingsClick)
         }
@@ -107,12 +107,9 @@ fun HomeScreen(
                 textColor = Color.Black,
                 icon = {
                     Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        tint = Color.Black
+                        Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black
                     )
-                }
-            )
+                })
 
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -128,12 +125,9 @@ fun HomeScreen(
                 textColor = Color.White,
                 icon = {
                     Icon(
-                        Icons.Default.ShoppingCart,
-                        contentDescription = null,
-                        tint = Color.White
+                        Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White
                     )
-                }
-            )
+                })
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -144,8 +138,7 @@ fun HomeScreen(
                 backgroundColor = Color(0xFF42A5F5),
                 shadowColor = Color(0xFF1565C0),
                 textColor = Color.White,
-                icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) }
-            )
+                icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) })
         }
     }
 }
@@ -156,24 +149,16 @@ fun AnimatedHomeScreenElements(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "HomeAnimations")
 
-    val AnimalOffset by infiniteTransition.animateFloat(
-        initialValue = -10f,
-        targetValue = 10f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "AnimalFloating"
+    val animalOffset by infiniteTransition.animateFloat(
+        initialValue = -10f, targetValue = 10f, animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = LinearOutSlowInEasing), repeatMode = RepeatMode.Reverse
+        ), label = "AnimalFloating"
     )
 
     val logoScale by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "LogoScaling"
+        initialValue = 0.95f, targetValue = 1.05f, animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = FastOutSlowInEasing), repeatMode = RepeatMode.Reverse
+        ), label = "LogoScaling"
     )
 
     Text(
@@ -185,15 +170,15 @@ fun AnimatedHomeScreenElements(
 
     Spacer(modifier = Modifier.height(32.dp))
 
-    val AnimalSkinRes =
+    val animalSkinRes =
         remember(selectedSkinId) { SkinData.getIDLEAnimalSkinResource(selectedSkinId) }
     Image(
-        painter = painterResource(id = AnimalSkinRes),
+        painter = painterResource(id = animalSkinRes),
         contentDescription = "Hero Animal",
         modifier = Modifier
             .size(180.dp)
             .graphicsLayer {
-                translationY = AnimalOffset
+                translationY = animalOffset
             },
         contentScale = ContentScale.Fit
     )
@@ -212,7 +197,7 @@ fun SettingsIconButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun GetCoinsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun GetCoinsButton(onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = Modifier
@@ -222,7 +207,7 @@ fun GetCoinsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Icon(
             imageVector = Icons.Default.ShoppingCart,
-            contentDescription = "Get Coins",
+            contentDescription = "Get Cents",
             tint = Color.Black,
             modifier = Modifier.size(18.dp)
         )
@@ -236,10 +221,10 @@ private fun HomeScreenPreview() {
         HomeScreen(
             onPlayClick = {},
             onShopClick = {},
-            onGetCoinsClick = {},
+            onGetCentsClick = {},
             onSettingsClick = {},
             onLeaderboardClick = {},
-            coins = 1250,
+            cents = 1250,
             selectedSkinId = ""
         )
     }

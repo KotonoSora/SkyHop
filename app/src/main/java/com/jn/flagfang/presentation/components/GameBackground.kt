@@ -1,4 +1,4 @@
-package com.jn.flagfang.view.components
+package com.jn.flagfang.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,8 +18,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jn.flagfang.R
-import com.jn.flagfang.view.theme.CloudWhite
-import com.jn.flagfang.view.theme.SkyBlue
+import com.jn.flagfang.presentation.theme.CloudWhite
+import com.jn.flagfang.presentation.theme.SurfaceDark
 
 @Composable
 fun GameBackground(
@@ -29,7 +29,7 @@ fun GameBackground(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(SkyBlue)
+            .background(SurfaceDark)
     ) {
         Image(
             painter = painterResource(id = R.drawable.img_cave_night),
@@ -45,25 +45,25 @@ fun GameBackground(
         ) {
             Cloud(
                 Modifier
-                    .offset(x = (-120).dp, y = (-180).dp)
+                    .offset(x = (-115).dp, y = (-175).dp)
                     .scale(0.8f)
                     .alpha(0.6f)
             )
             Cloud(
                 Modifier
-                    .offset(x = 140.dp, y = (-100).dp)
+                    .offset(x = 145.dp, y = (-105).dp)
                     .scale(1.1f)
                     .alpha(0.5f)
             )
             Cloud(
                 Modifier
-                    .offset(x = (-100).dp, y = 140.dp)
+                    .offset(x = (-120).dp, y = 130.dp)
                     .scale(0.9f)
                     .alpha(0.6f)
             )
             Cloud(
                 Modifier
-                    .offset(x = 120.dp, y = 200.dp)
+                    .offset(x = 110.dp, y = 205.dp)
                     .alpha(0.5f)
             )
         }

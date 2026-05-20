@@ -14,7 +14,7 @@ object GamePhysics {
     private const val BASE_PIPE_SPEED = 5f
     private const val SPEED_INCREMENT = 0.5f
     private const val PIPES_PER_LEVEL = 10
-    private const val COINS_PER_LEVEL = 3
+    private const val CENTS_PER_LEVEL = 3
 
     fun updatePowerUpTimers(state: GameState): GameState {
         if (state.isStartSequenceActive) {
@@ -95,7 +95,7 @@ object GamePhysics {
 
     fun updateScoring(state: GameState): GameState {
         var newScore = state.score
-        var newCoins = state.coins
+        var newCoins = state.cents
         var newPipesPassed = state.pipesPassed
 
         val finalPipes = state.pipes.map { pipe ->
@@ -104,7 +104,7 @@ object GamePhysics {
                 newScore += scoreGain
                 newPipesPassed += 1
 
-                if (newPipesPassed % PIPES_PER_LEVEL == 0) newCoins += COINS_PER_LEVEL
+                if (newPipesPassed % PIPES_PER_LEVEL == 0) newCoins += CENTS_PER_LEVEL
 
                 pipe.copy(scored = true)
             } else pipe
@@ -114,7 +114,7 @@ object GamePhysics {
         return state.copy(
             pipes = finalPipes,
             score = newScore,
-            coins = newCoins,
+            cents = newCoins,
             pipesPassed = newPipesPassed,
             level = newLevel
         )

@@ -1,4 +1,4 @@
-package com.jn.flagfang.model
+package com.jn.flagfang.feature.shop
 
 object SkinIds {
     const val SKIN_DEFAULT_ID = "skin_default"

@@ -1,4 +1,4 @@
-package com.jn.flagfang.view
+package com.jn.flagfang.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,13 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import com.jn.flagfang.model.GameState
 import com.jn.flagfang.model.PipeState
-import com.jn.flagfang.model.SkinData
-import com.jn.flagfang.view.components.Animal
-import com.jn.flagfang.view.components.GameBackground
-import com.jn.flagfang.view.components.GameHUD
-import com.jn.flagfang.view.components.GameOverShopOverlay
-import com.jn.flagfang.view.components.PipesCanvas
-import com.jn.flagfang.view.theme.GameTheme
+import com.jn.flagfang.feature.shop.SkinData
+import com.jn.flagfang.presentation.components.Animal
+import com.jn.flagfang.presentation.components.GameBackground
+import com.jn.flagfang.presentation.components.GameHUD
+import com.jn.flagfang.presentation.components.GameOverShopOverlay
+import com.jn.flagfang.presentation.components.PipesCanvas
+import com.jn.flagfang.presentation.theme.GameTheme
 import com.jn.flagfang.viewmodel.GameViewModel
 
 @Composable
@@ -79,7 +79,7 @@ fun GameContent(
     onHome: () -> Unit,
     onPlayAgain: () -> Unit
 ) {
-    GameBackground(opacity = 0.3f)
+    GameBackground(opacity = 0.2f)
 
     PipesCanvas(gameState.pipes)
 

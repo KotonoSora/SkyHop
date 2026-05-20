@@ -6,8 +6,8 @@ import com.jn.flagfang.ads.AdManager
 import com.jn.flagfang.audio.AudioManager
 import com.jn.flagfang.billing.BillingManager
 import com.jn.flagfang.data.DataStoreAdRewardRepository
-import com.jn.flagfang.data.ScoreRepository
-import com.jn.flagfang.data.SettingsRepository
+import com.jn.flagfang.feature.shop.ScoreRepository
+import com.jn.flagfang.feature.shop.SettingsRepository
 import com.jn.flagfang.domain.repository.AdRewardRepository
 
 /**

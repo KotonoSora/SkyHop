@@ -43,13 +43,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.billingclient.api.ProductDetails
-import com.jn.flagfang.view.CoinStoreScreen
-import com.jn.flagfang.view.GameScreen
-import com.jn.flagfang.view.HomeScreen
-import com.jn.flagfang.view.LeaderboardScreen
-import com.jn.flagfang.view.SettingsScreen
-import com.jn.flagfang.view.SkinShopScreen
-import com.jn.flagfang.view.theme.GameTheme
+import com.jn.flagfang.presentation.CentStoreScreen
+import com.jn.flagfang.presentation.GameScreen
+import com.jn.flagfang.presentation.HomeScreen
+import com.jn.flagfang.presentation.LeaderboardScreen
+import com.jn.flagfang.presentation.SettingsScreen
+import com.jn.flagfang.presentation.SkinShopScreen
+import com.jn.flagfang.presentation.theme.GameTheme
 import com.jn.flagfang.viewmodel.GameViewModel
 import com.jn.flagfang.viewmodel.GameViewModelFactory
 import com.jn.flagfang.viewmodel.LeaderboardViewModel
@@ -105,8 +105,7 @@ fun MainApp() {
 
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
-            settingsRepository = app.settingsRepository,
-            versionName = app.appVersionName
+            settingsRepository = app.settingsRepository, versionName = app.appVersionName
         )
     )
 
@@ -160,22 +159,19 @@ fun MainApp() {
                 .padding(paddingValues)
                 .then(
                     if (swipeBackEnabled) {
-                        Modifier.pointerInput(currentScreen) {
-                            detectHorizontalDragGestures(
-                                onDragEnd = {
-                                    if (totalDrag < -80.dp.toPx()) navViewModel.navigateBack()
-                                    totalDrag = 0f
-                                },
-                                onDragCancel = { totalDrag = 0f },
-                                onHorizontalDrag = { change, dragAmount ->
-                                    change.consume()
-                                    totalDrag += dragAmount
-                                }
-                            )
-                        }
-                    } else Modifier
-                )
-        ) {
+                    Modifier.pointerInput(currentScreen) {
+                        detectHorizontalDragGestures(
+                            onDragEnd = {
+                            if (totalDrag < -80.dp.toPx()) navViewModel.navigateBack()
+                            totalDrag = 0f
+                        },
+                            onDragCancel = { totalDrag = 0f },
+                            onHorizontalDrag = { change, dragAmount ->
+                                change.consume()
+                                totalDrag += dragAmount
+                            })
+                    }
+                } else Modifier)) {
             AnimatedContent(
                 targetState = currentScreen,
                 modifier = Modifier
@@ -219,55 +215,48 @@ private fun ScreenContent(
     when (screen) {
         Screen.Home -> HomeScreen(
             onPlayClick = {
-                gameViewModel.startGame()
-                navigateTo(Screen.Game)
-            },
+            gameViewModel.startGame()
+            navigateTo(Screen.Game)
+        },
             onShopClick = { navigateTo(Screen.Shop) },
-            onGetCoinsClick = { navigateTo(Screen.CoinStore) },
+            onGetCentsClick = { navigateTo(Screen.CentStore) },
             onSettingsClick = { navigateTo(Screen.Settings) },
             onLeaderboardClick = { navigateTo(Screen.Leaderboard) },
-            coins = shopViewModel.coins.collectAsState().value,
+            cents = shopViewModel.cents.collectAsState().value,
             selectedSkinId = selectedSkinId
         )
 
         Screen.Game -> GameScreen(
-            viewModel = gameViewModel,
-            onBackToHome = { navigateTo(Screen.Home) }
-        )
+            viewModel = gameViewModel, onBackToHome = { navigateTo(Screen.Home) })
 
         Screen.Shop -> SkinShopScreen(
             onClose = { navigateTo(Screen.Home) },
-            onGoToCoinStore = { navigateTo(Screen.CoinStore) },
+            onGoToCentStore = { navigateTo(Screen.CentStore) },
             viewModel = shopViewModel
         )
 
-        Screen.CoinStore -> CoinStoreScreen(
+        Screen.CentStore -> CentStoreScreen(
             onClose = {
-                if (previousScreen == Screen.Game) navigateTo(Screen.Home)
-                else navigateTo(previousScreen)
-            },
+            if (previousScreen == Screen.Game) navigateTo(Screen.Home)
+            else navigateTo(previousScreen)
+        },
             viewModel = shopViewModel,
             onLaunchPurchase = launchPurchaseFlow,
             onShowAd = { activity ->
                 showRewardedAd(activity, onAdRewardEarned)
-            }
-        )
+            })
 
         Screen.Settings -> SettingsScreen(
-            onBack = { navigateTo(Screen.Home) },
-            settingsViewModel = settingsViewModel
+            onBack = { navigateTo(Screen.Home) }, settingsViewModel = settingsViewModel
         )
 
         Screen.Leaderboard -> LeaderboardScreen(
-            viewModel = leaderboardViewModel,
-            onBack = { navigateTo(Screen.Home) }
-        )
+            viewModel = leaderboardViewModel, onBack = { navigateTo(Screen.Home) })
     }
 }
 
 private fun AnimatedContentTransitionScope<Screen>.getScreenTransitionSpec(
-    targetState: Screen,
-    initialState: Screen
+    targetState: Screen, initialState: Screen
 ): ContentTransform {
     return when {
         targetState == Screen.Game -> {

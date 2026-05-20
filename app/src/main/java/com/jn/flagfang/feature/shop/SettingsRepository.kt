@@ -1,4 +1,4 @@
-package com.jn.flagfang.data
+package com.jn.flagfang.feature.shop
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -10,17 +10,16 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.jn.flagfang.model.PowerUpType
-import com.jn.flagfang.model.SkinIds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "user_settings")
 
-private const val INITIAL_COINS = 200
+private const val INITIAL_CENTS = 200
 
 class SettingsRepository(private val context: Context) {
     private val SELECTED_SKIN_KEY = stringPreferencesKey("selected_skin")
-    private val COINS_KEY = intPreferencesKey("coins")
+    private val CENTS_KEY = intPreferencesKey("cents")
     private val PURCHASED_ITEMS_KEY = stringSetPreferencesKey("purchased_items")
     private val SHIELD_COUNT_KEY = intPreferencesKey("shield_count")
     private val MULTIPLIER_COUNT_KEY = intPreferencesKey("multiplier_count")
@@ -42,9 +41,9 @@ class SettingsRepository(private val context: Context) {
             preferences[SELECTED_SKIN_KEY] ?: SkinIds.SKIN_DEFAULT_ID
         }
 
-    val coinsFlow: Flow<Int> = context.settingsDataStore.data
+    val centsFlow: Flow<Int> = context.settingsDataStore.data
         .map { preferences ->
-            preferences[COINS_KEY] ?: INITIAL_COINS
+            preferences[CENTS_KEY] ?: INITIAL_CENTS
         }
 
     val purchasedItemsFlow: Flow<Set<String>> = context.settingsDataStore.data
@@ -80,17 +79,17 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun addCoins(amount: Int) {
         context.settingsDataStore.edit { preferences ->
-            val current = preferences[COINS_KEY] ?: INITIAL_COINS
-            preferences[COINS_KEY] = current + amount
+            val current = preferences[CENTS_KEY] ?: INITIAL_CENTS
+            preferences[CENTS_KEY] = current + amount
         }
     }
 
     suspend fun spendCoins(amount: Int): Boolean {
         var success = false
         context.settingsDataStore.edit { preferences ->
-            val current = preferences[COINS_KEY] ?: INITIAL_COINS
+            val current = preferences[CENTS_KEY] ?: INITIAL_CENTS
             if (current >= amount) {
-                preferences[COINS_KEY] = current - amount
+                preferences[CENTS_KEY] = current - amount
                 success = true
             }
         }

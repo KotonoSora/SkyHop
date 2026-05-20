@@ -1,4 +1,4 @@
-package com.jn.flagfang.view.components
+package com.jn.flagfang.presentation.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +31,7 @@ import com.jn.flagfang.R
 
 @Composable
 fun CoinBadge(
-    coins: Int,
+    cents: Int,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -51,7 +51,7 @@ fun CoinBadge(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = coins.toString(),
+                text = cents.toString(),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black
             )

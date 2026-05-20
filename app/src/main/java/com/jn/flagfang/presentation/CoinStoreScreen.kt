@@ -1,4 +1,4 @@
-package com.jn.flagfang.view
+package com.jn.flagfang.presentation
 
 import android.app.Activity
 import android.content.Context
@@ -58,27 +58,27 @@ import androidx.compose.ui.unit.dp
 import com.android.billingclient.api.ProductDetails
 import com.jn.flagfang.R
 import com.jn.flagfang.billing.BillingStatus
-import com.jn.flagfang.model.CoinPackItem
-import com.jn.flagfang.model.ShopData
-import com.jn.flagfang.view.components.CoinBadge
-import com.jn.flagfang.view.components.GameButton
-import com.jn.flagfang.view.theme.CoinButtonPrimary
-import com.jn.flagfang.view.theme.CoinButtonShadow
-import com.jn.flagfang.view.theme.CoinGoldDark
-import com.jn.flagfang.view.theme.CoinGoldLight
-import com.jn.flagfang.view.theme.GameTheme
-import com.jn.flagfang.view.theme.SkyBlue
+import com.jn.flagfang.feature.shop.CentPackItem
+import com.jn.flagfang.feature.shop.ShopData
+import com.jn.flagfang.presentation.components.CoinBadge
+import com.jn.flagfang.presentation.components.GameButton
+import com.jn.flagfang.presentation.theme.CoinButtonPrimary
+import com.jn.flagfang.presentation.theme.CoinButtonShadow
+import com.jn.flagfang.presentation.theme.CoinGoldDark
+import com.jn.flagfang.presentation.theme.CoinGoldLight
+import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.SkyBlue
 import com.jn.flagfang.viewmodel.ShopViewModel
 
 @Composable
-fun CoinStoreScreen(
+fun CentStoreScreen(
     onClose: () -> Unit,
     viewModel: ShopViewModel,
     onLaunchPurchase: (Activity, ProductDetails) -> Unit,
     onShowAd: (Activity) -> Unit
 ) {
-    val coins by viewModel.coins.collectAsState()
-    val coinPacks by viewModel.coinPacks.collectAsState()
+    val cents by viewModel.cents.collectAsState()
+    val centPacks by viewModel.centPacks.collectAsState()
     val billingStatus by viewModel.billingStatus.collectAsState()
     val activity = LocalContext.current.findActivity()
 
@@ -106,17 +106,17 @@ fun CoinStoreScreen(
                 .fillMaxSize()
                 .safeContentPadding()
         ) {
-            CoinStoreHeader(
+            CentStoreHeader(
                 onClose = onClose,
-                coins = coins
+                cents = cents
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            CoinStoreContent(
+            CentStoreContent(
                 modifier = Modifier.weight(1f),
                 billingStatus = billingStatus,
-                coinPacks = coinPacks,
+                centPacks = centPacks,
                 canWatchAd = viewModel.canWatchAd.collectAsState().value,
                 onRetry = {
                     viewModel.retryConnection()
@@ -131,9 +131,9 @@ fun CoinStoreScreen(
 }
 
 @Composable
-fun CoinStoreHeader(
+fun CentStoreHeader(
     onClose: () -> Unit,
-    coins: Int
+    cents: Int
 ) {
     Row(
         modifier = Modifier
@@ -160,24 +160,24 @@ fun CoinStoreHeader(
             Spacer(modifier = Modifier.width(16.dp))
 
             Text(
-                text = stringResource(R.string.title_coins),
+                text = stringResource(R.string.title_cents),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.Black
             )
         }
 
-        CoinBadge(coins = coins)
+        CoinBadge(cents = cents)
     }
 }
 
 @Composable
-fun CoinStoreContent(
+fun CentStoreContent(
     modifier: Modifier = Modifier,
     billingStatus: BillingStatus,
-    coinPacks: List<CoinPackItem>,
+    centPacks: List<CentPackItem>,
     canWatchAd: Boolean,
     onRetry: () -> Unit,
-    onBuy: (CoinPackItem) -> Unit,
+    onBuy: (CentPackItem) -> Unit,
     onWatchAd: () -> Unit
 ) {
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -188,7 +188,7 @@ fun CoinStoreContent(
 
         val emptyMessage = when (billingStatus) {
             BillingStatus.EMPTY -> stringResource(R.string.msg_no_packs_available)
-            BillingStatus.CONNECTED -> if (coinPacks.isEmpty() && !canWatchAd) stringResource(R.string.msg_no_packs_found) else null
+            BillingStatus.CONNECTED -> if (centPacks.isEmpty() && !canWatchAd) stringResource(R.string.msg_no_packs_found) else null
             else -> null
         }
 
@@ -215,7 +215,7 @@ fun CoinStoreContent(
                             onWatch = onWatchAd
                         )
                     }
-                    items(coinPacks) { item ->
+                    items(centPacks) { item ->
                         CoinPackCard(item) {
                             onBuy(item)
                         }
@@ -257,7 +257,7 @@ fun AdRewardCard(canWatch: Boolean, onWatch: () -> Unit) {
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.img_coins_500),
+                    painter = painterResource(id = R.drawable.img_cents_500_reward_ads),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(0.8f),
                     contentScale = ContentScale.Fit,
@@ -372,7 +372,7 @@ fun NoPacksView(message: String) {
 
 
 @Composable
-fun CoinPackCard(item: CoinPackItem, onBuy: () -> Unit) {
+fun CoinPackCard(item: CentPackItem, onBuy: () -> Unit) {
     Card(
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -466,7 +466,7 @@ private fun Context.findActivity(): Activity? {
 
 @Preview(showBackground = true, showSystemUi = true, name = "Coin Store – connected")
 @Composable
-private fun CoinStoreScreenPreview() {
+private fun CentStoreScreenPreview() {
     GameTheme(dynamicColor = false) {
         Box(
             modifier = Modifier
@@ -478,12 +478,12 @@ private fun CoinStoreScreenPreview() {
                     .fillMaxSize()
                     .safeContentPadding()
             ) {
-                CoinStoreHeader(onClose = {}, coins = 750)
+                CentStoreHeader(onClose = {}, cents = 750)
                 Spacer(modifier = Modifier.height(32.dp))
-                CoinStoreContent(
+                CentStoreContent(
                     modifier = Modifier.weight(1f),
                     billingStatus = BillingStatus.CONNECTED,
-                    coinPacks = ShopData.getDebugCoinPacks(),
+                    centPacks = ShopData.getDebugCoinPacks(),
                     canWatchAd = true,
                     onRetry = {},
                     onBuy = {},
@@ -496,7 +496,7 @@ private fun CoinStoreScreenPreview() {
 
 @Preview(showBackground = true, showSystemUi = true, name = "Coin Store – loading")
 @Composable
-private fun CoinStoreLoadingPreview() {
+private fun CentStoreLoadingPreview() {
     GameTheme(dynamicColor = false) {
         Box(
             modifier = Modifier
@@ -508,12 +508,12 @@ private fun CoinStoreLoadingPreview() {
                     .fillMaxSize()
                     .safeContentPadding()
             ) {
-                CoinStoreHeader(onClose = {}, coins = 0)
+                CentStoreHeader(onClose = {}, cents = 0)
                 Spacer(modifier = Modifier.height(32.dp))
-                CoinStoreContent(
+                CentStoreContent(
                     modifier = Modifier.weight(1f),
                     billingStatus = BillingStatus.CONNECTING,
-                    coinPacks = emptyList(),
+                    centPacks = emptyList(),
                     canWatchAd = false,
                     onRetry = {},
                     onBuy = {},
@@ -527,7 +527,7 @@ private fun CoinStoreLoadingPreview() {
 
 @Preview(showBackground = true, showSystemUi = true, name = "Coin Store – loading")
 @Composable
-private fun CoinStoreErrorPreview() {
+private fun CentStoreErrorPreview() {
     GameTheme(dynamicColor = false) {
         Box(
             modifier = Modifier
@@ -539,12 +539,12 @@ private fun CoinStoreErrorPreview() {
                     .fillMaxSize()
                     .safeContentPadding()
             ) {
-                CoinStoreHeader(onClose = {}, coins = 0)
+                CentStoreHeader(onClose = {}, cents = 0)
                 Spacer(modifier = Modifier.height(32.dp))
-                CoinStoreContent(
+                CentStoreContent(
                     modifier = Modifier.weight(1f),
                     billingStatus = BillingStatus.ERROR,
-                    coinPacks = emptyList(),
+                    centPacks = emptyList(),
                     canWatchAd = false,
                     onRetry = {},
                     onBuy = {},

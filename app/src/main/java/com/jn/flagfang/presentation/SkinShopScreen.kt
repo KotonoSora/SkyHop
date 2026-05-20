@@ -1,4 +1,4 @@
-package com.jn.flagfang.view
+package com.jn.flagfang.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,20 +48,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.jn.flagfang.model.ShopData
-import com.jn.flagfang.model.ShopItem
-import com.jn.flagfang.model.SkinIds
-import com.jn.flagfang.view.components.CoinBadge
-import com.jn.flagfang.view.components.GameButton
-import com.jn.flagfang.view.theme.GameTheme
-import com.jn.flagfang.view.theme.SkyBlue
+import com.jn.flagfang.feature.shop.ShopData
+import com.jn.flagfang.feature.shop.ShopItem
+import com.jn.flagfang.feature.shop.SkinIds
+import com.jn.flagfang.presentation.components.CoinBadge
+import com.jn.flagfang.presentation.components.GameButton
+import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.SkyBlue
 import com.jn.flagfang.viewmodel.ShopViewModel
 
 @Composable
 fun SkinShopScreen(
-    onClose: () -> Unit, onGoToCoinStore: () -> Unit, viewModel: ShopViewModel
+    onClose: () -> Unit, onGoToCentStore: () -> Unit, viewModel: ShopViewModel
 ) {
-    val coins by viewModel.coins.collectAsState()
+    val cents by viewModel.cents.collectAsState()
     val skinItems by viewModel.skinItems.collectAsState()
     val powerUpItems = viewModel.powerUpItems
     val selectedSkinId by viewModel.selectedSkinId.collectAsState()
@@ -81,7 +81,7 @@ fun SkinShopScreen(
                 .safeContentPadding()
         ) {
             SkinShopHeader(
-                onClose = onClose, coins = coins
+                onClose = onClose, cents = cents
             )
 
             ShopGridContent(
@@ -98,7 +98,7 @@ fun SkinShopScreen(
                         viewModel.buyItem(item)
                     }
                 },
-                onGoToCoinStore = onGoToCoinStore
+                onGoToCentStore = onGoToCentStore
             )
         }
     }
@@ -106,7 +106,7 @@ fun SkinShopScreen(
 
 @Composable
 fun SkinShopHeader(
-    onClose: () -> Unit, coins: Int
+    onClose: () -> Unit, cents: Int
 ) {
     Row(
         modifier = Modifier
@@ -139,7 +139,7 @@ fun SkinShopHeader(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        CoinBadge(coins = coins)
+        CoinBadge(cents = cents)
     }
 }
 
@@ -151,7 +151,7 @@ fun ShopGridContent(
     shieldCount: Int,
     multiplierCount: Int,
     onSkinSelectOrBuy: (ShopItem) -> Unit,
-    onGoToCoinStore: () -> Unit
+    onGoToCentStore: () -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -190,8 +190,8 @@ fun ShopGridContent(
         item(span = { GridItemSpan(2) }) {
             Spacer(modifier = Modifier.height(16.dp))
             GameButton(
-                text = "GET COINS",
-                onClick = onGoToCoinStore,
+                text = "GET CENTS",
+                onClick = onGoToCentStore,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -317,7 +317,7 @@ private fun ItemStatusText(item: ShopItem, isSelected: Boolean, ownedCount: Int 
     val (text, color) = when {
         isSelected -> "ACTIVE" to Color(0xFF4CAF50)
         item.isUnlocked -> "OWNED" to Color(0xFF2196F3)
-        else -> "${item.price} COINS" to Color.Gray
+        else -> "${item.price} CENTS" to Color.Gray
     }
 
     Text(
@@ -372,7 +372,7 @@ private fun SkinShopScreenPreview() {
                     .fillMaxSize()
                     .safeContentPadding()
             ) {
-                SkinShopHeader(onClose = {}, coins = 1250)
+                SkinShopHeader(onClose = {}, cents = 1250)
                 ShopGridContent(
                     skinItems = ShopData.getSkinItems(setOf(SkinIds.SKIN_SYNTH_SCREECHER)),
                     powerUpItems = ShopData.getPowerUpItems(),
@@ -380,7 +380,7 @@ private fun SkinShopScreenPreview() {
                     shieldCount = 2,
                     multiplierCount = 1,
                     onSkinSelectOrBuy = {},
-                    onGoToCoinStore = {})
+                    onGoToCentStore = {})
             }
         }
     }
