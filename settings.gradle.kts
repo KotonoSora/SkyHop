@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
     repositories {
         google {
@@ -22,5 +24,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SkyHop"
+rootProject.name = "FlagFang"
 include(":app")
