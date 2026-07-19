@@ -11,9 +11,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 class AdManager(private val context: Context) {
     private var rewardedAd: RewardedAd? = null
     private var isLoading = false
-
-    // Test Ad Unit ID for Rewarded Ads
-    private val adUnitId = "ca-app-pub-3940256099942544/5224354917"
+    private val adUnitId = "ca-app-pub-7311767264470663/4491257424"
 
     init {
         MobileAds.initialize(context) {}
