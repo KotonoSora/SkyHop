@@ -74,8 +74,7 @@ import com.jn.flagfang.viewmodel.ShopViewModel
 fun CentStoreScreen(
     onClose: () -> Unit,
     viewModel: ShopViewModel,
-    onLaunchPurchase: (Activity, ProductDetails) -> Unit,
-    onShowAd: (Activity) -> Unit
+    onLaunchPurchase: (Activity, ProductDetails) -> Unit
 ) {
     val cents by viewModel.cents.collectAsState()
     val centPacks by viewModel.centPacks.collectAsState()
@@ -86,13 +85,6 @@ fun CentStoreScreen(
         val currentActivity = activity ?: return@LaunchedEffect
         viewModel.purchaseLaunchRequests.collect { productDetails ->
             onLaunchPurchase(currentActivity, productDetails)
-        }
-    }
-
-    LaunchedEffect(activity, viewModel) {
-        val currentActivity = activity ?: return@LaunchedEffect
-        viewModel.adShowRequests.collect {
-            onShowAd(currentActivity)
         }
     }
 
@@ -117,12 +109,10 @@ fun CentStoreScreen(
                 modifier = Modifier.weight(1f),
                 billingStatus = billingStatus,
                 centPacks = centPacks,
-                canWatchAd = viewModel.canWatchAd.collectAsState().value,
                 onRetry = {
                     viewModel.retryConnection()
                 },
-                onBuy = viewModel::buyCoinPack,
-                onWatchAd = viewModel::watchRewardedAd
+                onBuy = viewModel::buyCoinPack
             )
 
             Spacer(modifier = Modifier.height(64.dp))
@@ -175,10 +165,8 @@ fun CentStoreContent(
     modifier: Modifier = Modifier,
     billingStatus: BillingStatus,
     centPacks: List<CentPackItem>,
-    canWatchAd: Boolean,
     onRetry: () -> Unit,
-    onBuy: (CentPackItem) -> Unit,
-    onWatchAd: () -> Unit
+    onBuy: (CentPackItem) -> Unit
 ) {
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         if (billingStatus == BillingStatus.CONNECTING || billingStatus == BillingStatus.IDLE) {
@@ -188,7 +176,7 @@ fun CentStoreContent(
 
         val emptyMessage = when (billingStatus) {
             BillingStatus.EMPTY -> stringResource(R.string.msg_no_packs_available)
-            BillingStatus.CONNECTED -> if (centPacks.isEmpty() && !canWatchAd) stringResource(R.string.msg_no_packs_found) else null
+            BillingStatus.CONNECTED -> if (centPacks.isEmpty()) stringResource(R.string.msg_no_packs_found) else null
             else -> null
         }
 
@@ -209,12 +197,6 @@ fun CentStoreContent(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    item {
-                        AdRewardCard(
-                            canWatch = canWatchAd,
-                            onWatch = onWatchAd
-                        )
-                    }
                     items(centPacks) { item ->
                         CoinPackCard(item) {
                             onBuy(item)
@@ -224,92 +206,6 @@ fun CentStoreContent(
             }
 
             else -> {}
-        }
-    }
-}
-
-@Composable
-fun AdRewardCard(canWatch: Boolean, onWatch: () -> Unit) {
-    Card(
-        shape = RoundedCornerShape(32.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = Modifier
-            .widthIn(max = 280.dp)
-            .aspectRatio(0.7f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD))
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_cents_500_reward_ads),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(0.8f),
-                    contentScale = ContentScale.Fit,
-                    alpha = if (canWatch) 1f else 0.5f
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = stringResource(R.string.label_daily_reward).uppercase(),
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(R.string.msg_ad_reward),
-                style = MaterialTheme.typography.titleSmall,
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            GameButton(
-                text = if (canWatch) stringResource(R.string.btn_watch) else stringResource(R.string.btn_watched),
-                onClick = onWatch,
-                enabled = canWatch,
-                modifier = Modifier.fillMaxWidth(),
-                height = 56.dp,
-                backgroundColor = CoinButtonPrimary,
-                shadowColor = CoinButtonShadow,
-                textColor = if (canWatch) Color.Black else Color.DarkGray,
-                icon = {
-                    Icon(
-                        imageVector = if (canWatch) Icons.Default.PlayArrow else Icons.Default.Check,
-                        contentDescription = null,
-                        tint = if (canWatch) Color.Black else Color.DarkGray
-                    )
-                }
-            )
         }
     }
 }
@@ -484,10 +380,8 @@ private fun CentStoreScreenPreview() {
                     modifier = Modifier.weight(1f),
                     billingStatus = BillingStatus.CONNECTED,
                     centPacks = ShopData.getDebugCoinPacks(),
-                    canWatchAd = true,
                     onRetry = {},
-                    onBuy = {},
-                    onWatchAd = {}
+                    onBuy = {}
                 )
             }
         }
@@ -514,10 +408,8 @@ private fun CentStoreLoadingPreview() {
                     modifier = Modifier.weight(1f),
                     billingStatus = BillingStatus.CONNECTING,
                     centPacks = emptyList(),
-                    canWatchAd = false,
                     onRetry = {},
-                    onBuy = {},
-                    onWatchAd = {}
+                    onBuy = {}
                 )
             }
         }
@@ -545,10 +437,8 @@ private fun CentStoreErrorPreview() {
                     modifier = Modifier.weight(1f),
                     billingStatus = BillingStatus.ERROR,
                     centPacks = emptyList(),
-                    canWatchAd = false,
                     onRetry = {},
-                    onBuy = {},
-                    onWatchAd = {}
+                    onBuy = {}
                 )
             }
         }
