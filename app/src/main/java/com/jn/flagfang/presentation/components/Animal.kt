@@ -5,25 +5,31 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import com.jn.flagfang.R
+import com.jn.flagfang.domain.model.Point
+import com.jn.flagfang.domain.model.Size
+import com.jn.flagfang.presentation.theme.GameTheme
 import kotlin.math.roundToInt
 
 @Composable
 fun Animal(
     density: Density,
-    position: Offset,
+    position: Point,
     size: Size,
     rotation: Float,
     skinRes: Int,
@@ -58,6 +64,40 @@ fun Animal(
                     }
                     .clip(CircleShape)
                     .background(Color(0xFF29B6F6).copy(alpha = 0.3f))
+            )
+        }
+    }
+}
+
+@Preview(name = "Animal - Normal", group = "Components")
+@Composable
+fun AnimalNormalPreview() {
+    GameTheme {
+        Box(modifier = Modifier.size(200.dp).padding(16.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Animal(
+                density = LocalDensity.current,
+                position = Point(0f, 0f),
+                size = Size(100f, 100f),
+                rotation = 0f,
+                skinRes = R.drawable.img_idle_bat_normal,
+                shieldActive = false
+            )
+        }
+    }
+}
+
+@Preview(name = "Animal - Shielded", group = "Components")
+@Composable
+fun AnimalShieldedPreview() {
+    GameTheme {
+        Box(modifier = Modifier.size(200.dp).padding(16.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Animal(
+                density = LocalDensity.current,
+                position = Point(0f, 0f),
+                size = Size(100f, 100f),
+                rotation = -15f,
+                skinRes = R.drawable.img_fly_bat_normal,
+                shieldActive = true
             )
         }
     }

@@ -6,12 +6,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jn.flagfang.audio.AudioManager
 import com.jn.flagfang.audio.SfxType
-import com.jn.flagfang.feature.shop.ScoreRepository
-import com.jn.flagfang.feature.shop.SettingsRepository
-import com.jn.flagfang.model.AnimalState
-import com.jn.flagfang.model.GamePhysics
-import com.jn.flagfang.model.GameState
-import com.jn.flagfang.model.PowerUpType
+import com.jn.flagfang.domain.game.GamePhysics
+import com.jn.flagfang.domain.model.AnimalState
+import com.jn.flagfang.domain.model.GameState
+import com.jn.flagfang.domain.model.Point
+import com.jn.flagfang.domain.model.PowerUpType
+import com.jn.flagfang.domain.repository.SettingsRepository
+import com.jn.flagfang.domain.usecase.GetHighScoreUseCase
+import com.jn.flagfang.domain.usecase.UpdateHighScoreUseCase
+import com.jn.flagfang.domain.usecase.UsePowerUpUseCase
 import com.jn.flagfang.feature.shop.SkinIds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -23,7 +26,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class GameViewModel(
-    private val scoreRepository: ScoreRepository,
+    private val getHighScoreUseCase: GetHighScoreUseCase,
+    private val updateHighScoreUseCase: UpdateHighScoreUseCase,
+    private val usePowerUpUseCase: UsePowerUpUseCase,
     private val settingsRepository: SettingsRepository,
     private val audioManager: AudioManager
 ) : ViewModel() {
@@ -45,7 +50,7 @@ class GameViewModel(
 
     private fun observeRepositories() {
         viewModelScope.launch {
-            scoreRepository.highScoreFlow.collect { highScore ->
+            getHighScoreUseCase().collect { highScore ->
                 _gameState.update { it.copy(highScore = highScore) }
             }
         }
@@ -55,8 +60,8 @@ class GameViewModel(
             }
         }
         viewModelScope.launch {
-            settingsRepository.centsFlow.collect { cents ->
-                _gameState.update { it.copy(cents = cents) }
+            settingsRepository.coinsFlow.collect { coins ->
+                _gameState.update { it.copy(coins = coins) }
             }
         }
         viewModelScope.launch {
@@ -75,7 +80,7 @@ class GameViewModel(
             }
         }
 
-        // Task 4.1: Observe Audio Preferences using combine
+        // Observe Audio Preferences using combine
         viewModelScope.launch {
             combine(
                 settingsRepository.musicEnabledFlow,
@@ -98,37 +103,43 @@ class GameViewModel(
 
             if (state.screenHeight <= 0f || !state.isGameStarted || state.isStartSequenceActive) {
                 newState = newState.copy(
-                    Animal = state.Animal.copy(position = Offset(100f, height / 2))
+                    animal = state.animal.copy(position = Point(100f, height / 2))
                 )
             }
             newState
         }
     }
 
-    fun startGame() {
+    fun startGame(level: Int = 1, isEndless: Boolean = true, isDailyChallenge: Boolean = false) {
         if (currentMusicEnabled) audioManager.playBgm()
         if (currentSfxEnabled) audioManager.playSfx(SfxType.START)
 
-        resetGame()
+        resetGame(level, isEndless, isDailyChallenge)
         runGameLoop()
     }
 
-    private fun resetGame() {
+    private fun resetGame(level: Int, isEndless: Boolean, isDailyChallenge: Boolean) {
+        val targetScore = if (isDailyChallenge) 20 else if (isEndless) 0 else level * 10
         _gameState.update { state ->
             GameState(
                 screenWidth = state.screenWidth,
                 screenHeight = state.screenHeight,
                 highScore = state.highScore,
-                cents = state.cents,
+                coins = state.coins,
                 shieldCount = state.shieldCount,
                 multiplierCount = state.multiplierCount,
                 autoPlayCount = state.autoPlayCount,
-                level = 1,
+                level = level,
+                targetScore = targetScore,
+                isEndless = isEndless,
+                isDailyChallenge = isDailyChallenge,
+                gravityMultiplier = if (isDailyChallenge) 2.0f else 1f,
+                shieldDisabled = isDailyChallenge,
                 isGameStarted = true,
                 isStartSequenceActive = true,
                 startSequenceTimeLeft = 2f,
-                Animal = AnimalState(
-                    position = Offset(
+                animal = AnimalState(
+                    position = Point(
                         100f,
                         if (state.screenHeight > 0) state.screenHeight / 2 else 500f
                     )
@@ -147,10 +158,10 @@ class GameViewModel(
             if (state.isStartSequenceActive) {
                 state.copy(
                     isStartSequenceActive = false,
-                    Animal = state.Animal.copy(velocity = GamePhysics.JUMP_VELOCITY)
+                    animal = state.animal.copy(velocity = GamePhysics.JUMP_VELOCITY)
                 )
             } else if (state.isGameStarted && !state.isAutoPlayActive && !state.multiplierActive) {
-                state.copy(Animal = state.Animal.copy(velocity = GamePhysics.JUMP_VELOCITY))
+                state.copy(animal = state.animal.copy(velocity = GamePhysics.JUMP_VELOCITY))
             } else {
                 state
             }
@@ -172,30 +183,58 @@ class GameViewModel(
     }
 
     private fun updateGame() {
+        val oldScore = _gameState.value.score
+        val oldCoins = _gameState.value.coins
         _gameState.update { currentState ->
             var state = GamePhysics.updatePowerUpTimers(currentState)
             state = GamePhysics.updatePhysics(state)
             state = GamePhysics.updatePipes(state)
             state = GamePhysics.updateScoring(state)
+            state = checkAndHandleWin(state)
             state = checkAndHandleGameOver(state)
             state
         }
+        val newScore = _gameState.value.score
+        val newCoins = _gameState.value.coins
+
+        if (newScore > 0 && oldScore / 100 != newScore / 100) {
+            if (currentSfxEnabled) audioManager.playSfx(SfxType.MILESTONE)
+        }
+
+        if (newCoins > oldCoins) {
+            if (currentSfxEnabled) audioManager.playSfx(SfxType.COLLECT)
+        }
+    }
+
+    private fun checkAndHandleWin(state: GameState): GameState {
+        if (state.isEndless || state.isGameOver || state.isWin) return state
+        if (state.score >= state.targetScore) {
+            if (currentMusicEnabled) audioManager.stopBgm()
+            if (currentSfxEnabled) audioManager.playSfx(SfxType.WIN)
+            
+            val reward = if (state.isDailyChallenge) 50 else state.level * 5
+            viewModelScope.launch {
+                settingsRepository.addCoins(reward)
+                updateHighScoreUseCase(state.score, reward)
+            }
+            return state.copy(isWin = true, rewardCoins = reward)
+        }
+        return state
     }
 
     private fun checkAndHandleGameOver(state: GameState): GameState {
-        if (state.isStartSequenceActive || state.screenHeight <= 0f || state.isGameOver) return state
+        if (state.isStartSequenceActive || state.screenHeight <= 0f || state.isGameOver || state.isWin) return state
 
         val hasCollided = GamePhysics.checkCollision(state)
         val shouldDie =
             hasCollided && !state.shieldActive && !state.isAutoPlayActive && !state.multiplierActive
 
         if (shouldDie) {
-            if (currentSfxEnabled) audioManager.playSfx(SfxType.GAMEOVER)
+            if (currentSfxEnabled) audioManager.playSfx(SfxType.LOSE)
             audioManager.stopBgm()
 
             viewModelScope.launch {
-                scoreRepository.updateHighScore(state.score)
-                scoreRepository.saveScore(state.score)
+                updateHighScoreUseCase(state.score, state.score / 2)
                 settingsRepository.addCoins(state.score / 2)
             }
             return state.copy(isGameOver = true)
@@ -205,18 +244,21 @@ class GameViewModel(
 
     private fun getRevivedAnimalState(state: GameState): AnimalState {
         val safeY =
-            state.Animal.position.y.coerceIn(100f, (state.screenHeight - 200f).coerceAtLeast(100f))
-        return state.Animal.copy(
-            position = state.Animal.position.copy(y = safeY),
+            state.animal.position.y.coerceIn(100f, (state.screenHeight - 200f).coerceAtLeast(100f))
+        return state.animal.copy(
+            position = state.animal.position.copy(y = safeY),
             velocity = -5f
         )
     }
 
     fun usePowerUp(typeId: String) {
         val type = PowerUpType.fromId(typeId) ?: return
+        val currentState = _gameState.value
+
+        if (type == PowerUpType.SHIELD && currentState.shieldDisabled) return
 
         viewModelScope.launch {
-            if (settingsRepository.usePowerUp(type.id)) {
+            if (usePowerUpUseCase(type.id)) {
                 _gameState.update { state ->
                     var newState = when (type) {
                         PowerUpType.SHIELD -> state.copy(shieldActive = true, shieldTimeLeft = 10f)
@@ -235,7 +277,7 @@ class GameViewModel(
                             audioManager.playBgm()
                         }
                         newState =
-                            newState.copy(isGameOver = false, Animal = getRevivedAnimalState(state))
+                            newState.copy(isGameOver = false, animal = getRevivedAnimalState(state))
                     }
                     newState
                 }
@@ -264,19 +306,5 @@ class GameViewModel(
     override fun onCleared() {
         super.onCleared()
         audioManager.stopBgm()
-    }
-}
-
-class GameViewModelFactory(
-    private val scoreRepository: ScoreRepository,
-    private val settingsRepository: SettingsRepository,
-    private val audioManager: AudioManager
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
-            return GameViewModel(scoreRepository, settingsRepository, audioManager) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

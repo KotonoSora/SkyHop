@@ -1,6 +1,5 @@
 package com.jn.flagfang.presentation.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +15,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.Image
 import com.jn.flagfang.R
 import com.jn.flagfang.presentation.theme.CloudWhite
+import com.jn.flagfang.presentation.theme.GameTheme
 import com.jn.flagfang.presentation.theme.SurfaceDark
 
 @Composable
@@ -95,5 +97,13 @@ private fun Cloud(modifier: Modifier = Modifier) {
                 .align(Alignment.BottomEnd)
                 .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
         )
+    }
+}
+
+@Preview(name = "Game Background", showBackground = true, group = "Components")
+@Composable
+fun GameBackgroundPreview() {
+    GameTheme {
+        GameBackground()
     }
 }

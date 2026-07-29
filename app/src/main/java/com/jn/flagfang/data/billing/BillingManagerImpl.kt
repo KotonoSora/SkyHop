@@ -1,4 +1,4 @@
-package com.jn.flagfang.billing
+package com.jn.flagfang.data.billing
 
 import android.app.Activity
 import android.content.Context
@@ -14,8 +14,11 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.jn.flagfang.feature.shop.SettingsRepository
-import com.jn.flagfang.feature.shop.CentPackIds
+import com.jn.flagfang.domain.repository.BillingRepository
+import com.jn.flagfang.domain.repository.BillingStatus
+import com.jn.flagfang.domain.repository.DomainProduct
+import com.jn.flagfang.domain.repository.SettingsRepository
+import com.jn.flagfang.feature.shop.CoinPackIds
 import com.jn.flagfang.feature.shop.ShopData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,22 +26,19 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Collections
 
-enum class BillingStatus {
-    IDLE, CONNECTING, CONNECTED, ERROR, EMPTY
-}
-
-class BillingManager(
+class BillingManagerImpl(
     context: Context,
     private val settingsRepository: SettingsRepository
-) {
+) : BillingRepository {
 
     private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _status = MutableStateFlow(BillingStatus.IDLE)
-    val status = _status.asStateFlow()
+    override val status = _status.asStateFlow()
 
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
@@ -54,14 +54,23 @@ class BillingManager(
         .build()
 
     private val _products = MutableStateFlow<List<ProductDetails>>(emptyList())
-    val products = _products.asStateFlow()
+    override val products = _products.map { list ->
+        list.map {
+            DomainProduct(
+                productId = it.productId,
+                name = it.name,
+                formattedPrice = it.oneTimePurchaseOfferDetails?.formattedPrice ?: ""
+            )
+        }
+    }
+
     private val trackedPurchaseKeys = Collections.synchronizedSet(mutableSetOf<String>())
 
     init {
         startConnection()
     }
 
-    fun startConnection() {
+    override fun startConnection() {
         if (_status.value == BillingStatus.CONNECTING || _status.value == BillingStatus.CONNECTED) return
 
         _status.value = BillingStatus.CONNECTING
@@ -69,7 +78,7 @@ class BillingManager(
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _status.value = BillingStatus.CONNECTED
-                    queryProducts(CentPackIds.ALL)
+                    queryProducts(CoinPackIds.ALL)
                     queryPurchases()
                 } else {
                     _status.value = BillingStatus.ERROR
@@ -125,7 +134,9 @@ class BillingManager(
         }
     }
 
-    fun launchPurchaseFlow(activity: Activity, productDetails: ProductDetails) {
+    override fun launchPurchaseFlow(activity: Activity, productId: String) {
+        val productDetails = _products.value.find { it.productId == productId } ?: return
+        
         val productDetailsParamsList = listOf(
             BillingFlowParams.ProductDetailsParams.newBuilder()
                 .setProductDetails(productDetails)
@@ -141,7 +152,7 @@ class BillingManager(
 
     private fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            val isCoinPack = purchase.products.any { it.startsWith("cents_") }
+            val isCoinPack = purchase.products.any { it.startsWith("coins_") }
 
             if (isCoinPack) {
                 consumeCoinPack(purchase)
@@ -171,8 +182,8 @@ class BillingManager(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 managerScope.launch {
                     purchase.products.forEach { productId ->
-                        ShopData.getCoinAmount(productId)?.let { centAmount ->
-                            settingsRepository.addCoins(centAmount)
+                        ShopData.getCoinAmount(productId)?.let { coinAmount ->
+                            settingsRepository.addCoins(coinAmount)
                         }
                     }
                 }

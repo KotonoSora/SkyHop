@@ -1,34 +1,30 @@
 package com.jn.flagfang.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.jn.flagfang.feature.shop.ScoreRepository
+import com.jn.flagfang.domain.model.ScoreEntry
+import com.jn.flagfang.domain.usecase.GetCoinsUseCase
+import com.jn.flagfang.domain.usecase.GetScoreHistoryUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class LeaderboardViewModel(
-    scoreRepository: ScoreRepository
+    private val getScoreHistoryUseCase: GetScoreHistoryUseCase,
+    private val getCoinsUseCase: GetCoinsUseCase
 ) : ViewModel() {
 
-    val topScores: StateFlow<List<Int>> = scoreRepository.topScoresFlow
+    val scoreHistory: StateFlow<List<ScoreEntry>> = getScoreHistoryUseCase()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
-}
 
-class LeaderboardViewModelFactory(
-    private val scoreRepository: ScoreRepository
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LeaderboardViewModel::class.java)) {
-            return LeaderboardViewModel(scoreRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
-    }
+    val coins: StateFlow<Int> = getCoinsUseCase().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = 0
+    )
 }
 

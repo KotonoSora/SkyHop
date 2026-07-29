@@ -58,19 +58,13 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun GameTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true, // Force dark for Neon theme
+    dynamicColor: Boolean = false, // Disable dynamic colors for consistency
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    // We can potentially add more logic here if we want a separate Light Neon theme,
+    // but typically Neon looks best on Dark.
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -1,21 +1,29 @@
 package com.jn.flagfang.presentation.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -23,37 +31,169 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.nativePaint
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.jn.flagfang.R
+import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.NeonCyan
+import com.jn.flagfang.presentation.theme.NeonMagenta
+import com.jn.flagfang.presentation.theme.NeonYellow
+
+@Composable
+fun GameHeader(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    coins: Int? = null,
+    onBackClick: (() -> Unit)? = null,
+    onShopClick: (() -> Unit)? = null,
+    onCoinsClick: (() -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .safeContentPadding()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .zIndex(1f),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (onBackClick != null) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .drawBehind {
+                            drawIntoCanvas { canvas ->
+                                val paint = Paint().apply {
+                                    color = Color.White.copy(alpha = 0.2f)
+                                    nativePaint.apply {
+                                        setShadowLayer(10.dp.toPx(), 0f, 0f, NeonCyan.toArgb())
+                                    }
+                                }
+                                canvas.drawOutline(
+                                    outline = CircleShape.createOutline(size, layoutDirection, this),
+                                    paint = paint
+                                )
+                            }
+                        }
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.5f))
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.desc_back),
+                        tint = NeonCyan
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+
+            if (title != null) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White
+                )
+            }
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (coins != null) {
+                CoinBadge(coins = coins, onClick = onCoinsClick)
+                if (onShopClick != null) {
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
+            }
+
+            if (onShopClick != null) {
+                IconButton(
+                    onClick = onShopClick,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .drawBehind {
+                            drawIntoCanvas { canvas ->
+                                val paint = Paint().apply {
+                                    color = Color.White.copy(alpha = 0.2f)
+                                    nativePaint.apply {
+                                        setShadowLayer(10.dp.toPx(), 0f, 0f, NeonMagenta.toArgb())
+                                    }
+                                }
+                                canvas.drawOutline(
+                                    outline = CircleShape.createOutline(size, layoutDirection, this),
+                                    paint = paint
+                                )
+                            }
+                        }
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.5f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Shop",
+                        tint = NeonMagenta
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun CoinBadge(
-    cents: Int,
-    modifier: Modifier = Modifier
+    coins: Int,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color.White.copy(alpha = 0.3f),
+        color = Color.Black.copy(alpha = 0.6f),
+        border = BorderStroke(2.dp, NeonCyan),
         modifier = modifier
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .drawBehind {
+                drawIntoCanvas { canvas ->
+                    val paint = Paint().apply {
+                        color = Color.Transparent
+                        nativePaint.apply {
+                            setShadowLayer(12.dp.toPx(), 0f, 0f, NeonCyan.toArgb())
+                        }
+                    }
+                    canvas.drawOutline(
+                        outline = RoundedCornerShape(20.dp).createOutline(size, layoutDirection, this),
+                        paint = paint
+                    )
+                }
+            }
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 Icons.Default.MonetizationOn,
                 contentDescription = null,
-                tint = Color(0xFFFFD54F),
-                modifier = Modifier.size(20.dp)
+                tint = NeonCyan,
+                modifier = Modifier.size(18.dp)
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = cents.toString(),
+                text = coins.toString(),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.Black
+                color = NeonCyan
             )
         }
     }
@@ -67,9 +207,9 @@ fun AudioSettingsGroup(
     onSfxToggle: (Boolean) -> Unit
 ) {
     Text(
-        text = stringResource(R.string.title_sound),
+        text = stringResource(R.string.title_sound).uppercase(),
         style = MaterialTheme.typography.titleLarge,
-        color = Color.DarkGray,
+        color = NeonYellow,
         modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
     )
 
@@ -77,7 +217,7 @@ fun AudioSettingsGroup(
         icon = Icons.Default.MusicNote,
         title = stringResource(R.string.label_music),
         description = stringResource(R.string.desc_music_toggle),
-        color = Color(0xFF0288D1),
+        color = NeonCyan,
         enabled = musicEnabled,
         onToggle = onMusicToggle
     )
@@ -88,7 +228,7 @@ fun AudioSettingsGroup(
         icon = Icons.AutoMirrored.Filled.VolumeUp,
         title = stringResource(R.string.label_sfx),
         description = stringResource(R.string.desc_sfx_toggle),
-        color = Color(0xFFD32F2F),
+        color = NeonMagenta,
         enabled = sfxEnabled,
         onToggle = onSfxToggle
     )
@@ -105,9 +245,26 @@ fun SettingsToggleItem(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.8f),
+        color = Color.Black.copy(alpha = 0.5f),
+        border = BorderStroke(2.dp, color.copy(alpha = 0.5f)),
         modifier = Modifier
             .fillMaxWidth()
+            .drawBehind {
+                if (enabled) {
+                    drawIntoCanvas { canvas ->
+                        val paint = Paint().apply {
+                            this.color = Color.Transparent
+                            nativePaint.apply {
+                                setShadowLayer(10.dp.toPx(), 0f, 0f, color.toArgb())
+                            }
+                        }
+                        canvas.drawOutline(
+                            outline = RoundedCornerShape(16.dp).createOutline(size, layoutDirection, this),
+                            paint = paint
+                        )
+                    }
+                }
+            }
     ) {
         Row(
             modifier = Modifier
@@ -129,12 +286,12 @@ fun SettingsToggleItem(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Black
+                        color = Color.White
                     )
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.DarkGray
+                        color = Color.Gray
                     )
                 }
             }
@@ -143,6 +300,74 @@ fun SettingsToggleItem(
                 checked = enabled,
                 onCheckedChange = onToggle,
                 modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+    }
+}
+
+@Preview(name = "Header - Full", group = "Components")
+@Composable
+fun GameHeaderFullPreview() {
+    GameTheme {
+        GameHeader(
+            title = "SETTINGS",
+            coins = 1250,
+            onBackClick = {},
+            onShopClick = {}
+        )
+    }
+}
+
+@Preview(name = "Header - Simple", group = "Components")
+@Composable
+fun GameHeaderSimplePreview() {
+    GameTheme {
+        GameHeader(
+            title = "SKYHOP",
+            coins = 500
+        )
+    }
+}
+
+@Preview(name = "Coin Badge", group = "Components")
+@Composable
+fun CoinBadgePreview() {
+    GameTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            CoinBadge(coins = 9999)
+        }
+    }
+}
+
+@Preview(name = "Settings Toggle - Enabled", group = "Components")
+@Composable
+fun SettingsToggleEnabledPreview() {
+    GameTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            SettingsToggleItem(
+                icon = Icons.Default.MusicNote,
+                title = "Music",
+                description = "Enable background music",
+                color = NeonCyan,
+                enabled = true,
+                onToggle = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "Settings Toggle - Disabled", group = "Components")
+@Composable
+fun SettingsToggleDisabledPreview() {
+    GameTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            SettingsToggleItem(
+                icon = Icons.AutoMirrored.Filled.VolumeUp,
+                title = "SFX",
+                description = "Enable sound effects",
+                color = NeonMagenta,
+                enabled = false,
+                onToggle = {}
             )
         }
     }

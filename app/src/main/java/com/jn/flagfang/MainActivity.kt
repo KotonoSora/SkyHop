@@ -42,24 +42,23 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.android.billingclient.api.ProductDetails
-import com.jn.flagfang.presentation.CentStoreScreen
+import com.jn.flagfang.di.AppViewModelFactory
+import com.jn.flagfang.presentation.CoinStoreScreen
+import com.jn.flagfang.presentation.DailyChallengeScreen
 import com.jn.flagfang.presentation.GameScreen
+import com.jn.flagfang.presentation.HelpScreen
 import com.jn.flagfang.presentation.HomeScreen
 import com.jn.flagfang.presentation.LeaderboardScreen
+import com.jn.flagfang.presentation.LevelSelectionScreen
 import com.jn.flagfang.presentation.SettingsScreen
 import com.jn.flagfang.presentation.SkinShopScreen
 import com.jn.flagfang.presentation.theme.GameTheme
 import com.jn.flagfang.viewmodel.GameViewModel
-import com.jn.flagfang.viewmodel.GameViewModelFactory
 import com.jn.flagfang.viewmodel.LeaderboardViewModel
-import com.jn.flagfang.viewmodel.LeaderboardViewModelFactory
 import com.jn.flagfang.viewmodel.NavigationViewModel
 import com.jn.flagfang.viewmodel.Screen
 import com.jn.flagfang.viewmodel.SettingsViewModel
-import com.jn.flagfang.viewmodel.SettingsViewModelFactory
 import com.jn.flagfang.viewmodel.ShopViewModel
-import com.jn.flagfang.viewmodel.ShopViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,11 +68,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // Hide status bar + nav bar — sticky immersive (re-appear on swipe, then auto-hide)
+        // Ensure system bars are visible
         val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.show(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 
         setContent {
             GameTheme {
@@ -87,6 +86,7 @@ class MainActivity : ComponentActivity() {
 fun MainApp() {
     // Infrastructure comes from the Application-scoped singletons, not from remember {}.
     val app = LocalContext.current.applicationContext as GameApplication
+    val factory = remember(app.container) { AppViewModelFactory(app.container) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val navViewModel: NavigationViewModel = viewModel()
@@ -94,40 +94,21 @@ fun MainApp() {
     val previousScreen by navViewModel.previousScreen.collectAsState()
     val latestScreen = rememberUpdatedState(currentScreen)
 
-    val gameViewModel: GameViewModel = viewModel(
-        factory = GameViewModelFactory(
-            scoreRepository = app.scoreRepository,
-            settingsRepository = app.settingsRepository,
-            audioManager = app.audioManager
-        )
-    )
+    val gameViewModel: GameViewModel = viewModel(factory = factory)
     val selectedSkinId by gameViewModel.selectedSkinId.collectAsState()
 
-    val settingsViewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(
-            settingsRepository = app.settingsRepository, versionName = app.appVersionName
-        )
-    )
+    val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
 
-    val shopViewModel: ShopViewModel = viewModel(
-        factory = ShopViewModelFactory(
-            settingsRepository = app.settingsRepository,
-            billingManager = app.billingManager
-        )
-    )
+    val shopViewModel: ShopViewModel = viewModel(factory = factory)
 
-    val leaderboardViewModel: LeaderboardViewModel = viewModel(
-        factory = LeaderboardViewModelFactory(
-            scoreRepository = app.scoreRepository
-        )
-    )
+    val leaderboardViewModel: LeaderboardViewModel = viewModel(factory = factory)
 
     DisposableEffect(lifecycleOwner, gameViewModel, app) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
                 // App is hidden (Home/recent apps/app switch): force-stop game loop and audio.
                 gameViewModel.onGameScreenHidden()
-                app.audioManager.stopBgm()
+                app.container.audioManager.stopBgm()
             } else if (event == Lifecycle.Event.ON_START && latestScreen.value == Screen.Game) {
                 // App returns to foreground while user is on Game screen: resume gameplay/audio.
                 gameViewModel.onGameScreenVisible()
@@ -187,7 +168,8 @@ fun MainApp() {
                     shopViewModel = shopViewModel,
                     leaderboardViewModel = leaderboardViewModel,
                     navigateTo = navViewModel::navigateTo,
-                    launchPurchaseFlow = app.billingManager::launchPurchaseFlow
+                    navigateBack = { navViewModel.navigateBack() },
+                    launchPurchaseFlow = app.container.billingRepository::launchPurchaseFlow
                 )
             }
         }
@@ -204,36 +186,44 @@ private fun ScreenContent(
     shopViewModel: ShopViewModel,
     leaderboardViewModel: LeaderboardViewModel,
     navigateTo: (Screen) -> Unit,
-    launchPurchaseFlow: (Activity, ProductDetails) -> Unit
+    navigateBack: () -> Unit,
+    launchPurchaseFlow: (Activity, String) -> Unit
 ) {
     when (screen) {
         Screen.Home -> HomeScreen(
             onPlayClick = {
-            gameViewModel.startGame()
-            navigateTo(Screen.Game)
-        },
-            onShopClick = { navigateTo(Screen.Shop) },
-            onGetCentsClick = { navigateTo(Screen.CentStore) },
-            onSettingsClick = { navigateTo(Screen.Settings) },
+                navigateTo(Screen.LevelSelection)
+            },
+            onDailyChallengeClick = { navigateTo(Screen.DailyChallenge) },
             onLeaderboardClick = { navigateTo(Screen.Leaderboard) },
-            cents = shopViewModel.cents.collectAsState().value,
-            selectedSkinId = selectedSkinId
+            onHelpClick = { navigateTo(Screen.Help) },
+            onShopClick = { navigateTo(Screen.Shop) },
+            onSettingsClick = { navigateTo(Screen.Settings) },
+            onGetCoinsClick = { navigateTo(Screen.CoinStore) },
+            onClaimRewardClick = { settingsViewModel.claimReward() },
+            coins = shopViewModel.coins.collectAsState().value,
+            selectedSkinId = selectedSkinId,
+            canClaimDailyReward = settingsViewModel.canClaimDailyReward.collectAsState().value
         )
 
         Screen.Game -> GameScreen(
-            viewModel = gameViewModel, onBackToHome = { navigateTo(Screen.Home) })
+            viewModel = gameViewModel,
+            onBackToHome = { navigateTo(Screen.Home) },
+            onGoToShop = { navigateTo(Screen.CoinStore) }
+        )
 
         Screen.Shop -> SkinShopScreen(
             onClose = { navigateTo(Screen.Home) },
-            onGoToCentStore = { navigateTo(Screen.CentStore) },
+            onGoToCoinStore = { navigateTo(Screen.CoinStore) },
             viewModel = shopViewModel
         )
 
-        Screen.CentStore -> CentStoreScreen(
+        Screen.CoinStore -> CoinStoreScreen(
             onClose = {
             if (previousScreen == Screen.Game) navigateTo(Screen.Home)
             else navigateTo(previousScreen)
         },
+            onGoToShop = { navigateTo(Screen.Shop) },
             viewModel = shopViewModel,
             onLaunchPurchase = launchPurchaseFlow
         )
@@ -244,6 +234,34 @@ private fun ScreenContent(
 
         Screen.Leaderboard -> LeaderboardScreen(
             viewModel = leaderboardViewModel, onBack = { navigateTo(Screen.Home) })
+
+        Screen.DailyChallenge -> DailyChallengeScreen(
+            coins = shopViewModel.coins.collectAsState().value,
+            onBack = { navigateTo(Screen.Home) },
+            onPlay = {
+                gameViewModel.startGame(isEndless = false, isDailyChallenge = true)
+                navigateTo(Screen.Game)
+            }
+        )
+
+        Screen.Help -> HelpScreen(
+            coins = shopViewModel.coins.collectAsState().value,
+            onBack = { navigateTo(Screen.Home) }
+        )
+
+        Screen.LevelSelection -> LevelSelectionScreen(
+            coins = shopViewModel.coins.collectAsState().value,
+            onBack = { navigateBack() },
+            onEndlessClick = {
+                gameViewModel.startGame(isEndless = true)
+                navigateTo(Screen.Game)
+            },
+            onDailyChallengeClick = { navigateTo(Screen.DailyChallenge) },
+            onStoryModeClick = { level ->
+                gameViewModel.startGame(level = level)
+                navigateTo(Screen.Game)
+            }
+        )
     }
 }
 

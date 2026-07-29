@@ -2,6 +2,14 @@ package com.jn.flagfang.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
+// Neon Palette
+val NeonCyan = Color(0xFF00E5FF)
+val NeonMagenta = Color(0xFFFF00FF)
+val NeonGreen = Color(0xFF39FF14)
+val NeonYellow = Color(0xFFFFF01F)
+val NeonPurple = Color(0xFFBC13FE)
+val NeonRed = Color(0xFFFF3131)
+
 val SkyBlue = Color(0xFF4FC3F7)
 val PipeGreen = Color(0xFF4CAF50)
 val DarkPipeGreen = Color(0xFF1B5E20)
@@ -12,52 +20,55 @@ val CoinGoldDark = Color(0xFFFFECB3)
 val CoinButtonPrimary = Color(0xFFFFCA28)
 val CoinButtonShadow = Color(0xFFFFA000)
 
-val PrimaryLight = Color(0xFF00668B)
-val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFC4E7FF)
-val OnPrimaryContainerLight = Color(0xFF001E2C)
+val DarkBackground = Color(0xFF0D0D0D)
+val DarkSurface = Color(0xFF1A1A1A)
 
-val SecondaryLight = Color(0xFF4E616D)
-val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFD1E5F3)
-val OnSecondaryContainerLight = Color(0xFF0A1E28)
+val PrimaryLight = NeonCyan
+val OnPrimaryLight = Color.Black
+val PrimaryContainerLight = Color(0xFF004D54)
+val OnPrimaryContainerLight = NeonCyan
 
-val TertiaryLight = Color(0xFF615A7C)
-val OnTertiaryLight = Color(0xFFFFFFFF)
-val TertiaryContainerLight = Color(0xFFE7DEFF)
-val OnTertiaryContainerLight = Color(0xFF1D1735)
+val SecondaryLight = NeonMagenta
+val OnSecondaryLight = Color.White
+val SecondaryContainerLight = Color(0xFF5A005A)
+val OnSecondaryContainerLight = NeonMagenta
 
-val ErrorLight = Color(0xFFBA1A1A)
-val OnErrorLight = Color(0xFFFFFFFF)
-val ErrorContainerLight = Color(0xFFFFDAD6)
-val OnErrorContainerLight = Color(0xFF410002)
+val TertiaryLight = NeonGreen
+val OnTertiaryLight = Color.Black
+val TertiaryContainerLight = Color(0xFF004D00)
+val OnTertiaryContainerLight = NeonGreen
 
-val BackgroundLight = Color(0xFFF8F9FF)
-val OnBackgroundLight = Color(0xFF191C1E)
-val SurfaceLight = Color(0xFFF8F9FF)
-val OnSurfaceLight = Color(0xFF191C1E)
+val ErrorLight = NeonRed
+val OnErrorLight = Color.White
+val ErrorContainerLight = Color(0xFF690005)
+val OnErrorContainerLight = NeonRed
 
-val PrimaryDark = Color(0xFF7DD0FF)
-val OnPrimaryDark = Color(0xFF00344A)
-val PrimaryContainerDark = Color(0xFF004C69)
-val OnPrimaryContainerDark = Color(0xFFC4E7FF)
+val BackgroundLight = DarkBackground
+val OnBackgroundLight = Color.White
+val SurfaceLight = DarkSurface
+val OnSurfaceLight = Color.White
 
-val SecondaryDark = Color(0xFFB5C9D7)
-val OnSecondaryDark = Color(0xFF1F333E)
-val SecondaryContainerDark = Color(0xFF364955)
-val OnSecondaryContainerDark = Color(0xFFD1E5F3)
+val PrimaryDark = NeonCyan
+val OnPrimaryDark = Color.Black
+val PrimaryContainerDark = Color(0xFF004D54)
+val OnPrimaryContainerDark = NeonCyan
 
-val TertiaryDark = Color(0xFFCBC1E9)
-val OnTertiaryDark = Color(0xFF322C4C)
-val TertiaryContainerDark = Color(0xFF494263)
-val OnTertiaryContainerDark = Color(0xFFE7DEFF)
+val SecondaryDark = NeonMagenta
+val OnSecondaryDark = Color.White
+val SecondaryContainerDark = Color(0xFF5A005A)
+val OnSecondaryContainerDark = NeonMagenta
 
-val ErrorDark = Color(0xFFFFB4AB)
-val OnErrorDark = Color(0xFF690005)
-val ErrorContainerDark = Color(0xFF93000A)
-val OnErrorContainerDark = Color(0xFFFFDAD6)
+val TertiaryDark = NeonGreen
+val OnTertiaryDark = Color.Black
+val TertiaryContainerDark = Color(0xFF004D00)
+val OnTertiaryContainerDark = NeonGreen
 
-val BackgroundDark = Color(0xFF191C1E)
-val OnBackgroundDark = Color(0xFFE1E2E5)
-val SurfaceDark = Color(0xFF191C1E)
-val OnSurfaceDark = Color(0xFFE1E2E5)
+val ErrorDark = NeonRed
+val OnErrorDark = Color.White
+val ErrorContainerDark = Color(0xFF690005)
+val OnErrorContainerDark = NeonRed
+
+val BackgroundDark = DarkBackground
+val OnBackgroundDark = Color.White
+val SurfaceDark = DarkSurface
+val OnSurfaceDark = Color.White

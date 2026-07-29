@@ -21,9 +21,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jn.flagfang.R
+import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.NeonCyan
+import com.jn.flagfang.presentation.theme.NeonRed
+import com.jn.flagfang.presentation.theme.NeonYellow
 import java.util.Locale
 
 @Composable
@@ -31,17 +36,17 @@ fun GameOverShopOverlay(
     score: Int,
     level: Int,
     onHome: () -> Unit,
-    onPlayAgain: () -> Unit
+    onPlayAgain: () -> Unit,
+    onShopClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.85f))
-            // Consume clicks to prevent interaction with the GameScreen's clickable background
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { /* No-op, just consume */ },
+            ) { },
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -53,7 +58,7 @@ fun GameOverShopOverlay(
         ) {
             Text(
                 text = stringResource(R.string.label_game_over),
-                color = Color.White,
+                color = NeonRed,
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 2.sp
@@ -61,56 +66,63 @@ fun GameOverShopOverlay(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Score Highlight
             Text(
-                text = stringResource(R.string.title_score),
+                text = "SCORE",
                 color = Color.White.copy(alpha = 0.6f),
-                style = MaterialTheme.typography.titleLarge,
-                letterSpacing = 4.sp
+                style = MaterialTheme.typography.labelSmall
             )
 
             Text(
                 text = String.format(Locale.US, "%,d", score),
-                color = Color(0xFFFFD54F), // Gold
+                color = NeonCyan,
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Black,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
-            // Level Info
-            Text(
-                text = "${stringResource(R.string.title_level)} $level",
-                color = Color.White.copy(alpha = 0.9f),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(64.dp))
-
-            // Action Buttons
             GameButton(
-                text = stringResource(R.string.btn_replay),
+                text = "REPLAY",
                 onClick = onPlayAgain,
                 modifier = Modifier.fillMaxWidth(),
-                height = 64.dp,
-                backgroundColor = Color(0xFFFBC02D),
-                shadowColor = Color(0xFFF57F17),
+                backgroundColor = NeonCyan,
                 textColor = Color.Black
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             GameButton(
-                text = stringResource(R.string.btn_home),
+                text = "GET COINS",
+                onClick = onShopClick,
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = NeonYellow,
+                textColor = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            GameButton(
+                text = "HOME",
                 onClick = onHome,
                 modifier = Modifier.fillMaxWidth(),
-                height = 56.dp,
-                backgroundColor = Color(0xFF424242), // Dark grey
-                shadowColor = Color(0xFF212121),
+                backgroundColor = Color.DarkGray,
                 textColor = Color.White
             )
         }
+    }
+}
+
+@Preview(name = "Game Over Overlay", showBackground = true)
+@Composable
+private fun GameOverShopOverlayPreview() {
+    GameTheme {
+        GameOverShopOverlay(
+            score = 125,
+            level = 5,
+            onHome = {},
+            onPlayAgain = {},
+            onShopClick = {}
+        )
     }
 }

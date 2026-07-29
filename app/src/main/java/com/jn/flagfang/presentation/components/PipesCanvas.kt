@@ -1,14 +1,19 @@
 package com.jn.flagfang.presentation.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
-import com.jn.flagfang.model.PipeState
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.jn.flagfang.domain.model.PipeState
+import com.jn.flagfang.presentation.theme.GameTheme
 
 private val limestoneColors = listOf(
     Color(0xFFD7C9A3), // light limestone
@@ -109,4 +114,19 @@ private fun createStalagmitePath(
         x, height
     )
     close()
+}
+
+@Preview(name = "Pipes Canvas", group = "Components")
+@Composable
+fun PipesCanvasPreview() {
+    GameTheme {
+        Box(modifier = Modifier.size(width = 400.dp, height = 800.dp)) {
+            PipesCanvas(
+                pipes = listOf(
+                    PipeState(x = 50f, gapTop = 200f, gapHeight = 300f, width = 80f),
+                    PipeState(x = 250f, gapTop = 400f, gapHeight = 250f, width = 80f)
+                )
+            )
+        }
+    }
 }

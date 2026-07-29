@@ -1,8 +1,8 @@
 package com.jn.flagfang.feature.shop
 
-import com.android.billingclient.api.ProductDetails
 import com.jn.flagfang.R
-import com.jn.flagfang.model.PowerUpIds
+import com.jn.flagfang.domain.model.PowerUpIds
+import com.jn.flagfang.domain.repository.DomainProduct
 import java.util.Locale
 
 data class ShopItem(
@@ -14,90 +14,102 @@ data class ShopItem(
     val isUnlocked: Boolean = false
 )
 
-data class CentPackItem(
+data class CoinPackItem(
     val id: String,
     val name: String,
+    val description: String,
     val price: String,
-    val imageRes: Int,
-    val productDetails: ProductDetails?
+    val coinAmount: Int,
+    val imageRes: Int
 )
 
-data class CentPackDefinition(
+data class CoinPackDefinition(
     val productId: String,
-    val centAmount: Int,
-    val debugPrice: String
+    val coinAmount: Int,
+    val debugPrice: String,
+    val description: String
 )
 
 object ShopData {
-    private val CentPackDefinitions = listOf(
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_100,
-            centAmount = 100,
-            debugPrice = "$0.39~"
+    private const val COMMON_DESC = "A pack of %d coins used to unlock powerful boosts like Extra Time, Hint, and Undo."
+
+    private val CoinPackDefinitions = listOf(
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_100,
+            coinAmount = 100,
+            debugPrice = "$0.29",
+            description = String.format(Locale.US, COMMON_DESC, 100)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_500,
-            centAmount = 500,
-            debugPrice = "$0.59~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_500,
+            coinAmount = 500,
+            debugPrice = "$0.49",
+            description = String.format(Locale.US, COMMON_DESC, 500)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_1000,
-            centAmount = 1000,
-            debugPrice = "$0.79~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_1000,
+            coinAmount = 1000,
+            debugPrice = "$0.69",
+            description = String.format(Locale.US, COMMON_DESC, 1000)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_1500,
-            centAmount = 1500,
-            debugPrice = "$0.89~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_1500,
+            coinAmount = 1500,
+            debugPrice = "$0.99",
+            description = String.format(Locale.US, COMMON_DESC, 1500)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_2000,
-            centAmount = 2000,
-            debugPrice = "$0.99~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_2000,
+            coinAmount = 2000,
+            debugPrice = "$1.99",
+            description = String.format(Locale.US, COMMON_DESC, 2000)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_2500,
-            centAmount = 2500,
-            debugPrice = "$1.99~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_2500,
+            coinAmount = 2500,
+            debugPrice = "$3.99",
+            description = String.format(Locale.US, COMMON_DESC, 2500)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_3000,
-            centAmount = 3000,
-            debugPrice = "$3.99~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_3000,
+            coinAmount = 3000,
+            debugPrice = "$4.99",
+            description = String.format(Locale.US, COMMON_DESC, 3000)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_3500,
-            centAmount = 3500,
-            debugPrice = "$5.99~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_3500,
+            coinAmount = 3500,
+            debugPrice = "$7.99",
+            description = String.format(Locale.US, COMMON_DESC, 3500)
         ),
-        CentPackDefinition(
-            productId = CentPackIds.CENTS_4000,
-            centAmount = 4000,
-            debugPrice = "$7.99~"
+        CoinPackDefinition(
+            productId = CoinPackIds.COINS_4000,
+            coinAmount = 4000,
+            debugPrice = "$9.99",
+            description = String.format(Locale.US, COMMON_DESC, 4000)
         )
     )
 
-    val centProductIds: List<String> = CentPackIds.ALL
+    val coinProductIds: List<String> = CoinPackIds.ALL
 
     fun getCoinAmount(productId: String): Int? {
-        val defined = CentPackDefinitions.firstOrNull { it.productId == productId }?.centAmount
+        val defined = CoinPackDefinitions.firstOrNull { it.productId == productId }?.coinAmount
         if (defined != null) return defined
 
-        // Fallback: try to parse amount from ID like "cents_123"
-        return productId.removePrefix("cents_").toIntOrNull()
+        // Fallback: try to parse amount from ID like "coins_123"
+        return productId.removePrefix("coins_").toIntOrNull()
     }
 
-    fun getDebugCoinPacks(productIds: List<String> = centProductIds): List<CentPackItem> =
+    fun getDebugCoinPacks(productIds: List<String> = coinProductIds): List<CoinPackItem> =
         productIds.mapNotNull { id ->
-            val amount = getCoinAmount(id) ?: return@mapNotNull null
-            val def = CentPackDefinitions.firstOrNull { it.productId == id }
-            val price = def?.debugPrice ?: "$0.99"
-            CentPackItem(
-                id = "mock_$amount",
-                name = formatCoinPackName(amount),
-                price = price,
-                imageRes = getCoinPackImageRes(amount),
-                productDetails = null
+            val def = CoinPackDefinitions.firstOrNull { it.productId == id } ?: return@mapNotNull null
+            CoinPackItem(
+                id = "mock_${def.coinAmount}",
+                name = formatCoinPackName(def.coinAmount),
+                description = def.description,
+                price = def.debugPrice,
+                coinAmount = def.coinAmount,
+                imageRes = getCoinPackImageRes(def.coinAmount)
             )
         }
 
@@ -157,26 +169,29 @@ object ShopData {
         )
     }
 
-    fun mapToCoinPack(product: ProductDetails): CentPackItem {
-        val centAmount = getCoinAmount(product.productId)
-        return CentPackItem(
+    fun mapToCoinPack(product: DomainProduct): CoinPackItem {
+        val def = CoinPackDefinitions.firstOrNull { it.productId == product.productId }
+        val coinAmount = def?.coinAmount ?: getCoinAmount(product.productId) ?: 0
+        
+        return CoinPackItem(
             id = product.productId,
-            name = centAmount?.let(::formatCoinPackName) ?: product.name,
-            price = product.oneTimePurchaseOfferDetails?.formattedPrice ?: "---",
-            imageRes = centAmount?.let(::getCoinPackImageRes) ?: R.drawable.img_cents_500,
-            productDetails = product
+            name = def?.let { formatCoinPackName(it.coinAmount) } ?: product.name,
+            description = def?.description ?: "",
+            price = product.formattedPrice,
+            coinAmount = coinAmount,
+            imageRes = getCoinPackImageRes(coinAmount)
         )
     }
 
-    private fun formatCoinPackName(centAmount: Int): String =
-        String.format(Locale.US, "%,d Cents", centAmount)
+    private fun formatCoinPackName(coinAmount: Int): String =
+        String.format(Locale.US, "%,d Coins", coinAmount)
 
-    private fun getCoinPackImageRes(centAmount: Int): Int = when {
-        centAmount <= 100 -> R.drawable.img_cents_100
-        centAmount <= 500 -> R.drawable.img_cents_500
-        centAmount <= 1000 -> R.drawable.img_cents_1000
-        centAmount <= 1500 -> R.drawable.img_cents_1000
-        centAmount <= 2000 -> R.drawable.img_cents_2000
-        else -> R.drawable.img_cents_2000
+    private fun getCoinPackImageRes(coinAmount: Int): Int = when {
+        coinAmount <= 100 -> R.drawable.img_coins_100
+        coinAmount <= 500 -> R.drawable.img_coins_500
+        coinAmount <= 1000 -> R.drawable.img_coins_1000
+        coinAmount <= 1500 -> R.drawable.img_coins_1000
+        coinAmount <= 2000 -> R.drawable.img_coins_2000
+        else -> R.drawable.img_coins_2000
     }
 }

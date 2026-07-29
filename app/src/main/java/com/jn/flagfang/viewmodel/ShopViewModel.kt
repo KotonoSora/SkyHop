@@ -3,13 +3,15 @@ package com.jn.flagfang.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.android.billingclient.api.ProductDetails
 import com.jn.flagfang.BuildConfig
-import com.jn.flagfang.billing.BillingManager
-import com.jn.flagfang.billing.BillingStatus
-import com.jn.flagfang.feature.shop.SettingsRepository
-import com.jn.flagfang.feature.shop.CentPackIds
-import com.jn.flagfang.feature.shop.CentPackItem
+import com.jn.flagfang.audio.AudioManager
+import com.jn.flagfang.audio.SfxType
+import com.jn.flagfang.domain.repository.BillingRepository
+import com.jn.flagfang.domain.repository.BillingStatus
+import com.jn.flagfang.domain.repository.DomainProduct
+import com.jn.flagfang.domain.repository.SettingsRepository
+import com.jn.flagfang.feature.shop.CoinPackIds
+import com.jn.flagfang.feature.shop.CoinPackItem
 import com.jn.flagfang.feature.shop.ShopData
 import com.jn.flagfang.feature.shop.ShopItem
 import com.jn.flagfang.feature.shop.SkinIds
@@ -27,11 +29,12 @@ import kotlinx.coroutines.launch
 
 class ShopViewModel(
     private val settingsRepository: SettingsRepository,
-    private val billingManager: BillingManager,
+    private val billingRepository: BillingRepository,
+    private val audioManager: AudioManager,
     private val isDebug: Boolean = BuildConfig.DEBUG
 ) : ViewModel() {
 
-    val cents: StateFlow<Int> = settingsRepository.centsFlow.stateIn(
+    val coins: StateFlow<Int> = settingsRepository.coinsFlow.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
     )
 
@@ -42,12 +45,14 @@ class ShopViewModel(
     private val _selectedSkinId = MutableStateFlow(SkinIds.SKIN_DEFAULT_ID)
     val selectedSkinId = _selectedSkinId.asStateFlow()
 
-    private val _purchaseLaunchRequests = MutableSharedFlow<ProductDetails>(extraBufferCapacity = 1)
-    val purchaseLaunchRequests: SharedFlow<ProductDetails> = _purchaseLaunchRequests.asSharedFlow()
+    private val _purchaseLaunchRequests = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val purchaseLaunchRequests: SharedFlow<String> = _purchaseLaunchRequests.asSharedFlow()
 
-    val products: StateFlow<List<ProductDetails>> = billingManager.products
+    val products: StateFlow<List<DomainProduct>> = billingRepository.products.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+    )
 
-    val billingStatus: StateFlow<BillingStatus> = billingManager.status.map { status ->
+    val billingStatus: StateFlow<BillingStatus> = billingRepository.status.map { status ->
         if (isDebug) {
             when (status) {
                 BillingStatus.EMPTY, BillingStatus.ERROR, BillingStatus.IDLE -> BillingStatus.CONNECTED
@@ -78,9 +83,9 @@ class ShopViewModel(
         }
     }
 
-    val centPacks: StateFlow<List<CentPackItem>> = products.map { productList ->
-        val allowedIds = CentPackIds.ALL
-        val packs = productList.filter { it.productId.startsWith("cents_") }
+    val coinPacks: StateFlow<List<CoinPackItem>> = products.map { productList ->
+        val allowedIds = CoinPackIds.ALL
+        val packs = productList.filter { it.productId.startsWith("coins_") }
             .map { product -> ShopData.mapToCoinPack(product) }
             .sortedBy { allowedIds.indexOf(it.id) }
 
@@ -92,7 +97,7 @@ class ShopViewModel(
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        if (isDebug) ShopData.getDebugCoinPacks(CentPackIds.ALL) else emptyList()
+        if (isDebug) ShopData.getDebugCoinPacks(CoinPackIds.ALL) else emptyList()
     )
 
     val skinItems = purchasedItems.map { purchasedIds ->
@@ -110,6 +115,7 @@ class ShopViewModel(
     fun buyItem(item: ShopItem) {
         viewModelScope.launch {
             if (settingsRepository.spendCoins(item.price)) {
+                audioManager.playSfx(SfxType.COLLECT)
                 if (item.id.startsWith("skin")) {
                     settingsRepository.purchaseItem(item.id)
                 } else if (item.id.startsWith("powerup_")) {
@@ -120,44 +126,25 @@ class ShopViewModel(
         }
     }
 
-    fun buyCoinPack(item: CentPackItem) {
+    fun buyCoinPack(item: CoinPackItem) {
         if (item.id.startsWith("mock_")) {
             val amountStr = item.id.removePrefix("mock_")
             val amount = amountStr.toIntOrNull() ?: 0
             addMockCoins(amount)
         } else {
-            item.productDetails?.let { details ->
-                _purchaseLaunchRequests.tryEmit(details)
-            }
+            _purchaseLaunchRequests.tryEmit(item.id)
         }
     }
 
     private fun addMockCoins(amount: Int) {
         viewModelScope.launch {
             settingsRepository.addCoins(amount)
+            audioManager.playSfx(SfxType.COLLECT)
         }
     }
 
     fun retryConnection() {
-        billingManager.startConnection()
+        billingRepository.startConnection()
     }
 
-}
-
-class ShopViewModelFactory(
-    private val settingsRepository: SettingsRepository,
-    private val billingManager: BillingManager,
-    private val isDebug: Boolean = BuildConfig.DEBUG
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ShopViewModel::class.java)) {
-            return ShopViewModel(
-                settingsRepository,
-                billingManager,
-                isDebug
-            ) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
-    }
 }

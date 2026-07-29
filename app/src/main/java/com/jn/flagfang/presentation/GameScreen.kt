@@ -18,19 +18,26 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
-import com.jn.flagfang.model.GameState
-import com.jn.flagfang.model.PipeState
+import com.jn.flagfang.domain.model.GameState
+import com.jn.flagfang.domain.model.PipeState
+import com.jn.flagfang.domain.model.Point
+import com.jn.flagfang.domain.model.Size
 import com.jn.flagfang.feature.shop.SkinData
 import com.jn.flagfang.presentation.components.Animal
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameHUD
 import com.jn.flagfang.presentation.components.GameOverShopOverlay
+import com.jn.flagfang.presentation.components.GameWinOverlay
 import com.jn.flagfang.presentation.components.PipesCanvas
 import com.jn.flagfang.presentation.theme.GameTheme
 import com.jn.flagfang.viewmodel.GameViewModel
 
 @Composable
-fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
+fun GameScreen(
+    viewModel: GameViewModel,
+    onBackToHome: () -> Unit,
+    onGoToShop: () -> Unit
+) {
     val gameState by viewModel.gameState.collectAsState()
     val selectedSkinId by viewModel.selectedSkinId.collectAsState()
     val density = LocalDensity.current
@@ -40,7 +47,7 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
     }
 
     val rotation by animateFloatAsState(
-        targetValue = (gameState.Animal.velocity * 3f).coerceIn(-30f, 90f),
+        targetValue = (gameState.animal.velocity * 3f).coerceIn(-30f, 90f),
         animationSpec = tween(durationMillis = 100),
         label = "AnimalRotation"
     )
@@ -54,7 +61,7 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                enabled = !gameState.isGameOver
+                enabled = !gameState.isGameOver && !gameState.isWin
             ) {
                 viewModel.jump()
             }) {
@@ -64,8 +71,12 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
             rotation = rotation,
             density = density,
             onUsePowerUp = { viewModel.usePowerUp(it) },
+            onQuickBuy = onGoToShop,
             onHome = onBackToHome,
-            onPlayAgain = { viewModel.startGame() })
+            onPlayAgain = { viewModel.startGame(level = gameState.level, isEndless = gameState.isEndless) },
+            onNextLevel = { viewModel.startGame(level = gameState.level + 1, isEndless = false) },
+            onShopClick = onGoToShop
+        )
     }
 }
 
@@ -76,8 +87,11 @@ fun GameContent(
     rotation: Float,
     density: Density,
     onUsePowerUp: (String) -> Unit,
+    onQuickBuy: () -> Unit,
     onHome: () -> Unit,
-    onPlayAgain: () -> Unit
+    onPlayAgain: () -> Unit,
+    onNextLevel: () -> Unit,
+    onShopClick: () -> Unit
 ) {
     GameBackground(opacity = 0.2f)
 
@@ -85,15 +99,15 @@ fun GameContent(
 
     Animal(
         density = density,
-        position = gameState.Animal.position,
-        size = gameState.Animal.size,
+        position = gameState.animal.position,
+        size = gameState.animal.size,
         rotation = rotation,
         skinRes = animalSkinRes,
         shieldActive = gameState.shieldActive
     )
 
     GameHUD(
-        gameState = gameState, onUsePowerUp = onUsePowerUp
+        gameState = gameState, onUsePowerUp = onUsePowerUp, onQuickBuy = onQuickBuy
     )
 
     AnimatedVisibility(
@@ -105,14 +119,27 @@ fun GameContent(
             score = gameState.score,
             level = gameState.level,
             onHome = onHome,
-            onPlayAgain = onPlayAgain
+            onPlayAgain = onPlayAgain,
+            onShopClick = onShopClick
+        )
+    }
+
+    AnimatedVisibility(
+        visible = gameState.isWin,
+        enter = fadeIn() + scaleIn(),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        GameWinOverlay(
+            reward = gameState.rewardCoins,
+            onHome = onHome,
+            onNextLevel = onNextLevel
         )
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true, name = "Game Screen – playing")
 @Composable
-private fun GameScreenPlayingPreview() {
+fun GameScreenPlayingPreview() {
     GameTheme(dynamicColor = false) {
         GameContent(
             gameState = GameState(
@@ -124,14 +151,37 @@ private fun GameScreenPlayingPreview() {
             rotation = -10f,
             density = Density(3f),
             onUsePowerUp = {},
+            onQuickBuy = {},
             onHome = {},
-            onPlayAgain = {})
+            onPlayAgain = {},
+            onNextLevel = {},
+            onShopClick = {})
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Game Screen – win")
+@Composable
+fun GameScreenWinPreview() {
+    GameTheme(dynamicColor = false) {
+        GameContent(
+            gameState = GameState(
+                score = 50, targetScore = 50, level = 5, isWin = true, rewardCoins = 25
+            ),
+            animalSkinRes = SkinData.getIDLEAnimalSkinResource(""),
+            rotation = 0f,
+            density = Density(3f),
+            onUsePowerUp = {},
+            onQuickBuy = {},
+            onHome = {},
+            onPlayAgain = {},
+            onNextLevel = {},
+            onShopClick = {})
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true, name = "Game Screen – game over")
 @Composable
-private fun GameScreenGameOverPreview() {
+fun GameScreenGameOverPreview() {
     GameTheme(dynamicColor = false) {
         GameContent(
             gameState = GameState(
@@ -141,8 +191,10 @@ private fun GameScreenGameOverPreview() {
             rotation = 90f,
             density = Density(3f),
             onUsePowerUp = {},
+            onQuickBuy = {},
             onHome = {},
-            onPlayAgain = {})
+            onPlayAgain = {},
+            onNextLevel = {},
+            onShopClick = {})
     }
 }
-

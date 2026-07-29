@@ -1,80 +1,44 @@
-# FlagFang ProGuard Rules
+# Project General
+-keepattributes *Annotation*, InnerClasses, EnclosingMethod, Signature, SourceFile, LineNumberTable
 
-# -----------------------------------------------------------------------------------
-# General Rules
-# -----------------------------------------------------------------------------------
-
-# Preserve line number information for debugging stack traces.
--keepattributes SourceFile,LineNumberTable
-
-# Preserve Annotations and Signatures for Retrofit, Room, and Moshi
--keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
-
-# -----------------------------------------------------------------------------------
 # Jetpack Compose
-# -----------------------------------------------------------------------------------
-# Compose rules are generally included in the library, but keeping some common ones.
--keepclassmembers class androidx.compose.ui.platform.ComposeView {
-   public *;
+-keepclassmembers class androidx.compose.ui.platform.AndroidComposeView {
+    void *;
 }
+-keep class androidx.compose.runtime.Recomposer { *; }
+-keep class androidx.compose.ui.platform.AndroidComposeView { *; }
+-dontwarn androidx.compose.ui.platform.AndroidComposeView
 
-# -----------------------------------------------------------------------------------
-# Room
-# -----------------------------------------------------------------------------------
--keep class * extends androidx.room.RoomDatabase
--dontwarn androidx.room.paging.**
+# ViewModel
+-keep class * extends androidx.lifecycle.ViewModel
+-keep class * extends androidx.lifecycle.ViewModelProvider$Factory
 
-# -----------------------------------------------------------------------------------
-# Retrofit / OkHttp
-# -----------------------------------------------------------------------------------
--dontwarn retrofit2.**
--keep class retrofit2.** { *; }
--dontwarn okhttp3.**
--dontwarn okio.**
--dontwarn javax.annotation.**
-
-# -----------------------------------------------------------------------------------
-# Moshi (for JSON parsing)
-# -----------------------------------------------------------------------------------
-# Retain generic type information for use by Moshi’s adapters.
--keep class com.squareup.moshi.* { *; }
--keep class kotlin.reflect.jvm.internal.** { *; }
--keep @com.squareup.moshi.JsonQualifier interface *
--keep @com.squareup.moshi.JsonClass class * {
-    <init>(...);
-}
-
-# -----------------------------------------------------------------------------------
-# Coroutines
-# -----------------------------------------------------------------------------------
+# Kotlin Coroutines
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
 -keepnames class kotlinx.coroutines.android.AndroidDispatcherFactory {}
 -dontwarn kotlinx.coroutines.**
 
-# -----------------------------------------------------------------------------------
-# Google Play Billing
-# -----------------------------------------------------------------------------------
--keep class com.android.billingclient.** { *; }
--dontwarn com.android.billingclient.**
+# Google Play Billing (Mandatory for Store flow)
+-dontwarn com.android.billingclient.api.**
+-keep class com.android.vending.billing.**
 
-# -----------------------------------------------------------------------------------
 # Coil (Image Loading)
-# -----------------------------------------------------------------------------------
--keep class coil.** { *; }
--keep class coil.RealImageLoader
--keepclassmembers class * extends coil.decode.Decoder {
-    public <init>(...);
-}
--keepclassmembers class * extends coil.fetch.Fetcher {
-    public <init>(...);
-}
--keepclassmembers class * extends coil.transition.Transition {
-    public <init>(...);
-}
+-dontwarn coil.**
 
-# -----------------------------------------------------------------------------------
-# FlagFang Models
-# -----------------------------------------------------------------------------------
-# Ensure your data models are not obfuscated to avoid issues with Room or Moshi
--keepclassmembers class com.jn.flagfang.model.** { *; }
+# DataStore (Persistence)
+-keep class androidx.datastore.preferences.core.** { *; }
+-dontwarn androidx.datastore.**
+
+# Game Domain Models (Prevent field obfuscation for data integrity)
+-keep class com.jn.flagfang.domain.model.** { *; }
+-keep class com.jn.flagfang.data.** { *; }
+-keep class com.jn.flagfang.feature.shop.** { *; }
+
+# Support for Previews in release if needed (rare but useful for debugging)
+-keep class * implements androidx.compose.ui.tooling.preview.Preview
+
+# Android System / Standard Library
+-dontwarn android.util.Half
+-dontwarn java.lang.invoke.*
+-dontwarn sun.misc.Unsafe

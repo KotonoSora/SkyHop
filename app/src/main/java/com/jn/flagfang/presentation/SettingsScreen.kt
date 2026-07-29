@@ -32,23 +32,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jn.flagfang.R
 import com.jn.flagfang.presentation.components.AudioSettingsGroup
+import com.jn.flagfang.presentation.components.GameBackground
+import com.jn.flagfang.presentation.components.GameHeader
 import com.jn.flagfang.presentation.theme.GameTheme
 import com.jn.flagfang.presentation.theme.SkyBlue
 import com.jn.flagfang.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit, settingsViewModel: SettingsViewModel
+    onBack: () -> Unit,
+    settingsViewModel: SettingsViewModel,
 ) {
     val musicEnabled by settingsViewModel.musicEnabled.collectAsState()
     val sfxEnabled by settingsViewModel.sfxEnabled.collectAsState()
+    val coins by settingsViewModel.coins.collectAsState()
 
     SettingsScreenContent(
         onBack = onBack,
         musicEnabled = musicEnabled,
         sfxEnabled = sfxEnabled,
+        coins = coins,
         onMusicToggle = { settingsViewModel.toggleMusic(it) },
-        onSfxToggle = { settingsViewModel.toggleSfx(it) })
+        onSfxToggle = { settingsViewModel.toggleSfx(it) }
+    )
 }
 
 @Composable
@@ -56,72 +62,51 @@ fun SettingsScreenContent(
     onBack: () -> Unit,
     musicEnabled: Boolean,
     sfxEnabled: Boolean,
+    coins: Int,
     onMusicToggle: (Boolean) -> Unit,
     onSfxToggle: (Boolean) -> Unit,
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SkyBlue)
+            .background(Color.Black)
     ) {
+        GameBackground(opacity = 0.2f)
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .safeContentPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
         ) {
-            SettingsHeader(onBack = onBack)
+            GameHeader(
+                title = stringResource(R.string.title_settings),
+                coins = coins,
+                onBackClick = onBack
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            AudioSettingsGroup(
-                musicEnabled = musicEnabled,
-                sfxEnabled = sfxEnabled,
-                onMusicToggle = onMusicToggle,
-                onSfxToggle = onSfxToggle
-            )
+            Column(modifier = Modifier.padding(16.dp)) {
+                AudioSettingsGroup(
+                    musicEnabled = musicEnabled,
+                    sfxEnabled = sfxEnabled,
+                    onMusicToggle = onMusicToggle,
+                    onSfxToggle = onSfxToggle
+                )
+            }
         }
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true, name = "Settings Screen", group = "Screens")
 @Composable
-fun SettingsHeader(
-    onBack: () -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.3f))
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(R.string.desc_back),
-                tint = Color.Black
-            )
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = stringResource(R.string.title_settings),
-            style = MaterialTheme.typography.headlineSmall,
-            color = Color.Black
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Settings Screen")
-@Composable
-private fun SettingsScreenPreview() {
+fun SettingsScreenPreview() {
     GameTheme(dynamicColor = false) {
         SettingsScreenContent(
             onBack = {},
             musicEnabled = true,
             sfxEnabled = false,
+            coins = 150,
             onMusicToggle = {},
             onSfxToggle = {},
         )
