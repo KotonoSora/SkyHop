@@ -8,11 +8,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,15 +18,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -45,50 +39,47 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.jn.flagfang.R
 import com.jn.flagfang.feature.shop.SkinData
-import com.jn.flagfang.presentation.components.CoinBadge
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameButton
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.components.GameHeader
+import com.jn.flagfang.presentation.theme.AppTheme
+import com.jn.flagfang.presentation.theme.NeonCyan
+import com.jn.flagfang.presentation.theme.NeonGreen
+import com.jn.flagfang.presentation.theme.NeonMagenta
+import com.jn.flagfang.presentation.theme.NeonYellow
 
 @Composable
 fun HomeScreen(
     onPlayClick: () -> Unit,
-    onShopClick: () -> Unit,
-    onGetCentsClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onDailyChallengeClick: () -> Unit,
     onLeaderboardClick: () -> Unit,
-    cents: Int,
-    selectedSkinId: String
+    onHelpClick: () -> Unit,
+    onShopClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onGetCoinsClick: () -> Unit,
+    onClaimRewardClick: () -> Unit,
+    coins: Int,
+    selectedSkinId: String,
+    canClaimDailyReward: Boolean
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         GameBackground(opacity = 0.3f)
 
-        // ── Top-right group: cents badge + settings button ────────────
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .safeContentPadding()
-                .padding(horizontal = 12.dp, vertical = 2.dp)
-                .zIndex(1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            CoinBadge(cents = cents)
-            Spacer(modifier = Modifier.width(12.dp))
-            GetCoinsButton(onClick = onGetCentsClick)
-            Spacer(modifier = Modifier.width(12.dp))
-            SettingsIconButton(onClick = onSettingsClick)
-        }
+        GameHeader(
+            coins = coins,
+            onShopClick = onShopClick,
+            onCoinsClick = onGetCoinsClick
+        )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .safeContentPadding(),
+                .safeContentPadding()
+                .padding(top = 64.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -96,49 +87,115 @@ fun HomeScreen(
                 selectedSkinId = selectedSkinId
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            GameButton(
-                text = "PLAY",
-                onClick = { onPlayClick() },
-                modifier = Modifier.fillMaxWidth(0.75f),
-                backgroundColor = Color(0xFFF0EA2D),
-                shadowColor = Color(0xFFF6E128),
-                textColor = Color.Black,
-                icon = {
-                    Icon(
-                        Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black
+            // ── Button options ──────────────────────────────────
+            Column(
+                modifier = Modifier.fillMaxWidth(0.8f),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (canClaimDailyReward) {
+                    GameButton(
+                        text = "CLAIM DAILY REWARD",
+                        onClick = onClaimRewardClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        backgroundColor = Color(0xFFFF4081),
+                        glowColor = Color(0xFFC2185B),
+                        textColor = Color.White,
+                        icon = {
+                            Icon(
+                                Icons.Default.Star,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
                     )
-                })
+                }
 
+                GameButton(
+                    text = "PLAY GAME",
+                    onClick = onPlayClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = NeonYellow,
+                    textColor = Color.Black,
+                    icon = {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            tint = Color.Black
+                        )
+                    }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                GameButton(
+                    text = "DAILY CHALLENGE",
+                    onClick = onDailyChallengeClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = NeonGreen,
+                    textColor = Color.Black,
+                    icon = {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color.Black
+                        )
+                    }
+                )
 
-            GameButton(
-                text = "SKIN SHOP",
-                onClick = {
-                    onShopClick()
-                },
-                modifier = Modifier.fillMaxWidth(0.75f),
-                backgroundColor = Color(0xFF66BB6A),
-                shadowColor = Color(0xFF388E3C),
-                textColor = Color.White,
-                icon = {
-                    Icon(
-                        Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White
-                    )
-                })
+                GameButton(
+                    text = "LEADERBOARD",
+                    onClick = onLeaderboardClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = NeonCyan,
+                    textColor = Color.Black,
+                    icon = {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color.Black
+                        )
+                    }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                GameButton(
+                    text = "HELP",
+                    onClick = onHelpClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = Color.DarkGray,
+                    textColor = Color.White
+                )
 
-            GameButton(
-                text = "LEADERBOARD",
-                onClick = { onLeaderboardClick() },
-                modifier = Modifier.fillMaxWidth(0.75f),
-                backgroundColor = Color(0xFF42A5F5),
-                shadowColor = Color(0xFF1565C0),
-                textColor = Color.White,
-                icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) })
+                GameButton(
+                    text = "SKIN/POWER-UP SHOP",
+                    onClick = onShopClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = NeonMagenta,
+                    textColor = Color.White,
+                    icon = {
+                        Icon(
+                            Icons.Default.ShoppingCart,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                )
+
+                GameButton(
+                    text = "SETTING",
+                    onClick = onSettingsClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = Color(0xFF78909C),
+                    textColor = Color.White,
+                    icon = {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -184,48 +241,42 @@ fun AnimatedHomeScreenElements(
     )
 }
 
+@Preview(showBackground = true, showSystemUi = true, name = "Home Screen - Reward Available")
 @Composable
-fun SettingsIconButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier
-            .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.3f))
-    ) {
-        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Black)
-    }
-}
-
-@Composable
-fun GetCoinsButton(onClick: () -> Unit) {
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(Color(0xFFFFCA28))
-    ) {
-        Icon(
-            imageVector = Icons.Default.ShoppingCart,
-            contentDescription = "Get Cents",
-            tint = Color.Black,
-            modifier = Modifier.size(18.dp)
+fun HomeScreenRewardAvailablePreview() {
+    AppTheme {
+        HomeScreen(
+            onPlayClick = {},
+            onDailyChallengeClick = {},
+            onLeaderboardClick = {},
+            onHelpClick = {},
+            onShopClick = {},
+            onSettingsClick = {},
+            onGetCoinsClick = {},
+            onClaimRewardClick = {},
+            coins = 1250,
+            selectedSkinId = "",
+            canClaimDailyReward = true
         )
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Home Screen")
+@Preview(showBackground = true, showSystemUi = true, name = "Home Screen - No Reward")
 @Composable
-private fun HomeScreenPreview() {
-    GameTheme(dynamicColor = false) {
+fun HomeScreenNoRewardPreview() {
+    AppTheme {
         HomeScreen(
             onPlayClick = {},
-            onShopClick = {},
-            onGetCentsClick = {},
-            onSettingsClick = {},
+            onDailyChallengeClick = {},
             onLeaderboardClick = {},
-            cents = 1250,
-            selectedSkinId = ""
+            onHelpClick = {},
+            onShopClick = {},
+            onSettingsClick = {},
+            onGetCoinsClick = {},
+            onClaimRewardClick = {},
+            coins = 1250,
+            selectedSkinId = "",
+            canClaimDailyReward = false
         )
     }
 }

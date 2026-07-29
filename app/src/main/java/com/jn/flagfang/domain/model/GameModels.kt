@@ -1,21 +1,7 @@
-package com.jn.flagfang.model
-
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-
-enum class PowerUpType(val id: String) {
-    SHIELD("shield"),
-    MULTIPLIER("multiplier"),
-    AUTO_PLAY("autoplay"),
-    BOOST("boost");
-
-    companion object {
-        fun fromId(id: String) = entries.find { it.id == id }
-    }
-}
+package com.jn.flagfang.domain.model
 
 data class AnimalState(
-    val position: Offset = Offset(100f, 500f),
+    val position: Point = Point(100f, 500f),
     val velocity: Float = 0f,
     val size: Size = Size(110f, 110f)
 )
@@ -29,12 +15,12 @@ data class PipeState(
 )
 
 data class GameState(
-    val Animal: AnimalState = AnimalState(),
+    val animal: AnimalState = AnimalState(),
     val pipes: List<PipeState> = emptyList(),
     val score: Int = 0,
     val pipesPassed: Int = 0,
     val highScore: Int = 0,
-    val cents: Int = 0,
+    val coins: Int = 0,
     val level: Int = 1,
     val isGameOver: Boolean = false,
     val isGameStarted: Boolean = false,
@@ -50,5 +36,12 @@ data class GameState(
     val isStartSequenceActive: Boolean = false,
     val shieldCount: Int = 0,
     val multiplierCount: Int = 0,
-    val autoPlayCount: Int = 0
+    val autoPlayCount: Int = 0,
+    val isEndless: Boolean = true,
+    val targetScore: Int = 0,
+    val isWin: Boolean = false,
+    val rewardCoins: Int = 0,
+    val gravityMultiplier: Float = 1f,
+    val shieldDisabled: Boolean = false,
+    val isDailyChallenge: Boolean = false
 )

@@ -36,11 +36,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jn.flagfang.R
-import com.jn.flagfang.model.GameState
-import com.jn.flagfang.model.PowerUpType
+import com.jn.flagfang.domain.model.GameState
+import com.jn.flagfang.domain.model.PowerUpType
+import com.jn.flagfang.presentation.theme.AppTheme
 import java.util.Locale
 import kotlin.math.ceil
 
@@ -48,6 +50,7 @@ import kotlin.math.ceil
 fun GameHUD(
     gameState: GameState,
     onUsePowerUp: (String) -> Unit,
+    onQuickBuy: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -58,7 +61,11 @@ fun GameHUD(
                 .padding(top = 16.dp, start = 24.dp)
         ) {
             HUDBadge(
-                text = "${stringResource(R.string.title_score)}: ${gameState.score}",
+                text = if (gameState.isEndless) {
+                    "${stringResource(R.string.title_score)}: ${gameState.score}"
+                } else {
+                    "GOAL: ${gameState.score}/${gameState.targetScore}"
+                },
                 icon = Icons.Default.Star,
                 contentDescription = stringResource(R.string.desc_star)
             )
@@ -74,11 +81,12 @@ fun GameHUD(
         }
 
         CoinDisplayHUD(
-            cents = gameState.cents,
+            coins = gameState.coins,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
-                .padding(top = 16.dp, end = 24.dp)
+                .padding(top = 16.dp, end = 24.dp),
+            onQuickBuy = onQuickBuy
         )
 
         Row(
@@ -136,11 +144,12 @@ fun HUDBadge(text: String, icon: ImageVector, contentDescription: String?) {
 
 @Composable
 fun CoinDisplayHUD(
-    cents: Int,
+    coins: Int,
+    onQuickBuy: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.clickable { onQuickBuy() },
         shape = RoundedCornerShape(20.dp),
         color = Color.Black.copy(alpha = 0.5f)
     ) {
@@ -150,14 +159,21 @@ fun CoinDisplayHUD(
         ) {
             Icon(
                 Icons.Default.MonetizationOn,
-                contentDescription = stringResource(R.string.desc_cent),
+                contentDescription = stringResource(R.string.desc_coin),
                 tint = Color(0xFFFFD54F),
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = String.format(Locale.getDefault(), "%,d", cents),
+                text = String.format(Locale.getDefault(), "%,d", coins),
                 color = Color.White,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "+",
+                color = Color(0xFFFFD54F),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -252,6 +268,61 @@ fun PowerUpInventoryBadge(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.1f))
+            )
+        }
+    }
+}
+
+@Preview(name = "Game HUD", group = "Components")
+@Composable
+fun GameHUDPreview() {
+    AppTheme {
+        GameHUD(
+            gameState = GameState(
+                score = 42,
+                level = 3,
+                coins = 500,
+                pipesPassed = 25,
+                shieldCount = 2,
+                multiplierCount = 1,
+                shieldActive = true,
+                shieldTimeLeft = 7.5f
+            ),
+            onUsePowerUp = {},
+            onQuickBuy = {}
+        )
+    }
+}
+
+@Preview(name = "PowerUp Badge - Active", group = "Components")
+@Composable
+fun PowerUpBadgeActivePreview() {
+    AppTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            PowerUpInventoryBadge(
+                iconRes = R.drawable.img_powerup_shield_icon,
+                count = 3,
+                isActive = true,
+                timeLeft = 4.2f,
+                onClick = {},
+                contentDescription = "Shield"
+            )
+        }
+    }
+}
+
+@Preview(name = "PowerUp Badge - Inactive", group = "Components")
+@Composable
+fun PowerUpBadgeInactivePreview() {
+    AppTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            PowerUpInventoryBadge(
+                iconRes = R.drawable.img_powerup_multiplier_icon,
+                count = 5,
+                isActive = false,
+                timeLeft = 0f,
+                onClick = {},
+                contentDescription = "Multiplier"
             )
         }
     }

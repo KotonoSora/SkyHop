@@ -1,12 +1,12 @@
 package com.jn.flagfang.presentation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,7 +22,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MonetizationOn
@@ -31,7 +29,6 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,20 +45,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jn.flagfang.R
 import com.jn.flagfang.feature.shop.ShopData
 import com.jn.flagfang.feature.shop.ShopItem
 import com.jn.flagfang.feature.shop.SkinIds
-import com.jn.flagfang.presentation.components.CoinBadge
+import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameButton
-import com.jn.flagfang.presentation.theme.GameTheme
-import com.jn.flagfang.presentation.theme.SkyBlue
+import com.jn.flagfang.presentation.components.GameHeader
+import com.jn.flagfang.presentation.theme.AppTheme
+import com.jn.flagfang.viewmodel.ShopIntent
 import com.jn.flagfang.viewmodel.ShopViewModel
 
 @Composable
 fun SkinShopScreen(
-    onClose: () -> Unit, onGoToCentStore: () -> Unit, viewModel: ShopViewModel
+    onClose: () -> Unit,
+    onGoToCoinStore: () -> Unit,
+    viewModel: ShopViewModel,
 ) {
-    val cents by viewModel.cents.collectAsState()
+    val coins by viewModel.coins.collectAsState()
     val skinItems by viewModel.skinItems.collectAsState()
     val powerUpItems = viewModel.powerUpItems
     val selectedSkinId by viewModel.selectedSkinId.collectAsState()
@@ -70,18 +71,54 @@ fun SkinShopScreen(
     val shieldCount by viewModel.shieldCount.collectAsState()
     val multiplierCount by viewModel.multiplierCount.collectAsState()
 
+    SkinShopScreenContent(
+        onClose = onClose,
+        onGoToCoinStore = onGoToCoinStore,
+        coins = coins,
+        skinItems = skinItems,
+        powerUpItems = powerUpItems,
+        selectedSkinId = selectedSkinId,
+        shieldCount = shieldCount,
+        multiplierCount = multiplierCount,
+        onSkinSelectOrBuy = { item ->
+            if (item.id.startsWith("skin")) {
+                if (item.isUnlocked) viewModel.onIntent(ShopIntent.SelectSkin(item.id))
+                else viewModel.onIntent(ShopIntent.BuyItem(item))
+            } else {
+                viewModel.onIntent(ShopIntent.BuyItem(item))
+            }
+        }
+    )
+}
+
+@Composable
+fun SkinShopScreenContent(
+    onClose: () -> Unit,
+    onGoToCoinStore: () -> Unit,
+    coins: Int,
+    skinItems: List<ShopItem>,
+    powerUpItems: List<ShopItem>,
+    selectedSkinId: String,
+    shieldCount: Int,
+    multiplierCount: Int,
+    onSkinSelectOrBuy: (ShopItem) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SkyBlue)
+            .background(Color.Black)
     ) {
+        GameBackground(opacity = 0.2f)
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .safeContentPadding()
         ) {
-            SkinShopHeader(
-                onClose = onClose, cents = cents
+            GameHeader(
+                title = "SHOP",
+                coins = coins,
+                onBackClick = onClose,
+                onCoinsClick = onGoToCoinStore
             )
 
             ShopGridContent(
@@ -90,56 +127,10 @@ fun SkinShopScreen(
                 selectedSkinId = selectedSkinId,
                 shieldCount = shieldCount,
                 multiplierCount = multiplierCount,
-                onSkinSelectOrBuy = { item ->
-                    if (item.id.startsWith("skin")) {
-                        if (item.isUnlocked) viewModel.selectSkin(item.id)
-                        else viewModel.buyItem(item)
-                    } else {
-                        viewModel.buyItem(item)
-                    }
-                },
-                onGoToCentStore = onGoToCentStore
+                onSkinSelectOrBuy = onSkinSelectOrBuy,
+                onGoToCoinStore = onGoToCoinStore
             )
         }
-    }
-}
-
-@Composable
-fun SkinShopHeader(
-    onClose: () -> Unit, cents: Int
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                PaddingValues(
-                    start = 16.dp, end = 16.dp, top = 16.dp, bottom = 0.dp
-                )
-            ),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onClose,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.3f))
-        ) {
-            Icon(
-                Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = "SHOP", style = MaterialTheme.typography.headlineSmall, color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        CoinBadge(cents = cents)
     }
 }
 
@@ -151,7 +142,7 @@ fun ShopGridContent(
     shieldCount: Int,
     multiplierCount: Int,
     onSkinSelectOrBuy: (ShopItem) -> Unit,
-    onGoToCentStore: () -> Unit
+    onGoToCoinStore: () -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -190,13 +181,13 @@ fun ShopGridContent(
         item(span = { GridItemSpan(2) }) {
             Spacer(modifier = Modifier.height(16.dp))
             GameButton(
-                text = "GET CENTS",
-                onClick = onGoToCentStore,
+                text = "GET COINS",
+                onClick = onGoToCoinStore,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 backgroundColor = Color(0xFFFFD54F),
-                shadowColor = Color(0xFFFBC02D),
+                glowColor = Color(0xFFFBC02D),
                 icon = {
                     Icon(
                         Icons.Default.ShoppingCart, contentDescription = null, tint = Color.Black
@@ -211,7 +202,7 @@ fun SectionTitle(title: String, modifier: Modifier = Modifier) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,
-        color = Color.Black,
+        color = Color.White,
         modifier = modifier.padding(bottom = 8.dp)
     )
 }
@@ -220,9 +211,11 @@ fun SectionTitle(title: String, modifier: Modifier = Modifier) {
 fun SkinShopItemCard(
     item: ShopItem, isSelected: Boolean, onAction: (ShopItem) -> Unit, ownedCount: Int = 0
 ) {
+    val borderColor = if (isSelected) Color(0xFF00E5FF) else Color.White.copy(alpha = 0.2f)
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.6f)),
+        border = BorderStroke(2.dp, borderColor),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -235,7 +228,7 @@ fun SkinShopItemCard(
             Text(
                 text = item.name.uppercase(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black,
+                color = Color.White,
                 maxLines = 2,
                 textAlign = TextAlign.Center,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -247,7 +240,7 @@ fun SkinShopItemCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            val (btnColor, shadowColor, btnText, btnIcon) = getActionVisuals(item, isSelected)
+            val (btnColor, glowColor, btnText, btnIcon) = getActionVisuals(item, isSelected)
 
             GameButton(
                 text = btnText,
@@ -255,7 +248,7 @@ fun SkinShopItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 height = 40.dp,
                 backgroundColor = btnColor,
-                shadowColor = shadowColor,
+                glowColor = glowColor,
                 textColor = Color.White,
                 borderWidth = 0.dp,
                 icon = {
@@ -282,7 +275,7 @@ private fun ItemImageContainer(item: ShopItem, ownedCount: Int = 0) {
             .clip(RoundedCornerShape(16.dp))
             .background(
                 Brush.verticalGradient(
-                    listOf(Color(0xFFE3F2FD), Color(0xFFBBDEFB))
+                    listOf(Color.DarkGray, Color.Black)
                 )
             ), contentAlignment = Alignment.Center
     ) {
@@ -317,7 +310,7 @@ private fun ItemStatusText(item: ShopItem, isSelected: Boolean, ownedCount: Int 
     val (text, color) = when {
         isSelected -> "ACTIVE" to Color(0xFF4CAF50)
         item.isUnlocked -> "OWNED" to Color(0xFF2196F3)
-        else -> "${item.price} CENTS" to Color.Gray
+        else -> "${item.price} COINS" to Color.Gray
     }
 
     Text(
@@ -330,14 +323,14 @@ private fun getActionVisuals(item: ShopItem, isSelected: Boolean): ActionVisuals
     return if (isSelected) {
         ActionVisuals(
             btnColor = Color(0xFF4CAF50),
-            shadowColor = Color(0xFF388E3C),
+            glowColor = Color(0xFF388E3C),
             btnText = "ACTIVE",
             btnIcon = Icons.Default.Check
         )
     } else if (item.isUnlocked) {
         ActionVisuals(
             btnColor = Color(0xFF2196F3),
-            shadowColor = Color(0xFF1976D2),
+            glowColor = Color(0xFF1976D2),
             btnText = "SELECT",
             btnIcon = Icons.Default.Check
         )
@@ -347,7 +340,7 @@ private fun getActionVisuals(item: ShopItem, isSelected: Boolean): ActionVisuals
         }
         ActionVisuals(
             btnColor = color,
-            shadowColor = shadow,
+            glowColor = shadow,
             btnText = "BUY",
             btnIcon = if (item.id.startsWith("skin")) Icons.Default.Lock else Icons.Default.MonetizationOn
         )
@@ -355,34 +348,49 @@ private fun getActionVisuals(item: ShopItem, isSelected: Boolean): ActionVisuals
 }
 
 private data class ActionVisuals(
-    val btnColor: Color, val shadowColor: Color, val btnText: String, val btnIcon: ImageVector
+    val btnColor: Color, val glowColor: Color, val btnText: String, val btnIcon: ImageVector
 )
 
-@Preview(showBackground = true, showSystemUi = true, name = "Skin Shop Screen")
+@Preview(showBackground = true, showSystemUi = true, name = "Skin Shop - Mixed States")
 @Composable
-private fun SkinShopScreenPreview() {
-    GameTheme(dynamicColor = false) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(SkyBlue)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .safeContentPadding()
-            ) {
-                SkinShopHeader(onClose = {}, cents = 1250)
-                ShopGridContent(
-                    skinItems = ShopData.getSkinItems(setOf(SkinIds.SKIN_SYNTH_SCREECHER)),
-                    powerUpItems = ShopData.getPowerUpItems(),
-                    selectedSkinId = SkinIds.SKIN_DEFAULT_ID,
-                    shieldCount = 2,
-                    multiplierCount = 1,
-                    onSkinSelectOrBuy = {},
-                    onGoToCentStore = {})
-            }
-        }
+fun SkinShopScreenMixedPreview() {
+    AppTheme {
+        SkinShopScreenContent(
+            onClose = {},
+            onGoToCoinStore = {},
+            coins = 2000,
+            skinItems = listOf(
+                ShopItem(
+                    SkinIds.SKIN_DEFAULT_ID,
+                    "Classic Bat",
+                    "Standard bat.",
+                    0,
+                    R.drawable.img_idle_bat_normal,
+                    true
+                ),
+                ShopItem(
+                    SkinIds.SKIN_SIR_A_LOT,
+                    "Sir-A-Lot",
+                    "A bat with a hat.",
+                    500,
+                    R.drawable.img_idle_bat_sir_a_lot,
+                    true
+                ),
+                ShopItem(
+                    SkinIds.SKIN_SONAR_MECH,
+                    "Sonar Mech",
+                    "Mechanical bat.",
+                    1000,
+                    R.drawable.img_idle_bat_sonar_mech,
+                    false
+                )
+            ),
+            powerUpItems = ShopData.getPowerUpItems(),
+            selectedSkinId = SkinIds.SKIN_SIR_A_LOT,
+            shieldCount = 0,
+            multiplierCount = 3,
+            onSkinSelectOrBuy = {}
+        )
     }
 }
 

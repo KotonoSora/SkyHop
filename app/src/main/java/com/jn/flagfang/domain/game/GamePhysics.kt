@@ -1,5 +1,8 @@
-package com.jn.flagfang.model
+package com.jn.flagfang.domain.game
 
+import com.jn.flagfang.domain.model.AnimalState
+import com.jn.flagfang.domain.model.GameState
+import com.jn.flagfang.domain.model.PipeState
 import kotlin.random.Random
 
 object GamePhysics {
@@ -14,7 +17,7 @@ object GamePhysics {
     private const val BASE_PIPE_SPEED = 5f
     private const val SPEED_INCREMENT = 0.5f
     private const val PIPES_PER_LEVEL = 10
-    private const val CENTS_PER_LEVEL = 3
+    private const val COINS_PER_LEVEL = 3
 
     fun updatePowerUpTimers(state: GameState): GameState {
         if (state.isStartSequenceActive) {
@@ -43,25 +46,26 @@ object GamePhysics {
         val shouldAutoJump = when {
             state.isStartSequenceActive -> {
                 val targetY = if (state.screenHeight > 0) state.screenHeight / 2 else 500f
-                state.Animal.position.y > targetY && state.Animal.velocity >= 0
+                state.animal.position.y > targetY && state.animal.velocity >= 0
             }
 
             state.isAutoPlayActive || state.multiplierActive -> {
-                val nextPipe = state.pipes.firstOrNull { it.x + it.width > state.Animal.position.x }
+                val nextPipe = state.pipes.firstOrNull { it.x + it.width > state.animal.position.x }
                 val targetY =
                     nextPipe?.let { it.gapTop + it.gapHeight / 2 } ?: (state.screenHeight / 2)
-                state.Animal.position.y > targetY && state.Animal.velocity >= 0
+                state.animal.position.y > targetY && state.animal.velocity >= 0
             }
 
             else -> false
         }
 
-        val newVelocity = if (shouldAutoJump) JUMP_VELOCITY else state.Animal.velocity + GRAVITY
-        val newY = state.Animal.position.y + newVelocity
+        val newVelocity =
+            if (shouldAutoJump) JUMP_VELOCITY else state.animal.velocity + (GRAVITY * state.gravityMultiplier)
+        val newY = state.animal.position.y + newVelocity
 
         return state.copy(
-            Animal = state.Animal.copy(
-                position = state.Animal.position.copy(y = newY),
+            animal = state.animal.copy(
+                position = state.animal.position.copy(y = newY),
                 velocity = newVelocity
             )
         )
@@ -95,16 +99,16 @@ object GamePhysics {
 
     fun updateScoring(state: GameState): GameState {
         var newScore = state.score
-        var newCoins = state.cents
+        var newCoins = state.coins
         var newPipesPassed = state.pipesPassed
 
         val finalPipes = state.pipes.map { pipe ->
-            if (!pipe.scored && pipe.x + pipe.width < state.Animal.position.x) {
+            if (!pipe.scored && pipe.x + pipe.width < state.animal.position.x) {
                 val scoreGain = if (state.multiplierActive) 2 else 1
                 newScore += scoreGain
                 newPipesPassed += 1
 
-                if (newPipesPassed % PIPES_PER_LEVEL == 0) newCoins += CENTS_PER_LEVEL
+                if (newPipesPassed % PIPES_PER_LEVEL == 0) newCoins += COINS_PER_LEVEL
 
                 pipe.copy(scored = true)
             } else pipe
@@ -114,7 +118,7 @@ object GamePhysics {
         return state.copy(
             pipes = finalPipes,
             score = newScore,
-            cents = newCoins,
+            coins = newCoins,
             pipesPassed = newPipesPassed,
             level = newLevel
         )
@@ -122,29 +126,29 @@ object GamePhysics {
 
     fun checkCollision(state: GameState): Boolean {
         if (state.screenHeight <= 0f) return false
-        val Animal = state.Animal
+        val animal = state.animal
 
         // Screen bounds collision
-        if (Animal.position.y < 0 || Animal.position.y + Animal.size.height > state.screenHeight) return true
+        if (animal.position.y < 0 || animal.position.y + animal.size.height > state.screenHeight) return true
 
-        val AnimalRect = AnimalRect(Animal)
+        val animalRect = AnimalRect(animal)
 
         return state.pipes.any { pipe ->
             val pipeLeft = pipe.x
             val pipeRight = pipe.x + pipe.width
 
-            if (AnimalRect.right > pipeLeft && AnimalRect.left < pipeRight) {
-                AnimalRect.top < pipe.gapTop || AnimalRect.bottom > pipe.gapTop + pipe.gapHeight
+            if (animalRect.right > pipeLeft && animalRect.left < pipeRight) {
+                animalRect.top < pipe.gapTop || animalRect.bottom > pipe.gapTop + pipe.gapHeight
             } else {
                 false
             }
         }
     }
 
-    private class AnimalRect(Animal: AnimalState) {
-        val left = Animal.position.x
-        val right = Animal.position.x + Animal.size.width
-        val top = Animal.position.y
-        val bottom = Animal.position.y + Animal.size.height
+    private class AnimalRect(animal: AnimalState) {
+        val left = animal.position.x
+        val right = animal.position.x + animal.size.width
+        val top = animal.position.y
+        val bottom = animal.position.y + animal.size.height
     }
 }

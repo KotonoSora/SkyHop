@@ -16,8 +16,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jn.flagfang.R
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.CloudWhite
 import com.jn.flagfang.presentation.theme.SurfaceDark
 
@@ -95,5 +97,13 @@ private fun Cloud(modifier: Modifier = Modifier) {
                 .align(Alignment.BottomEnd)
                 .background(CloudWhite.copy(alpha = 0.6f), CircleShape)
         )
+    }
+}
+
+@Preview(name = "Game Background", showBackground = true, group = "Components")
+@Composable
+fun GameBackgroundPreview() {
+    AppTheme {
+        GameBackground()
     }
 }

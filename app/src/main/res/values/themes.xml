@@ -1,9 +1,4 @@
 <resources>
-    <style name="Theme.FlagFang" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-    </style>
-</resources>
 
+    <style name="Theme.App" parent="Theme.MaterialComponents.Light" />
+</resources>

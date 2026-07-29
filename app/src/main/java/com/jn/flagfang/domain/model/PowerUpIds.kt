@@ -1,4 +1,4 @@
-package com.jn.flagfang.model
+package com.jn.flagfang.domain.model
 
 object PowerUpIds {
     const val POWERUP_SHIELD_ID = "powerup_shield"

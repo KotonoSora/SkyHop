@@ -8,12 +8,15 @@ import androidx.annotation.RawRes
 import com.jn.flagfang.R
 
 enum class SfxType(@param:RawRes val rawResId: Int) {
-    START(R.raw.sfx_start),
-    TOUCH(R.raw.sfx_touch),
-    GAMEOVER(R.raw.sfx_game_over)
+    START(R.raw.start),
+    TOUCH(R.raw.touch),
+    WIN(R.raw.win),
+    LOSE(R.raw.lose),
+    MILESTONE(R.raw.milestone),
+    COLLECT(R.raw.collect)
 }
 
-class AudioManager(context: Context) {
+class AudioManager(context: Context) : IAudioManager {
 
     private var bgmPlayer: MediaPlayer? = null
     private var soundPool: SoundPool? = null
@@ -48,26 +51,30 @@ class AudioManager(context: Context) {
         }
 
         soundPool = SoundPool.Builder()
-            .setMaxStreams(3)
+            .setMaxStreams(5)
             .setAudioAttributes(audioAttributes)
             .build()
 
-        loadedSfx[SfxType.START] = soundPool?.load(context, SfxType.START.rawResId, 1) ?: 0
-        loadedSfx[SfxType.TOUCH] = soundPool?.load(context, SfxType.TOUCH.rawResId, 1) ?: 0
-        loadedSfx[SfxType.GAMEOVER] = soundPool?.load(context, SfxType.GAMEOVER.rawResId, 1) ?: 0
+        SfxType.entries.forEach { type ->
+            try {
+                loadedSfx[type] = soundPool?.load(context, type.rawResId, 1) ?: 0
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
-    fun playBgm() {
+    override fun playBgm() {
         if (musicEnabled && bgmPlayer?.isPlaying == false) {
             bgmPlayer?.start()
         }
     }
 
-    fun pauseBgm() {
+    override fun pauseBgm() {
         bgmPlayer?.pause()
     }
 
-    fun stopBgm() {
+    override fun stopBgm() {
         bgmPlayer?.let { player ->
             if (player.isPlaying) {
                 player.pause()
@@ -76,13 +83,13 @@ class AudioManager(context: Context) {
         }
     }
 
-    fun playSfx(type: SfxType) {
+    override fun playSfx(type: SfxType) {
         if (!sfxEnabled) return
         val sampleId = loadedSfx[type] ?: return
         soundPool?.play(sampleId, 1.0f, 1.0f, 1, 0, 1.0f)
     }
 
-    fun release() {
+    override fun release() {
         bgmPlayer?.release()
         bgmPlayer = null
         soundPool?.release()
@@ -90,7 +97,7 @@ class AudioManager(context: Context) {
         loadedSfx.clear()
     }
 
-    fun updateSettings(musicEnabled: Boolean, sfxEnabled: Boolean) {
+    override fun updateSettings(musicEnabled: Boolean, sfxEnabled: Boolean) {
         val wasPlaying = bgmPlayer?.isPlaying == true
 
         this.musicEnabled = musicEnabled

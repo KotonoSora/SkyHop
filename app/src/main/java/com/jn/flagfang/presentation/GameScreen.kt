@@ -18,19 +18,25 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
-import com.jn.flagfang.model.GameState
-import com.jn.flagfang.model.PipeState
+import com.jn.flagfang.domain.model.GameState
+import com.jn.flagfang.domain.model.PipeState
 import com.jn.flagfang.feature.shop.SkinData
 import com.jn.flagfang.presentation.components.Animal
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameHUD
 import com.jn.flagfang.presentation.components.GameOverShopOverlay
+import com.jn.flagfang.presentation.components.GameWinOverlay
 import com.jn.flagfang.presentation.components.PipesCanvas
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
+import com.jn.flagfang.viewmodel.GameIntent
 import com.jn.flagfang.viewmodel.GameViewModel
 
 @Composable
-fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
+fun GameScreen(
+    viewModel: GameViewModel,
+    onBackToHome: () -> Unit,
+    onGoToShop: () -> Unit
+) {
     val gameState by viewModel.gameState.collectAsState()
     val selectedSkinId by viewModel.selectedSkinId.collectAsState()
     val density = LocalDensity.current
@@ -40,7 +46,7 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
     }
 
     val rotation by animateFloatAsState(
-        targetValue = (gameState.Animal.velocity * 3f).coerceIn(-30f, 90f),
+        targetValue = (gameState.animal.velocity * 3f).coerceIn(-30f, 90f),
         animationSpec = tween(durationMillis = 100),
         label = "AnimalRotation"
     )
@@ -49,23 +55,46 @@ fun GameScreen(viewModel: GameViewModel, onBackToHome: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .onSizeChanged { size ->
-                viewModel.onScreenSizeChanged(size.width.toFloat(), size.height.toFloat())
+                viewModel.onIntent(
+                    GameIntent.ScreenSizeChanged(
+                        size.width.toFloat(),
+                        size.height.toFloat()
+                    )
+                )
             }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                enabled = !gameState.isGameOver
+                enabled = !gameState.isGameOver && !gameState.isWin
             ) {
-                viewModel.jump()
+                viewModel.onIntent(GameIntent.Jump)
             }) {
         GameContent(
             gameState = gameState,
             animalSkinRes = animalSkinRes,
             rotation = rotation,
             density = density,
-            onUsePowerUp = { viewModel.usePowerUp(it) },
+            onUsePowerUp = { viewModel.onIntent(GameIntent.UsePowerUp(it)) },
+            onQuickBuy = onGoToShop,
             onHome = onBackToHome,
-            onPlayAgain = { viewModel.startGame() })
+            onPlayAgain = {
+                viewModel.onIntent(
+                    GameIntent.StartGame(
+                        level = gameState.level,
+                        isEndless = gameState.isEndless
+                    )
+                )
+            },
+            onNextLevel = {
+                viewModel.onIntent(
+                    GameIntent.StartGame(
+                        level = gameState.level + 1,
+                        isEndless = false
+                    )
+                )
+            },
+            onShopClick = onGoToShop
+        )
     }
 }
 
@@ -76,8 +105,11 @@ fun GameContent(
     rotation: Float,
     density: Density,
     onUsePowerUp: (String) -> Unit,
+    onQuickBuy: () -> Unit,
     onHome: () -> Unit,
-    onPlayAgain: () -> Unit
+    onPlayAgain: () -> Unit,
+    onNextLevel: () -> Unit,
+    onShopClick: () -> Unit
 ) {
     GameBackground(opacity = 0.2f)
 
@@ -85,15 +117,15 @@ fun GameContent(
 
     Animal(
         density = density,
-        position = gameState.Animal.position,
-        size = gameState.Animal.size,
+        position = gameState.animal.position,
+        size = gameState.animal.size,
         rotation = rotation,
         skinRes = animalSkinRes,
         shieldActive = gameState.shieldActive
     )
 
     GameHUD(
-        gameState = gameState, onUsePowerUp = onUsePowerUp
+        gameState = gameState, onUsePowerUp = onUsePowerUp, onQuickBuy = onQuickBuy
     )
 
     AnimatedVisibility(
@@ -105,15 +137,28 @@ fun GameContent(
             score = gameState.score,
             level = gameState.level,
             onHome = onHome,
-            onPlayAgain = onPlayAgain
+            onPlayAgain = onPlayAgain,
+            onShopClick = onShopClick
+        )
+    }
+
+    AnimatedVisibility(
+        visible = gameState.isWin,
+        enter = fadeIn() + scaleIn(),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        GameWinOverlay(
+            reward = gameState.rewardCoins,
+            onHome = onHome,
+            onNextLevel = onNextLevel
         )
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true, name = "Game Screen – playing")
 @Composable
-private fun GameScreenPlayingPreview() {
-    GameTheme(dynamicColor = false) {
+fun GameScreenPlayingPreview() {
+    AppTheme {
         GameContent(
             gameState = GameState(
                 score = 42, level = 2, isGameStarted = true, pipes = listOf(
@@ -124,15 +169,38 @@ private fun GameScreenPlayingPreview() {
             rotation = -10f,
             density = Density(3f),
             onUsePowerUp = {},
+            onQuickBuy = {},
             onHome = {},
-            onPlayAgain = {})
+            onPlayAgain = {},
+            onNextLevel = {},
+            onShopClick = {})
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Game Screen – win")
+@Composable
+fun GameScreenWinPreview() {
+    AppTheme {
+        GameContent(
+            gameState = GameState(
+                score = 50, targetScore = 50, level = 5, isWin = true, rewardCoins = 25
+            ),
+            animalSkinRes = SkinData.getIDLEAnimalSkinResource(""),
+            rotation = 0f,
+            density = Density(3f),
+            onUsePowerUp = {},
+            onQuickBuy = {},
+            onHome = {},
+            onPlayAgain = {},
+            onNextLevel = {},
+            onShopClick = {})
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true, name = "Game Screen – game over")
 @Composable
-private fun GameScreenGameOverPreview() {
-    GameTheme(dynamicColor = false) {
+fun GameScreenGameOverPreview() {
+    AppTheme {
         GameContent(
             gameState = GameState(
                 score = 15, level = 1, highScore = 42, isGameOver = true
@@ -141,8 +209,10 @@ private fun GameScreenGameOverPreview() {
             rotation = 90f,
             density = Density(3f),
             onUsePowerUp = {},
+            onQuickBuy = {},
             onHome = {},
-            onPlayAgain = {})
+            onPlayAgain = {},
+            onNextLevel = {},
+            onShopClick = {})
     }
 }
-

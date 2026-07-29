@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 enum class Screen {
-    Home, Game, Shop, CentStore, Settings, Leaderboard
+    Home, Game, Shop, CoinStore, Settings, Leaderboard, DailyChallenge, Help, LevelSelection
 }
 
 /**
