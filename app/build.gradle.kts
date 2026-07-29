@@ -12,10 +12,8 @@ configure<ApplicationExtension> {
     defaultConfig {
         applicationId = "com.jn.flagfang"
         minSdk = 30
-        versionCode = 1
+        versionCode = 7
         versionName = "2.0.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -58,12 +56,5 @@ dependencies {
     implementation(libs.billing.ktx)
     implementation(libs.play.services.ads)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.kotlin)
-    testImplementation(libs.androidx.core)
-    androidTestImplementation(libs.androidx.runner)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
