@@ -1,10 +1,8 @@
 package com.jn.flagfang.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.jn.flagfang.BuildConfig
-import com.jn.flagfang.audio.AudioManager
+import com.jn.flagfang.audio.IAudioManager
 import com.jn.flagfang.audio.SfxType
 import com.jn.flagfang.domain.repository.BillingRepository
 import com.jn.flagfang.domain.repository.BillingStatus
@@ -26,12 +24,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+sealed class ShopIntent {
+    data class SelectSkin(val id: String) : ShopIntent()
+    data class BuyItem(val item: ShopItem) : ShopIntent()
+    data class BuyCoinPack(val item: CoinPackItem) : ShopIntent()
+    object RetryConnection : ShopIntent()
+}
 
 class ShopViewModel(
     private val settingsRepository: SettingsRepository,
     private val billingRepository: BillingRepository,
-    private val audioManager: AudioManager,
-    private val isDebug: Boolean = BuildConfig.DEBUG
+    private val audioManager: IAudioManager
 ) : ViewModel() {
 
     val coins: StateFlow<Int> = settingsRepository.coinsFlow.stateIn(
@@ -52,19 +55,10 @@ class ShopViewModel(
         viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
     )
 
-    val billingStatus: StateFlow<BillingStatus> = billingRepository.status.map { status ->
-        if (isDebug) {
-            when (status) {
-                BillingStatus.EMPTY, BillingStatus.ERROR, BillingStatus.IDLE -> BillingStatus.CONNECTED
-                else -> status
-            }
-        } else {
-            status
-        }
-    }.stateIn(
+    val billingStatus: StateFlow<BillingStatus> = billingRepository.status.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        if (isDebug) BillingStatus.CONNECTED else BillingStatus.IDLE
+        BillingStatus.IDLE
     )
 
     // Expose power-up counts for the shop UI
@@ -83,21 +77,24 @@ class ShopViewModel(
         }
     }
 
+    fun onIntent(intent: ShopIntent) {
+        when (intent) {
+            is ShopIntent.SelectSkin -> selectSkin(intent.id)
+            is ShopIntent.BuyItem -> buyItem(intent.item)
+            is ShopIntent.BuyCoinPack -> buyCoinPack(intent.item)
+            ShopIntent.RetryConnection -> retryConnection()
+        }
+    }
+
     val coinPacks: StateFlow<List<CoinPackItem>> = products.map { productList ->
         val allowedIds = CoinPackIds.ALL
-        val packs = productList.filter { it.productId.startsWith("coins_") }
+        productList.filter { it.productId.startsWith("coins_") }
             .map { product -> ShopData.mapToCoinPack(product) }
             .sortedBy { allowedIds.indexOf(it.id) }
-
-        if (isDebug && packs.isEmpty()) {
-            ShopData.getDebugCoinPacks(allowedIds)
-        } else {
-            packs
-        }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        if (isDebug) ShopData.getDebugCoinPacks(CoinPackIds.ALL) else emptyList()
+        emptyList()
     )
 
     val skinItems = purchasedItems.map { purchasedIds ->
@@ -106,13 +103,13 @@ class ShopViewModel(
 
     val powerUpItems = ShopData.getPowerUpItems()
 
-    fun selectSkin(id: String) {
+    private fun selectSkin(id: String) {
         viewModelScope.launch {
             settingsRepository.updateSelectedSkin(id)
         }
     }
 
-    fun buyItem(item: ShopItem) {
+    private fun buyItem(item: ShopItem) {
         viewModelScope.launch {
             if (settingsRepository.spendCoins(item.price)) {
                 audioManager.playSfx(SfxType.COLLECT)
@@ -126,25 +123,11 @@ class ShopViewModel(
         }
     }
 
-    fun buyCoinPack(item: CoinPackItem) {
-        if (item.id.startsWith("mock_")) {
-            val amountStr = item.id.removePrefix("mock_")
-            val amount = amountStr.toIntOrNull() ?: 0
-            addMockCoins(amount)
-        } else {
-            _purchaseLaunchRequests.tryEmit(item.id)
-        }
+    private fun buyCoinPack(item: CoinPackItem) {
+        _purchaseLaunchRequests.tryEmit(item.id)
     }
 
-    private fun addMockCoins(amount: Int) {
-        viewModelScope.launch {
-            settingsRepository.addCoins(amount)
-            audioManager.playSfx(SfxType.COLLECT)
-        }
-    }
-
-    fun retryConnection() {
+    private fun retryConnection() {
         billingRepository.startConnection()
     }
-
 }

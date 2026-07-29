@@ -1,10 +1,8 @@
 package com.jn.flagfang.viewmodel
 
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.jn.flagfang.audio.AudioManager
+import com.jn.flagfang.audio.IAudioManager
 import com.jn.flagfang.audio.SfxType
 import com.jn.flagfang.domain.game.GamePhysics
 import com.jn.flagfang.domain.model.AnimalState
@@ -25,12 +23,26 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+sealed class GameIntent {
+    data class StartGame(
+        val level: Int = 1,
+        val isEndless: Boolean = true,
+        val isDailyChallenge: Boolean = false
+    ) : GameIntent()
+
+    object Jump : GameIntent()
+    data class UsePowerUp(val typeId: String) : GameIntent()
+    data class ScreenSizeChanged(val width: Float, val height: Float) : GameIntent()
+    object ScreenHidden : GameIntent()
+    object ScreenVisible : GameIntent()
+}
+
 class GameViewModel(
     private val getHighScoreUseCase: GetHighScoreUseCase,
     private val updateHighScoreUseCase: UpdateHighScoreUseCase,
     private val usePowerUpUseCase: UsePowerUpUseCase,
     private val settingsRepository: SettingsRepository,
-    private val audioManager: AudioManager
+    private val audioManager: IAudioManager
 ) : ViewModel() {
 
     private val _gameState = MutableStateFlow(GameState())
@@ -46,6 +58,22 @@ class GameViewModel(
 
     init {
         observeRepositories()
+    }
+
+    fun onIntent(intent: GameIntent) {
+        when (intent) {
+            is GameIntent.StartGame -> startGame(
+                intent.level,
+                intent.isEndless,
+                intent.isDailyChallenge
+            )
+
+            GameIntent.Jump -> jump()
+            is GameIntent.UsePowerUp -> usePowerUp(intent.typeId)
+            is GameIntent.ScreenSizeChanged -> onScreenSizeChanged(intent.width, intent.height)
+            GameIntent.ScreenHidden -> onGameScreenHidden()
+            GameIntent.ScreenVisible -> onGameScreenVisible()
+        }
     }
 
     private fun observeRepositories() {
@@ -95,7 +123,7 @@ class GameViewModel(
         }
     }
 
-    fun onScreenSizeChanged(width: Float, height: Float) {
+    private fun onScreenSizeChanged(width: Float, height: Float) {
         _gameState.update { state ->
             if (state.screenWidth == width && state.screenHeight == height) return@update state
 
@@ -110,7 +138,11 @@ class GameViewModel(
         }
     }
 
-    fun startGame(level: Int = 1, isEndless: Boolean = true, isDailyChallenge: Boolean = false) {
+    private fun startGame(
+        level: Int = 1,
+        isEndless: Boolean = true,
+        isDailyChallenge: Boolean = false
+    ) {
         if (currentMusicEnabled) audioManager.playBgm()
         if (currentSfxEnabled) audioManager.playSfx(SfxType.START)
 
@@ -148,7 +180,7 @@ class GameViewModel(
         }
     }
 
-    fun jump() {
+    private fun jump() {
         val currentState = _gameState.value
         if (currentState.isGameOver) {
             return
@@ -211,7 +243,7 @@ class GameViewModel(
         if (state.score >= state.targetScore) {
             if (currentMusicEnabled) audioManager.stopBgm()
             if (currentSfxEnabled) audioManager.playSfx(SfxType.WIN)
-            
+
             val reward = if (state.isDailyChallenge) 50 else state.level * 5
             viewModelScope.launch {
                 settingsRepository.addCoins(reward)
@@ -251,7 +283,7 @@ class GameViewModel(
         )
     }
 
-    fun usePowerUp(typeId: String) {
+    private fun usePowerUp(typeId: String) {
         val type = PowerUpType.fromId(typeId) ?: return
         val currentState = _gameState.value
 
@@ -286,12 +318,12 @@ class GameViewModel(
         }
     }
 
-    fun onGameScreenHidden() {
+    private fun onGameScreenHidden() {
         gameJob?.cancel()
         audioManager.stopBgm()
     }
 
-    fun onGameScreenVisible() {
+    private fun onGameScreenVisible() {
         val state = _gameState.value
         if (!state.isGameStarted || state.isGameOver) return
 

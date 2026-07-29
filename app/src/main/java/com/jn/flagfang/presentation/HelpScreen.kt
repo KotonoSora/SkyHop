@@ -1,7 +1,14 @@
 package com.jn.flagfang.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,19 +21,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameHeader
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonCyan
 import com.jn.flagfang.presentation.theme.NeonYellow
 
 @Composable
 fun HelpScreen(coins: Int, onBack: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
         GameBackground(opacity = 0.2f)
-        Column(modifier = Modifier.fillMaxSize().safeContentPadding()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+        ) {
             GameHeader(title = "HELP", coins = coins, onBackClick = onBack)
-            
+
             Column(
-                modifier = Modifier.fillMaxSize().padding(24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -36,7 +53,7 @@ fun HelpScreen(coins: Int, onBack: () -> Unit) {
                     color = NeonYellow,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
@@ -63,7 +80,7 @@ fun HelpScreen(coins: Int, onBack: () -> Unit) {
 @Preview(showBackground = true, showSystemUi = true, name = "Help Screen", group = "Screens")
 @Composable
 fun HelpPreview() {
-    GameTheme {
+    AppTheme {
         HelpScreen(coins = 100, onBack = {})
     }
 }

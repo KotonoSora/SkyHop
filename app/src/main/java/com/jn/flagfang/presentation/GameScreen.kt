@@ -20,8 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import com.jn.flagfang.domain.model.GameState
 import com.jn.flagfang.domain.model.PipeState
-import com.jn.flagfang.domain.model.Point
-import com.jn.flagfang.domain.model.Size
 import com.jn.flagfang.feature.shop.SkinData
 import com.jn.flagfang.presentation.components.Animal
 import com.jn.flagfang.presentation.components.GameBackground
@@ -29,7 +27,8 @@ import com.jn.flagfang.presentation.components.GameHUD
 import com.jn.flagfang.presentation.components.GameOverShopOverlay
 import com.jn.flagfang.presentation.components.GameWinOverlay
 import com.jn.flagfang.presentation.components.PipesCanvas
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
+import com.jn.flagfang.viewmodel.GameIntent
 import com.jn.flagfang.viewmodel.GameViewModel
 
 @Composable
@@ -56,25 +55,44 @@ fun GameScreen(
         modifier = Modifier
             .fillMaxSize()
             .onSizeChanged { size ->
-                viewModel.onScreenSizeChanged(size.width.toFloat(), size.height.toFloat())
+                viewModel.onIntent(
+                    GameIntent.ScreenSizeChanged(
+                        size.width.toFloat(),
+                        size.height.toFloat()
+                    )
+                )
             }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 enabled = !gameState.isGameOver && !gameState.isWin
             ) {
-                viewModel.jump()
+                viewModel.onIntent(GameIntent.Jump)
             }) {
         GameContent(
             gameState = gameState,
             animalSkinRes = animalSkinRes,
             rotation = rotation,
             density = density,
-            onUsePowerUp = { viewModel.usePowerUp(it) },
+            onUsePowerUp = { viewModel.onIntent(GameIntent.UsePowerUp(it)) },
             onQuickBuy = onGoToShop,
             onHome = onBackToHome,
-            onPlayAgain = { viewModel.startGame(level = gameState.level, isEndless = gameState.isEndless) },
-            onNextLevel = { viewModel.startGame(level = gameState.level + 1, isEndless = false) },
+            onPlayAgain = {
+                viewModel.onIntent(
+                    GameIntent.StartGame(
+                        level = gameState.level,
+                        isEndless = gameState.isEndless
+                    )
+                )
+            },
+            onNextLevel = {
+                viewModel.onIntent(
+                    GameIntent.StartGame(
+                        level = gameState.level + 1,
+                        isEndless = false
+                    )
+                )
+            },
             onShopClick = onGoToShop
         )
     }
@@ -140,7 +158,7 @@ fun GameContent(
 @Preview(showBackground = true, showSystemUi = true, name = "Game Screen – playing")
 @Composable
 fun GameScreenPlayingPreview() {
-    GameTheme(dynamicColor = false) {
+    AppTheme {
         GameContent(
             gameState = GameState(
                 score = 42, level = 2, isGameStarted = true, pipes = listOf(
@@ -162,7 +180,7 @@ fun GameScreenPlayingPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Game Screen – win")
 @Composable
 fun GameScreenWinPreview() {
-    GameTheme(dynamicColor = false) {
+    AppTheme {
         GameContent(
             gameState = GameState(
                 score = 50, targetScore = 50, level = 5, isWin = true, rewardCoins = 25
@@ -182,7 +200,7 @@ fun GameScreenWinPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Game Screen – game over")
 @Composable
 fun GameScreenGameOverPreview() {
-    GameTheme(dynamicColor = false) {
+    AppTheme {
         GameContent(
             gameState = GameState(
                 score = 15, level = 1, highScore = 42, isGameOver = true

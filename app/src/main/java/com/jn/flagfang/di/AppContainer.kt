@@ -2,10 +2,13 @@ package com.jn.flagfang.di
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.jn.flagfang.BuildConfig
 import com.jn.flagfang.audio.AudioManager
+import com.jn.flagfang.audio.IAudioManager
 import com.jn.flagfang.data.ScoreRepositoryImpl
 import com.jn.flagfang.data.SettingsRepositoryImpl
 import com.jn.flagfang.data.billing.BillingManagerImpl
+import com.jn.flagfang.data.billing.MockBillingManager
 import com.jn.flagfang.domain.repository.BillingRepository
 import com.jn.flagfang.domain.repository.ScoreRepository
 import com.jn.flagfang.domain.repository.SettingsRepository
@@ -23,7 +26,7 @@ import com.jn.flagfang.domain.usecase.UsePowerUpUseCase
 interface AppContainer {
     val scoreRepository: ScoreRepository
     val settingsRepository: SettingsRepository
-    val audioManager: AudioManager
+    val audioManager: IAudioManager
     val billingRepository: BillingRepository
     val appVersionName: String
 
@@ -49,12 +52,16 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         ScoreRepositoryImpl(context)
     }
 
-    override val audioManager: AudioManager by lazy {
+    override val audioManager: IAudioManager by lazy {
         AudioManager(context)
     }
 
     override val billingRepository: BillingRepository by lazy {
-        BillingManagerImpl(context, settingsRepository)
+        if (BuildConfig.DEBUG) {
+            MockBillingManager(settingsRepository)
+        } else {
+            BillingManagerImpl(context, settingsRepository)
+        }
     }
 
     override val appVersionName: String by lazy {

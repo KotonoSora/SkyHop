@@ -3,7 +3,6 @@ package com.jn.flagfang.domain.game
 import com.jn.flagfang.domain.model.AnimalState
 import com.jn.flagfang.domain.model.GameState
 import com.jn.flagfang.domain.model.PipeState
-import com.jn.flagfang.domain.model.Point
 import kotlin.random.Random
 
 object GamePhysics {
@@ -60,7 +59,8 @@ object GamePhysics {
             else -> false
         }
 
-        val newVelocity = if (shouldAutoJump) JUMP_VELOCITY else state.animal.velocity + (GRAVITY * state.gravityMultiplier)
+        val newVelocity =
+            if (shouldAutoJump) JUMP_VELOCITY else state.animal.velocity + (GRAVITY * state.gravityMultiplier)
         val newY = state.animal.position.y + newVelocity
 
         return state.copy(

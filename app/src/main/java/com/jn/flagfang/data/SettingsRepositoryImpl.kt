@@ -29,7 +29,8 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         private val AUTOPLAY_COUNT_KEY = intPreferencesKey("autoplay_count")
         private val MUSIC_ENABLED_KEY = booleanPreferencesKey("music_enabled")
         private val SFX_ENABLED_KEY = booleanPreferencesKey("sfx_enabled")
-        private val LAST_DAILY_REWARD_TIME_KEY = androidx.datastore.preferences.core.longPreferencesKey("last_daily_reward_time")
+        private val LAST_DAILY_REWARD_TIME_KEY =
+            androidx.datastore.preferences.core.longPreferencesKey("last_daily_reward_time")
     }
 
     private val POWER_UP_KEYS = mapOf(

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -24,7 +22,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MonetizationOn
@@ -32,7 +29,6 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,16 +46,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jn.flagfang.R
-import com.jn.flagfang.domain.repository.BillingStatus
 import com.jn.flagfang.feature.shop.ShopData
 import com.jn.flagfang.feature.shop.ShopItem
 import com.jn.flagfang.feature.shop.SkinIds
-import com.jn.flagfang.presentation.components.CoinBadge
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameButton
 import com.jn.flagfang.presentation.components.GameHeader
-import com.jn.flagfang.presentation.theme.GameTheme
-import com.jn.flagfang.presentation.theme.SkyBlue
+import com.jn.flagfang.presentation.theme.AppTheme
+import com.jn.flagfang.viewmodel.ShopIntent
 import com.jn.flagfang.viewmodel.ShopViewModel
 
 @Composable
@@ -88,10 +82,10 @@ fun SkinShopScreen(
         multiplierCount = multiplierCount,
         onSkinSelectOrBuy = { item ->
             if (item.id.startsWith("skin")) {
-                if (item.isUnlocked) viewModel.selectSkin(item.id)
-                else viewModel.buyItem(item)
+                if (item.isUnlocked) viewModel.onIntent(ShopIntent.SelectSkin(item.id))
+                else viewModel.onIntent(ShopIntent.BuyItem(item))
             } else {
-                viewModel.buyItem(item)
+                viewModel.onIntent(ShopIntent.BuyItem(item))
             }
         }
     )
@@ -360,15 +354,36 @@ private data class ActionVisuals(
 @Preview(showBackground = true, showSystemUi = true, name = "Skin Shop - Mixed States")
 @Composable
 fun SkinShopScreenMixedPreview() {
-    GameTheme(dynamicColor = false) {
+    AppTheme {
         SkinShopScreenContent(
             onClose = {},
             onGoToCoinStore = {},
             coins = 2000,
             skinItems = listOf(
-                ShopItem(SkinIds.SKIN_DEFAULT_ID, "Classic Bat", "Standard bat.", 0, R.drawable.img_idle_bat_normal, true),
-                ShopItem(SkinIds.SKIN_SIR_A_LOT, "Sir-A-Lot", "A bat with a hat.", 500, R.drawable.img_idle_bat_sir_a_lot, true),
-                ShopItem(SkinIds.SKIN_SONAR_MECH, "Sonar Mech", "Mechanical bat.", 1000, R.drawable.img_idle_bat_sonar_mech, false)
+                ShopItem(
+                    SkinIds.SKIN_DEFAULT_ID,
+                    "Classic Bat",
+                    "Standard bat.",
+                    0,
+                    R.drawable.img_idle_bat_normal,
+                    true
+                ),
+                ShopItem(
+                    SkinIds.SKIN_SIR_A_LOT,
+                    "Sir-A-Lot",
+                    "A bat with a hat.",
+                    500,
+                    R.drawable.img_idle_bat_sir_a_lot,
+                    true
+                ),
+                ShopItem(
+                    SkinIds.SKIN_SONAR_MECH,
+                    "Sonar Mech",
+                    "Mechanical bat.",
+                    1000,
+                    R.drawable.img_idle_bat_sonar_mech,
+                    false
+                )
             ),
             powerUpItems = ShopData.getPowerUpItems(),
             selectedSkinId = SkinIds.SKIN_SIR_A_LOT,

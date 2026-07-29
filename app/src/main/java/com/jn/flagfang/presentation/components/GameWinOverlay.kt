@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonGreen
 import com.jn.flagfang.presentation.theme.NeonYellow
 
@@ -106,7 +106,7 @@ fun GameWinOverlay(
 @Preview(name = "Game Win Overlay", showBackground = true)
 @Composable
 private fun GameWinOverlayPreview() {
-    GameTheme {
+    AppTheme {
         GameWinOverlay(
             reward = 50,
             onHome = {},

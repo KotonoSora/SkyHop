@@ -31,10 +31,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -42,7 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonCyan
 import com.jn.flagfang.presentation.theme.NeonGreen
 import com.jn.flagfang.presentation.theme.NeonMagenta
@@ -155,7 +155,7 @@ fun GameButton(
 @Preview(name = "Button - Cyan (Default)", group = "Components")
 @Composable
 fun GameButtonCyanPreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             GameButton(text = "START GAME", onClick = {})
         }
@@ -165,7 +165,7 @@ fun GameButtonCyanPreview() {
 @Preview(name = "Button - Green (Challenge)", group = "Components")
 @Composable
 fun GameButtonGreenPreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             GameButton(text = "PLAY CHALLENGE", onClick = {}, backgroundColor = NeonGreen)
         }
@@ -175,9 +175,14 @@ fun GameButtonGreenPreview() {
 @Preview(name = "Button - Magenta (Shop)", group = "Components")
 @Composable
 fun GameButtonMagentaPreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            GameButton(text = "BUY SKIN", onClick = {}, backgroundColor = NeonMagenta, textColor = Color.White)
+            GameButton(
+                text = "BUY SKIN",
+                onClick = {},
+                backgroundColor = NeonMagenta,
+                textColor = Color.White
+            )
         }
     }
 }
@@ -185,7 +190,7 @@ fun GameButtonMagentaPreview() {
 @Preview(name = "Button - Disabled", group = "Components")
 @Composable
 fun GameButtonDisabledPreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             GameButton(text = "LOCKED", onClick = {}, enabled = false)
         }

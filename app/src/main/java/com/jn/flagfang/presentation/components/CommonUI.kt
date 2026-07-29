@@ -35,9 +35,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -46,7 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.jn.flagfang.R
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonCyan
 import com.jn.flagfang.presentation.theme.NeonMagenta
 import com.jn.flagfang.presentation.theme.NeonYellow
@@ -84,7 +84,11 @@ fun GameHeader(
                                     }
                                 }
                                 canvas.drawOutline(
-                                    outline = CircleShape.createOutline(size, layoutDirection, this),
+                                    outline = CircleShape.createOutline(
+                                        size,
+                                        layoutDirection,
+                                        this
+                                    ),
                                     paint = paint
                                 )
                             }
@@ -133,7 +137,11 @@ fun GameHeader(
                                     }
                                 }
                                 canvas.drawOutline(
-                                    outline = CircleShape.createOutline(size, layoutDirection, this),
+                                    outline = CircleShape.createOutline(
+                                        size,
+                                        layoutDirection,
+                                        this
+                                    ),
                                     paint = paint
                                 )
                             }
@@ -173,7 +181,11 @@ fun CoinBadge(
                         }
                     }
                     canvas.drawOutline(
-                        outline = RoundedCornerShape(20.dp).createOutline(size, layoutDirection, this),
+                        outline = RoundedCornerShape(20.dp).createOutline(
+                            size,
+                            layoutDirection,
+                            this
+                        ),
                         paint = paint
                     )
                 }
@@ -259,7 +271,11 @@ fun SettingsToggleItem(
                             }
                         }
                         canvas.drawOutline(
-                            outline = RoundedCornerShape(16.dp).createOutline(size, layoutDirection, this),
+                            outline = RoundedCornerShape(16.dp).createOutline(
+                                size,
+                                layoutDirection,
+                                this
+                            ),
                             paint = paint
                         )
                     }
@@ -308,7 +324,7 @@ fun SettingsToggleItem(
 @Preview(name = "Header - Full", group = "Components")
 @Composable
 fun GameHeaderFullPreview() {
-    GameTheme {
+    AppTheme {
         GameHeader(
             title = "SETTINGS",
             coins = 1250,
@@ -321,7 +337,7 @@ fun GameHeaderFullPreview() {
 @Preview(name = "Header - Simple", group = "Components")
 @Composable
 fun GameHeaderSimplePreview() {
-    GameTheme {
+    AppTheme {
         GameHeader(
             title = "SKYHOP",
             coins = 500
@@ -332,7 +348,7 @@ fun GameHeaderSimplePreview() {
 @Preview(name = "Coin Badge", group = "Components")
 @Composable
 fun CoinBadgePreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             CoinBadge(coins = 9999)
         }
@@ -342,7 +358,7 @@ fun CoinBadgePreview() {
 @Preview(name = "Settings Toggle - Enabled", group = "Components")
 @Composable
 fun SettingsToggleEnabledPreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             SettingsToggleItem(
                 icon = Icons.Default.MusicNote,
@@ -359,7 +375,7 @@ fun SettingsToggleEnabledPreview() {
 @Preview(name = "Settings Toggle - Disabled", group = "Components")
 @Composable
 fun SettingsToggleDisabledPreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             SettingsToggleItem(
                 icon = Icons.AutoMirrored.Filled.VolumeUp,

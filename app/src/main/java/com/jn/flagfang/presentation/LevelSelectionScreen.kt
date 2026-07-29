@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,11 +24,9 @@ import androidx.compose.ui.unit.dp
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameButton
 import com.jn.flagfang.presentation.components.GameHeader
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonGreen
 import com.jn.flagfang.presentation.theme.NeonMagenta
-import com.jn.flagfang.presentation.theme.NeonYellow
-import com.jn.flagfang.presentation.theme.SkyBlue
 
 @Composable
 fun LevelSelectionScreen(
@@ -107,7 +104,7 @@ fun LevelSelectionScreen(
 @Preview(showBackground = true, showSystemUi = true, name = "Level Selection", group = "Screens")
 @Composable
 fun LevelSelectionScreenPreview() {
-    GameTheme {
+    AppTheme {
         LevelSelectionScreen(
             coins = 500,
             onBack = {},

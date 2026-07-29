@@ -31,7 +31,8 @@ data class CoinPackDefinition(
 )
 
 object ShopData {
-    private const val COMMON_DESC = "A pack of %d coins used to unlock powerful boosts like Extra Time, Hint, and Undo."
+    private const val COMMON_DESC =
+        "A pack of %d coins used to unlock powerful boosts like Extra Time, Hint, and Undo."
 
     private val CoinPackDefinitions = listOf(
         CoinPackDefinition(
@@ -93,25 +94,17 @@ object ShopData {
     val coinProductIds: List<String> = CoinPackIds.ALL
 
     fun getCoinAmount(productId: String): Int? {
-        val defined = CoinPackDefinitions.firstOrNull { it.productId == productId }?.coinAmount
-        if (defined != null) return defined
-
-        // Fallback: try to parse amount from ID like "coins_123"
-        return productId.removePrefix("coins_").toIntOrNull()
+        return CoinPackDefinitions.firstOrNull { it.productId == productId }?.coinAmount
+            ?: productId.removePrefix("coins_").toIntOrNull()
     }
 
-    fun getDebugCoinPacks(productIds: List<String> = coinProductIds): List<CoinPackItem> =
-        productIds.mapNotNull { id ->
-            val def = CoinPackDefinitions.firstOrNull { it.productId == id } ?: return@mapNotNull null
-            CoinPackItem(
-                id = "mock_${def.coinAmount}",
-                name = formatCoinPackName(def.coinAmount),
-                description = def.description,
-                price = def.debugPrice,
-                coinAmount = def.coinAmount,
-                imageRes = getCoinPackImageRes(def.coinAmount)
-            )
-        }
+    val mockProducts: List<DomainProduct> = CoinPackDefinitions.map { def ->
+        DomainProduct(
+            productId = def.productId,
+            name = formatCoinPackName(def.coinAmount),
+            formattedPrice = def.debugPrice
+        )
+    }
 
     fun getPowerUpItems(): List<ShopItem> {
         return listOf(
@@ -172,7 +165,7 @@ object ShopData {
     fun mapToCoinPack(product: DomainProduct): CoinPackItem {
         val def = CoinPackDefinitions.firstOrNull { it.productId == product.productId }
         val coinAmount = def?.coinAmount ?: getCoinAmount(product.productId) ?: 0
-        
+
         return CoinPackItem(
             id = product.productId,
             name = def?.let { formatCoinPackName(it.coinAmount) } ?: product.name,

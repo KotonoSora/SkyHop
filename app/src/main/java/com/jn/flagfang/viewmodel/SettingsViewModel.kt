@@ -2,15 +2,21 @@ package com.jn.flagfang.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jn.flagfang.domain.repository.SettingsRepository
 import com.jn.flagfang.domain.usecase.GetAudioSettingsUseCase
 import com.jn.flagfang.domain.usecase.GetCoinsUseCase
 import com.jn.flagfang.domain.usecase.ToggleAudioUseCase
-import com.jn.flagfang.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+sealed class SettingsIntent {
+    data class ToggleMusic(val enabled: Boolean) : SettingsIntent()
+    data class ToggleSfx(val enabled: Boolean) : SettingsIntent()
+    object ClaimReward : SettingsIntent()
+}
 
 class SettingsViewModel(
     private val getAudioSettingsUseCase: GetAudioSettingsUseCase,
@@ -42,25 +48,34 @@ class SettingsViewModel(
         initialValue = true
     )
 
-    val canClaimDailyReward: StateFlow<Boolean> = settingsRepository.lastDailyRewardTimeFlow.map { lastTime ->
-        val now = System.currentTimeMillis()
-        val oneDayInMillis = 24 * 60 * 60 * 1000L
-        now - lastTime >= oneDayInMillis
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = false
-    )
+    val canClaimDailyReward: StateFlow<Boolean> =
+        settingsRepository.lastDailyRewardTimeFlow.map { lastTime ->
+            val now = System.currentTimeMillis()
+            val oneDayInMillis = 24 * 60 * 60 * 1000L
+            now - lastTime >= oneDayInMillis
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
 
-    fun toggleMusic(enabled: Boolean) {
+    fun onIntent(intent: SettingsIntent) {
+        when (intent) {
+            is SettingsIntent.ToggleMusic -> toggleMusic(intent.enabled)
+            is SettingsIntent.ToggleSfx -> toggleSfx(intent.enabled)
+            SettingsIntent.ClaimReward -> claimReward()
+        }
+    }
+
+    private fun toggleMusic(enabled: Boolean) {
         viewModelScope.launch { toggleAudioUseCase.toggleMusic(enabled) }
     }
 
-    fun toggleSfx(enabled: Boolean) {
+    private fun toggleSfx(enabled: Boolean) {
         viewModelScope.launch { toggleAudioUseCase.toggleSfx(enabled) }
     }
 
-    fun claimReward() {
+    private fun claimReward() {
         viewModelScope.launch {
             settingsRepository.claimDailyReward()
         }

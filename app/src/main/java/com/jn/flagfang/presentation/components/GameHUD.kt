@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.jn.flagfang.R
 import com.jn.flagfang.domain.model.GameState
 import com.jn.flagfang.domain.model.PowerUpType
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import java.util.Locale
 import kotlin.math.ceil
 
@@ -276,7 +276,7 @@ fun PowerUpInventoryBadge(
 @Preview(name = "Game HUD", group = "Components")
 @Composable
 fun GameHUDPreview() {
-    GameTheme {
+    AppTheme {
         GameHUD(
             gameState = GameState(
                 score = 42,
@@ -297,7 +297,7 @@ fun GameHUDPreview() {
 @Preview(name = "PowerUp Badge - Active", group = "Components")
 @Composable
 fun PowerUpBadgeActivePreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             PowerUpInventoryBadge(
                 iconRes = R.drawable.img_powerup_shield_icon,
@@ -314,7 +314,7 @@ fun PowerUpBadgeActivePreview() {
 @Preview(name = "PowerUp Badge - Inactive", group = "Components")
 @Composable
 fun PowerUpBadgeInactivePreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             PowerUpInventoryBadge(
                 iconRes = R.drawable.img_powerup_multiplier_icon,

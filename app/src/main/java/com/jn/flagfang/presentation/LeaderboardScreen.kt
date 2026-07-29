@@ -2,7 +2,16 @@ package com.jn.flagfang.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.jn.flagfang.domain.model.ScoreEntry
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameHeader
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonCyan
 import com.jn.flagfang.presentation.theme.NeonYellow
 import com.jn.flagfang.viewmodel.LeaderboardViewModel
@@ -43,7 +52,11 @@ fun LeaderboardScreen(
 fun LeaderboardScreenContent(
     scoreHistory: List<ScoreEntry>, coins: Int, onBack: () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
         GameBackground(opacity = 0.2f)
 
         Column(
@@ -141,7 +154,7 @@ private fun HistoryRow(entry: ScoreEntry) {
 @Preview(showBackground = true, showSystemUi = true, name = "Leaderboard – with scores")
 @Composable
 fun LeaderboardScreenPreview() {
-    GameTheme {
+    AppTheme {
         LeaderboardScreenContent(
             scoreHistory = listOf(
                 ScoreEntry(150, 20, System.currentTimeMillis()),
@@ -156,7 +169,7 @@ fun LeaderboardScreenPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Leaderboard – empty")
 @Composable
 fun LeaderboardEmptyPreview() {
-    GameTheme {
+    AppTheme {
         LeaderboardScreenContent(
             scoreHistory = emptyList(),
             coins = 50,

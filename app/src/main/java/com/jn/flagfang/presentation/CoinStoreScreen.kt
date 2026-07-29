@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,17 +17,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,7 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,19 +50,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jn.flagfang.R
 import com.jn.flagfang.domain.repository.BillingStatus
 import com.jn.flagfang.feature.shop.CoinPackItem
 import com.jn.flagfang.feature.shop.ShopData
 import com.jn.flagfang.presentation.components.GameBackground
 import com.jn.flagfang.presentation.components.GameButton
 import com.jn.flagfang.presentation.components.GameHeader
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.CoinButtonPrimary
 import com.jn.flagfang.presentation.theme.CoinButtonShadow
 import com.jn.flagfang.presentation.theme.CoinGoldDark
 import com.jn.flagfang.presentation.theme.CoinGoldLight
-import com.jn.flagfang.presentation.theme.GameTheme
-import com.jn.flagfang.presentation.theme.SkyBlue
+import com.jn.flagfang.viewmodel.ShopIntent
 import com.jn.flagfang.viewmodel.ShopViewModel
 
 @Composable
@@ -114,9 +107,11 @@ fun CoinStoreScreen(
                 billingStatus = billingStatus,
                 coinPacks = coinPacks,
                 onRetry = {
-                    viewModel.retryConnection()
+                    viewModel.onIntent(ShopIntent.RetryConnection)
                 },
-                onBuy = viewModel::buyCoinPack
+                onBuy = { item ->
+                    viewModel.onIntent(ShopIntent.BuyCoinPack(item))
+                }
             )
 
             GameButton(
@@ -331,7 +326,7 @@ private fun Context.findActivity(): Activity? {
 @Preview(showBackground = true, showSystemUi = true, name = "Coin Store – connected")
 @Composable
 fun CoinStoreScreenPreview() {
-    GameTheme(dynamicColor = false) {
+    AppTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -348,7 +343,7 @@ fun CoinStoreScreenPreview() {
                 CoinStoreContent(
                     modifier = Modifier.weight(1f),
                     billingStatus = BillingStatus.CONNECTED,
-                    coinPacks = ShopData.getDebugCoinPacks(),
+                    coinPacks = ShopData.mockProducts.map { ShopData.mapToCoinPack(it) },
                     onRetry = {},
                     onBuy = {}
                 )
@@ -360,8 +355,12 @@ fun CoinStoreScreenPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Coin Store – loading")
 @Composable
 fun CoinStoreLoadingPreview() {
-    GameTheme(dynamicColor = false) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
             GameBackground(opacity = 0.2f)
             CoinStoreContent(
                 billingStatus = BillingStatus.CONNECTING,
@@ -376,8 +375,12 @@ fun CoinStoreLoadingPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Coin Store – error")
 @Composable
 fun CoinStoreErrorPreview() {
-    GameTheme(dynamicColor = false) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
             GameBackground(opacity = 0.2f)
             CoinStoreContent(
                 billingStatus = BillingStatus.ERROR,
@@ -392,8 +395,12 @@ fun CoinStoreErrorPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Coin Store – empty")
 @Composable
 fun CoinStoreEmptyPreview() {
-    GameTheme(dynamicColor = false) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
             GameBackground(opacity = 0.2f)
             CoinStoreContent(
                 billingStatus = BillingStatus.EMPTY,

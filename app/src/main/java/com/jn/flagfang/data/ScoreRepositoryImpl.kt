@@ -7,6 +7,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.jn.flagfang.data.mapper.toRawString
+import com.jn.flagfang.data.mapper.toScoreEntry
 import com.jn.flagfang.domain.model.ScoreEntry
 import com.jn.flagfang.domain.repository.ScoreRepository
 import kotlinx.coroutines.flow.Flow
@@ -32,16 +34,7 @@ class ScoreRepositoryImpl(private val context: Context) : ScoreRepository {
         .map { preferences ->
             preferences[SCORE_HISTORY_KEY]
                 ?.split(";")
-                ?.mapNotNull { raw ->
-                    val parts = raw.split(":")
-                    if (parts.size == 3) {
-                        ScoreEntry(
-                            score = parts[0].toIntOrNull() ?: 0,
-                            reward = parts[1].toIntOrNull() ?: 0,
-                            timestamp = parts[2].toLongOrNull() ?: 0L
-                        )
-                    } else null
-                }
+                ?.mapNotNull { it.toScoreEntry() }
                 ?: emptyList()
         }
 
@@ -58,11 +51,10 @@ class ScoreRepositoryImpl(private val context: Context) : ScoreRepository {
             val existingRaw = preferences[SCORE_HISTORY_KEY] ?: ""
             val existingEntries = existingRaw.split(";")
                 .filter { it.isNotBlank() }
-            
-            val newRaw = "${entry.score}:${entry.reward}:${entry.timestamp}"
-            val updatedEntries = (listOf(newRaw) + existingEntries)
+
+            val updatedEntries = (listOf(entry.toRawString()) + existingEntries)
                 .take(MAX_HISTORY_SIZE)
-            
+
             preferences[SCORE_HISTORY_KEY] = updatedEntries.joinToString(";")
         }
     }

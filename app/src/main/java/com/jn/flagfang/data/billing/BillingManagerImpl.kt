@@ -136,7 +136,7 @@ class BillingManagerImpl(
 
     override fun launchPurchaseFlow(activity: Activity, productId: String) {
         val productDetails = _products.value.find { it.productId == productId } ?: return
-        
+
         val productDetailsParamsList = listOf(
             BillingFlowParams.ProductDetailsParams.newBuilder()
                 .setProductDetails(productDetails)

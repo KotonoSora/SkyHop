@@ -16,7 +16,7 @@ enum class SfxType(@param:RawRes val rawResId: Int) {
     COLLECT(R.raw.collect)
 }
 
-class AudioManager(context: Context) {
+class AudioManager(context: Context) : IAudioManager {
 
     private var bgmPlayer: MediaPlayer? = null
     private var soundPool: SoundPool? = null
@@ -64,17 +64,17 @@ class AudioManager(context: Context) {
         }
     }
 
-    fun playBgm() {
+    override fun playBgm() {
         if (musicEnabled && bgmPlayer?.isPlaying == false) {
             bgmPlayer?.start()
         }
     }
 
-    fun pauseBgm() {
+    override fun pauseBgm() {
         bgmPlayer?.pause()
     }
 
-    fun stopBgm() {
+    override fun stopBgm() {
         bgmPlayer?.let { player ->
             if (player.isPlaying) {
                 player.pause()
@@ -83,13 +83,13 @@ class AudioManager(context: Context) {
         }
     }
 
-    fun playSfx(type: SfxType) {
+    override fun playSfx(type: SfxType) {
         if (!sfxEnabled) return
         val sampleId = loadedSfx[type] ?: return
         soundPool?.play(sampleId, 1.0f, 1.0f, 1, 0, 1.0f)
     }
 
-    fun release() {
+    override fun release() {
         bgmPlayer?.release()
         bgmPlayer = null
         soundPool?.release()
@@ -97,7 +97,7 @@ class AudioManager(context: Context) {
         loadedSfx.clear()
     }
 
-    fun updateSettings(musicEnabled: Boolean, sfxEnabled: Boolean) {
+    override fun updateSettings(musicEnabled: Boolean, sfxEnabled: Boolean) {
         val wasPlaying = bgmPlayer?.isPlaying == true
 
         this.musicEnabled = musicEnabled

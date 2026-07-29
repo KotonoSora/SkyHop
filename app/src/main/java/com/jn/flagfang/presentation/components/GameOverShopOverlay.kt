@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jn.flagfang.R
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonCyan
 import com.jn.flagfang.presentation.theme.NeonRed
 import com.jn.flagfang.presentation.theme.NeonYellow
@@ -116,7 +116,7 @@ fun GameOverShopOverlay(
 @Preview(name = "Game Over Overlay", showBackground = true)
 @Composable
 private fun GameOverShopOverlayPreview() {
-    GameTheme {
+    AppTheme {
         GameOverShopOverlay(
             score = 125,
             level = 5,

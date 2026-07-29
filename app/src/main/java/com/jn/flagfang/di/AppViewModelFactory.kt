@@ -23,6 +23,7 @@ class AppViewModelFactory(
                     audioManager = container.audioManager
                 ) as T
             }
+
             modelClass.isAssignableFrom(ShopViewModel::class.java) -> {
                 ShopViewModel(
                     settingsRepository = container.settingsRepository,
@@ -30,6 +31,7 @@ class AppViewModelFactory(
                     audioManager = container.audioManager
                 ) as T
             }
+
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                 SettingsViewModel(
                     getAudioSettingsUseCase = container.getAudioSettingsUseCase,
@@ -39,12 +41,14 @@ class AppViewModelFactory(
                     appVersionName = container.appVersionName
                 ) as T
             }
+
             modelClass.isAssignableFrom(LeaderboardViewModel::class.java) -> {
                 LeaderboardViewModel(
                     getScoreHistoryUseCase = container.getScoreHistoryUseCase,
                     getCoinsUseCase = container.getCoinsUseCase
                 ) as T
             }
+
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

@@ -2,7 +2,15 @@ package com.jn.flagfang.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,19 +25,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jn.flagfang.presentation.components.GameButton
 import com.jn.flagfang.presentation.components.GameHeader
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import com.jn.flagfang.presentation.theme.NeonCyan
 import com.jn.flagfang.presentation.theme.NeonGreen
 import com.jn.flagfang.presentation.theme.NeonYellow
 
 @Composable
 fun DailyChallengeScreen(coins: Int, onBack: () -> Unit, onPlay: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        Column(modifier = Modifier.fillMaxSize().safeContentPadding()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+        ) {
             GameHeader(title = "CHALLENGE", coins = coins, onBackClick = onBack)
-            
+
             Column(
-                modifier = Modifier.fillMaxSize().padding(24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -39,7 +57,7 @@ fun DailyChallengeScreen(coins: Int, onBack: () -> Unit, onPlay: () -> Unit) {
                     color = NeonGreen,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Surface(
@@ -92,10 +110,15 @@ fun DailyChallengeScreen(coins: Int, onBack: () -> Unit, onPlay: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Daily Challenge Screen", group = "Screens")
+@Preview(
+    showBackground = true,
+    showSystemUi = true,
+    name = "Daily Challenge Screen",
+    group = "Screens"
+)
 @Composable
 fun DailyChallengePreview() {
-    GameTheme {
+    AppTheme {
         DailyChallengeScreen(coins = 100, onBack = {}, onPlay = {})
     }
 }

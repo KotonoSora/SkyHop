@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.jn.flagfang.R
 import com.jn.flagfang.domain.model.Point
 import com.jn.flagfang.domain.model.Size
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -72,8 +72,13 @@ fun Animal(
 @Preview(name = "Animal - Normal", group = "Components")
 @Composable
 fun AnimalNormalPreview() {
-    GameTheme {
-        Box(modifier = Modifier.size(200.dp).padding(16.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .padding(16.dp),
+            contentAlignment = androidx.compose.ui.Alignment.Center
+        ) {
             Animal(
                 density = LocalDensity.current,
                 position = Point(0f, 0f),
@@ -89,8 +94,13 @@ fun AnimalNormalPreview() {
 @Preview(name = "Animal - Shielded", group = "Components")
 @Composable
 fun AnimalShieldedPreview() {
-    GameTheme {
-        Box(modifier = Modifier.size(200.dp).padding(16.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .padding(16.dp),
+            contentAlignment = androidx.compose.ui.Alignment.Center
+        ) {
             Animal(
                 density = LocalDensity.current,
                 position = Point(0f, 0f),

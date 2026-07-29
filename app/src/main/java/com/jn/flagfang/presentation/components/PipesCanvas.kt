@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jn.flagfang.domain.model.PipeState
-import com.jn.flagfang.presentation.theme.GameTheme
+import com.jn.flagfang.presentation.theme.AppTheme
 
 private val limestoneColors = listOf(
     Color(0xFFD7C9A3), // light limestone
@@ -50,14 +50,29 @@ fun PipesCanvas(pipes: List<PipeState>, modifier: Modifier = Modifier) {
 
             // Top Pipe (Stalactite)
             drawPath(
-                path = createStalactitePath(pipe.x, pipe.width, apexLeft, apexRight, apexY, apexWidth),
+                path = createStalactitePath(
+                    pipe.x,
+                    pipe.width,
+                    apexLeft,
+                    apexRight,
+                    apexY,
+                    apexWidth
+                ),
                 brush = topBrush,
                 style = Fill
             )
 
             // Bottom Pipe (Stalagmite)
             drawPath(
-                path = createStalagmitePath(pipe.x, pipe.width, size.height, baseLeft, baseRight, baseY, baseWidth),
+                path = createStalagmitePath(
+                    pipe.x,
+                    pipe.width,
+                    size.height,
+                    baseLeft,
+                    baseRight,
+                    baseY,
+                    baseWidth
+                ),
                 brush = bottomBrush,
                 style = Fill
             )
@@ -119,7 +134,7 @@ private fun createStalagmitePath(
 @Preview(name = "Pipes Canvas", group = "Components")
 @Composable
 fun PipesCanvasPreview() {
-    GameTheme {
+    AppTheme {
         Box(modifier = Modifier.size(width = 400.dp, height = 800.dp)) {
             PipesCanvas(
                 pipes = listOf(
