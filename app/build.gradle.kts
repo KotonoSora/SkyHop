@@ -54,7 +54,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.material)
     implementation(libs.billing.ktx)
-    implementation(libs.play.services.ads)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
