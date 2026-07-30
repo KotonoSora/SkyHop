@@ -6,11 +6,11 @@ plugins {
 }
 
 configure<ApplicationExtension> {
-    namespace = "com.jn.flagfang"
+    namespace = "com.kotonosora.zamstu"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.jn.flagfang"
+        applicationId = "com.kotonosora.zamstu"
         minSdk = 30
         versionCode = 7
         versionName = "2.0.0"

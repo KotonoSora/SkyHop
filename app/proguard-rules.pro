@@ -31,9 +31,9 @@
 -dontwarn androidx.datastore.**
 
 # Game Domain Models (Prevent field obfuscation for data integrity)
--keep class com.jn.flagfang.domain.model.** { *; }
--keep class com.jn.flagfang.data.** { *; }
--keep class com.jn.flagfang.feature.shop.** { *; }
+-keep class com.kotonosora.zamstu.domain.model.** { *; }
+-keep class com.kotonosora.zamstu.data.** { *; }
+-keep class com.kotonosora.zamstu.feature.shop.** { *; }
 
 # Support for Previews in release if needed (rare but useful for debugging)
 -keep class * implements androidx.compose.ui.tooling.preview.Preview
