@@ -24,5 +24,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FlagFang"
+rootProject.name = "Zamstu"
 include(":app")

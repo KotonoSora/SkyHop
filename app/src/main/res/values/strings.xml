@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">FlagFang</string>
+    <string name="app_name">Zamstu</string>
     <string name="title_coins">COINS</string>
     <string name="desc_back">Back</string>
     <string name="msg_no_packs_available">NO COIN PACKS AVAILABLE AT THE MOMENT.</string>
