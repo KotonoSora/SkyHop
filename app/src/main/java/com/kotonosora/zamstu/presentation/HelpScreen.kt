@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.presentation.components.GameBackground
 import com.kotonosora.zamstu.presentation.components.GameHeader
 import com.kotonosora.zamstu.presentation.theme.AppTheme
@@ -77,10 +78,10 @@ fun HelpScreen(coins: Int, onBack: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Help Screen", group = "Screens")
+@Preview(showBackground = true, showSystemUi = false, name = "Help Screen", group = "Screens")
 @Composable
 fun HelpPreview() {
     AppTheme {
-        HelpScreen(coins = 100, onBack = {})
+        HelpScreen(coins = AppConstants.DEFAULT_INITIAL_COINS, onBack = {})
     }
 }

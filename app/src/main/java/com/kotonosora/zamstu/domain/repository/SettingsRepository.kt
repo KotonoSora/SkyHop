@@ -11,7 +11,6 @@ interface SettingsRepository {
     val autoPlayCountFlow: Flow<Int>
     val musicEnabledFlow: Flow<Boolean>
     val sfxEnabledFlow: Flow<Boolean>
-    val lastDailyRewardTimeFlow: Flow<Long>
 
     suspend fun updateSelectedSkin(skinId: String)
     suspend fun addCoins(amount: Int)
@@ -21,5 +20,4 @@ interface SettingsRepository {
     suspend fun usePowerUp(typeId: String): Boolean
     suspend fun toggleMusic(enabled: Boolean)
     suspend fun toggleSfx(enabled: Boolean)
-    suspend fun claimDailyReward(): Boolean
 }

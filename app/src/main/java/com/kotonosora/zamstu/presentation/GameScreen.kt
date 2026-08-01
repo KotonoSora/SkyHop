@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.domain.model.GameState
 import com.kotonosora.zamstu.domain.model.PipeState
 import com.kotonosora.zamstu.feature.shop.SkinData
@@ -155,13 +156,17 @@ fun GameContent(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Game Screen – playing")
+@Preview(showBackground = true, showSystemUi = false, name = "Game Screen – playing")
 @Composable
 fun GameScreenPlayingPreview() {
     AppTheme {
         GameContent(
             gameState = GameState(
-                score = 42, level = 2, isGameStarted = true, pipes = listOf(
+                score = 42,
+                level = 2,
+                coins = AppConstants.DEFAULT_INITIAL_COINS,
+                isGameStarted = true,
+                pipes = listOf(
                     PipeState(x = 600f, gapTop = 300f), PipeState(x = 1000f, gapTop = 500f)
                 )
             ),
@@ -177,13 +182,18 @@ fun GameScreenPlayingPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Game Screen – win")
+@Preview(showBackground = true, showSystemUi = false, name = "Game Screen – win")
 @Composable
 fun GameScreenWinPreview() {
     AppTheme {
         GameContent(
             gameState = GameState(
-                score = 50, targetScore = 50, level = 5, isWin = true, rewardCoins = 25
+                score = 50,
+                targetScore = 50,
+                level = 5,
+                coins = AppConstants.DEFAULT_INITIAL_COINS,
+                isWin = true,
+                rewardCoins = 25
             ),
             animalSkinRes = SkinData.getIDLEAnimalSkinResource(""),
             rotation = 0f,
@@ -197,13 +207,17 @@ fun GameScreenWinPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Game Screen – game over")
+@Preview(showBackground = true, showSystemUi = false, name = "Game Screen – game over")
 @Composable
 fun GameScreenGameOverPreview() {
     AppTheme {
         GameContent(
             gameState = GameState(
-                score = 15, level = 1, highScore = 42, isGameOver = true
+                score = 15,
+                level = 1,
+                coins = AppConstants.DEFAULT_INITIAL_COINS,
+                highScore = 42,
+                isGameOver = true
             ),
             animalSkinRes = SkinData.getIDLEAnimalSkinResource(""),
             rotation = 90f,

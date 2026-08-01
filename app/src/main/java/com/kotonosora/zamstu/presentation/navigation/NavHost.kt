@@ -49,7 +49,6 @@ import com.kotonosora.zamstu.viewmodel.GameViewModel
 import com.kotonosora.zamstu.viewmodel.LeaderboardViewModel
 import com.kotonosora.zamstu.viewmodel.NavigationViewModel
 import com.kotonosora.zamstu.viewmodel.Screen
-import com.kotonosora.zamstu.viewmodel.SettingsIntent
 import com.kotonosora.zamstu.viewmodel.SettingsViewModel
 import com.kotonosora.zamstu.viewmodel.ShopViewModel
 
@@ -164,10 +163,8 @@ private fun ScreenContent(
             onShopClick = { navigateTo(Screen.Shop) },
             onSettingsClick = { navigateTo(Screen.Settings) },
             onGetCoinsClick = { navigateTo(Screen.CoinStore) },
-            onClaimRewardClick = { settingsViewModel.onIntent(SettingsIntent.ClaimReward) },
             coins = shopViewModel.coins.collectAsState().value,
             selectedSkinId = selectedSkinId,
-            canClaimDailyReward = settingsViewModel.canClaimDailyReward.collectAsState().value
         )
 
         Screen.Game -> GameScreen(

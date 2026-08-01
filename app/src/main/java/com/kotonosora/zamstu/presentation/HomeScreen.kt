@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kotonosora.zamstu.R
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.feature.shop.SkinData
 import com.kotonosora.zamstu.presentation.components.GameBackground
 import com.kotonosora.zamstu.presentation.components.GameButton
@@ -59,10 +60,8 @@ fun HomeScreen(
     onShopClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onGetCoinsClick: () -> Unit,
-    onClaimRewardClick: () -> Unit,
     coins: Int,
     selectedSkinId: String,
-    canClaimDailyReward: Boolean
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -95,24 +94,6 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (canClaimDailyReward) {
-                    GameButton(
-                        text = "CLAIM DAILY REWARD",
-                        onClick = onClaimRewardClick,
-                        modifier = Modifier.fillMaxWidth(),
-                        backgroundColor = Color(0xFFFF4081),
-                        glowColor = Color(0xFFC2185B),
-                        textColor = Color.White,
-                        icon = {
-                            Icon(
-                                Icons.Default.Star,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
-                    )
-                }
-
                 GameButton(
                     text = "PLAY GAME",
                     onClick = onPlayClick,
@@ -241,7 +222,7 @@ fun AnimatedHomeScreenElements(
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Home Screen - Reward Available")
+@Preview(showBackground = true, showSystemUi = false, name = "Home Screen - Reward Available")
 @Composable
 fun HomeScreenRewardAvailablePreview() {
     AppTheme {
@@ -253,31 +234,8 @@ fun HomeScreenRewardAvailablePreview() {
             onShopClick = {},
             onSettingsClick = {},
             onGetCoinsClick = {},
-            onClaimRewardClick = {},
-            coins = 1250,
+            coins = AppConstants.DEFAULT_INITIAL_COINS,
             selectedSkinId = "",
-            canClaimDailyReward = true
         )
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true, name = "Home Screen - No Reward")
-@Composable
-fun HomeScreenNoRewardPreview() {
-    AppTheme {
-        HomeScreen(
-            onPlayClick = {},
-            onDailyChallengeClick = {},
-            onLeaderboardClick = {},
-            onHelpClick = {},
-            onShopClick = {},
-            onSettingsClick = {},
-            onGetCoinsClick = {},
-            onClaimRewardClick = {},
-            coins = 1250,
-            selectedSkinId = "",
-            canClaimDailyReward = false
-        )
-    }
-}
-

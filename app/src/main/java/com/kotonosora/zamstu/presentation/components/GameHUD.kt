@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,10 +41,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kotonosora.zamstu.R
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.domain.model.GameState
 import com.kotonosora.zamstu.domain.model.PowerUpType
 import com.kotonosora.zamstu.presentation.theme.AppTheme
-import java.util.Locale
 import kotlin.math.ceil
 
 @Composable
@@ -148,6 +149,7 @@ fun CoinDisplayHUD(
     onQuickBuy: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val locale = LocalConfiguration.current.locales[0]
     Surface(
         modifier = modifier.clickable { onQuickBuy() },
         shape = RoundedCornerShape(20.dp),
@@ -165,7 +167,7 @@ fun CoinDisplayHUD(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = String.format(Locale.getDefault(), "%,d", coins),
+                text = String.format(locale, "%,d", coins),
                 color = Color.White,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.ExtraBold
@@ -281,7 +283,7 @@ fun GameHUDPreview() {
             gameState = GameState(
                 score = 42,
                 level = 3,
-                coins = 500,
+                coins = AppConstants.DEFAULT_INITIAL_COINS,
                 pipesPassed = 25,
                 shieldCount = 2,
                 multiplierCount = 1,
@@ -323,6 +325,19 @@ fun PowerUpBadgeInactivePreview() {
                 timeLeft = 0f,
                 onClick = {},
                 contentDescription = "Multiplier"
+            )
+        }
+    }
+}
+
+@Preview(name = "Coin Display HUD", group = "Components")
+@Composable
+fun CoinDisplayHUDPreview() {
+    AppTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            CoinDisplayHUD(
+                coins = AppConstants.DEFAULT_INITIAL_COINS,
+                onQuickBuy = {}
             )
         }
     }

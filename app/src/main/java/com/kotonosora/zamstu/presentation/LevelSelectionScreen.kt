@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.presentation.components.GameBackground
 import com.kotonosora.zamstu.presentation.components.GameButton
 import com.kotonosora.zamstu.presentation.components.GameHeader
@@ -101,12 +102,12 @@ fun LevelSelectionScreen(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Level Selection", group = "Screens")
+@Preview(showBackground = true, showSystemUi = false, name = "Level Selection", group = "Screens")
 @Composable
 fun LevelSelectionScreenPreview() {
     AppTheme {
         LevelSelectionScreen(
-            coins = 500,
+            coins = AppConstants.DEFAULT_INITIAL_COINS,
             onBack = {},
             onEndlessClick = {},
             onDailyChallengeClick = {},

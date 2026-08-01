@@ -25,9 +25,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.domain.model.ScoreEntry
 import com.kotonosora.zamstu.presentation.components.GameBackground
 import com.kotonosora.zamstu.presentation.components.GameHeader
@@ -37,7 +39,6 @@ import com.kotonosora.zamstu.presentation.theme.NeonYellow
 import com.kotonosora.zamstu.viewmodel.LeaderboardViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun LeaderboardScreen(
@@ -105,8 +106,9 @@ fun LeaderboardScreenContent(
 
 @Composable
 private fun HistoryRow(entry: ScoreEntry) {
-    val dateFormat = remember { SimpleDateFormat("MM/dd HH:mm", Locale.getDefault()) }
-    val dateStr = remember(entry.timestamp) { dateFormat.format(Date(entry.timestamp)) }
+    val locale = LocalConfiguration.current.locales[0]
+    val dateFormat = remember(locale) { SimpleDateFormat("MM/dd HH:mm", locale) }
+    val dateStr = remember(entry.timestamp, dateFormat) { dateFormat.format(Date(entry.timestamp)) }
 
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -151,7 +153,7 @@ private fun HistoryRow(entry: ScoreEntry) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Leaderboard – with scores")
+@Preview(showBackground = true, showSystemUi = false, name = "Leaderboard – with scores")
 @Composable
 fun LeaderboardScreenPreview() {
     AppTheme {
@@ -160,19 +162,19 @@ fun LeaderboardScreenPreview() {
                 ScoreEntry(150, 20, System.currentTimeMillis()),
                 ScoreEntry(85, 10, System.currentTimeMillis() - 3600000)
             ),
-            coins = 500,
+            coins = AppConstants.DEFAULT_INITIAL_COINS,
             onBack = {}
         )
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Leaderboard – empty")
+@Preview(showBackground = true, showSystemUi = false, name = "Leaderboard – empty")
 @Composable
 fun LeaderboardEmptyPreview() {
     AppTheme {
         LeaderboardScreenContent(
             scoreHistory = emptyList(),
-            coins = 50,
+            coins = AppConstants.DEFAULT_INITIAL_COINS,
             onBack = {}
         )
     }

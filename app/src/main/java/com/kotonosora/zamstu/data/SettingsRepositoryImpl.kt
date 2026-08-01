@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.domain.model.PowerUpType
 import com.kotonosora.zamstu.domain.repository.SettingsRepository
 import com.kotonosora.zamstu.feature.shop.SkinIds
@@ -20,7 +21,7 @@ private val Context.settingsDataStore: DataStore<Preferences> by preferencesData
 class SettingsRepositoryImpl(private val context: Context) : SettingsRepository {
 
     companion object {
-        private const val INITIAL_COINS = 200
+        private const val INITIAL_COINS = AppConstants.DEFAULT_INITIAL_COINS
         private val SELECTED_SKIN_KEY = stringPreferencesKey("selected_skin")
         private val COINS_KEY = intPreferencesKey("coins")
         private val PURCHASED_ITEMS_KEY = stringSetPreferencesKey("purchased_items")
@@ -29,8 +30,6 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         private val AUTOPLAY_COUNT_KEY = intPreferencesKey("autoplay_count")
         private val MUSIC_ENABLED_KEY = booleanPreferencesKey("music_enabled")
         private val SFX_ENABLED_KEY = booleanPreferencesKey("sfx_enabled")
-        private val LAST_DAILY_REWARD_TIME_KEY =
-            androidx.datastore.preferences.core.longPreferencesKey("last_daily_reward_time")
     }
 
     private val POWER_UP_KEYS = mapOf(
@@ -72,11 +71,6 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
     override val sfxEnabledFlow: Flow<Boolean> = context.settingsDataStore.data
         .map { preferences ->
             preferences[SFX_ENABLED_KEY] ?: true
-        }
-
-    override val lastDailyRewardTimeFlow: Flow<Long> = context.settingsDataStore.data
-        .map { preferences ->
-            preferences[LAST_DAILY_REWARD_TIME_KEY] ?: 0L
         }
 
     override suspend fun updateSelectedSkin(skinId: String) {
@@ -144,21 +138,5 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         context.settingsDataStore.edit { preferences ->
             preferences[SFX_ENABLED_KEY] = enabled
         }
-    }
-
-    override suspend fun claimDailyReward(): Boolean {
-        val now = System.currentTimeMillis()
-        var claimed = false
-        context.settingsDataStore.edit { preferences ->
-            val lastTime = preferences[LAST_DAILY_REWARD_TIME_KEY] ?: 0L
-            val oneDayInMillis = 24 * 60 * 60 * 1000L
-            if (now - lastTime >= oneDayInMillis) {
-                val currentCoins = preferences[COINS_KEY] ?: INITIAL_COINS
-                preferences[COINS_KEY] = currentCoins + 100 // Daily reward amount
-                preferences[LAST_DAILY_REWARD_TIME_KEY] = now
-                claimed = true
-            }
-        }
-        return claimed
     }
 }

@@ -37,7 +37,6 @@ class AppViewModelFactory(
                     getAudioSettingsUseCase = container.getAudioSettingsUseCase,
                     toggleAudioUseCase = container.toggleAudioUseCase,
                     getCoinsUseCase = container.getCoinsUseCase,
-                    settingsRepository = container.settingsRepository,
                     appVersionName = container.appVersionName
                 ) as T
             }

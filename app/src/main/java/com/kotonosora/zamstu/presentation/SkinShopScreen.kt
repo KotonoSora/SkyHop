@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kotonosora.zamstu.R
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.feature.shop.ShopData
 import com.kotonosora.zamstu.feature.shop.ShopItem
 import com.kotonosora.zamstu.feature.shop.SkinIds
@@ -351,14 +352,14 @@ private data class ActionVisuals(
     val btnColor: Color, val glowColor: Color, val btnText: String, val btnIcon: ImageVector
 )
 
-@Preview(showBackground = true, showSystemUi = true, name = "Skin Shop - Mixed States")
+@Preview(showBackground = true, showSystemUi = false, name = "Skin Shop - Mixed States")
 @Composable
 fun SkinShopScreenMixedPreview() {
     AppTheme {
         SkinShopScreenContent(
             onClose = {},
             onGoToCoinStore = {},
-            coins = 2000,
+            coins = AppConstants.DEFAULT_INITIAL_COINS,
             skinItems = listOf(
                 ShopItem(
                     SkinIds.SKIN_DEFAULT_ID,

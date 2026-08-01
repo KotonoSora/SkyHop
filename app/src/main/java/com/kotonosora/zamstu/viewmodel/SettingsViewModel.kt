@@ -8,21 +8,18 @@ import com.kotonosora.zamstu.domain.usecase.GetCoinsUseCase
 import com.kotonosora.zamstu.domain.usecase.ToggleAudioUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 sealed class SettingsIntent {
     data class ToggleMusic(val enabled: Boolean) : SettingsIntent()
     data class ToggleSfx(val enabled: Boolean) : SettingsIntent()
-    object ClaimReward : SettingsIntent()
 }
 
 class SettingsViewModel(
     private val getAudioSettingsUseCase: GetAudioSettingsUseCase,
     private val toggleAudioUseCase: ToggleAudioUseCase,
     private val getCoinsUseCase: GetCoinsUseCase,
-    private val settingsRepository: SettingsRepository,
     appVersionName: String
 ) : ViewModel() {
 
@@ -48,22 +45,10 @@ class SettingsViewModel(
         initialValue = true
     )
 
-    val canClaimDailyReward: StateFlow<Boolean> =
-        settingsRepository.lastDailyRewardTimeFlow.map { lastTime ->
-            val now = System.currentTimeMillis()
-            val oneDayInMillis = 24 * 60 * 60 * 1000L
-            now - lastTime >= oneDayInMillis
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
-
     fun onIntent(intent: SettingsIntent) {
         when (intent) {
             is SettingsIntent.ToggleMusic -> toggleMusic(intent.enabled)
             is SettingsIntent.ToggleSfx -> toggleSfx(intent.enabled)
-            SettingsIntent.ClaimReward -> claimReward()
         }
     }
 
@@ -73,11 +58,5 @@ class SettingsViewModel(
 
     private fun toggleSfx(enabled: Boolean) {
         viewModelScope.launch { toggleAudioUseCase.toggleSfx(enabled) }
-    }
-
-    private fun claimReward() {
-        viewModelScope.launch {
-            settingsRepository.claimDailyReward()
-        }
     }
 }

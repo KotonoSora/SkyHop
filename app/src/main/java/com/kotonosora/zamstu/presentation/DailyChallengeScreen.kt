@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.presentation.components.GameButton
 import com.kotonosora.zamstu.presentation.components.GameHeader
 import com.kotonosora.zamstu.presentation.theme.AppTheme
@@ -89,6 +90,7 @@ fun DailyChallengeScreen(coins: Int, onBack: () -> Unit, onPlay: () -> Unit) {
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "50 COINS",
                     style = MaterialTheme.typography.headlineSmall,
@@ -112,13 +114,13 @@ fun DailyChallengeScreen(coins: Int, onBack: () -> Unit, onPlay: () -> Unit) {
 
 @Preview(
     showBackground = true,
-    showSystemUi = true,
+    showSystemUi = false,
     name = "Daily Challenge Screen",
     group = "Screens"
 )
 @Composable
 fun DailyChallengePreview() {
     AppTheme {
-        DailyChallengeScreen(coins = 100, onBack = {}, onPlay = {})
+        DailyChallengeScreen(coins = AppConstants.DEFAULT_INITIAL_COINS, onBack = {}, onPlay = {})
     }
 }

@@ -46,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.kotonosora.zamstu.R
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.presentation.theme.AppTheme
 import com.kotonosora.zamstu.presentation.theme.NeonCyan
 import com.kotonosora.zamstu.presentation.theme.NeonMagenta
@@ -327,7 +328,7 @@ fun GameHeaderFullPreview() {
     AppTheme {
         GameHeader(
             title = "SETTINGS",
-            coins = 1250,
+            coins = AppConstants.DEFAULT_INITIAL_COINS,
             onBackClick = {},
             onShopClick = {}
         )
@@ -340,7 +341,7 @@ fun GameHeaderSimplePreview() {
     AppTheme {
         GameHeader(
             title = "SKYHOP",
-            coins = 500
+            coins = AppConstants.DEFAULT_INITIAL_COINS
         )
     }
 }
@@ -350,7 +351,7 @@ fun GameHeaderSimplePreview() {
 fun CoinBadgePreview() {
     AppTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            CoinBadge(coins = 9999)
+            CoinBadge(coins = AppConstants.DEFAULT_INITIAL_COINS)
         }
     }
 }

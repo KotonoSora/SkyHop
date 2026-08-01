@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kotonosora.zamstu.R
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.presentation.components.AudioSettingsGroup
 import com.kotonosora.zamstu.presentation.components.GameBackground
 import com.kotonosora.zamstu.presentation.components.GameHeader
@@ -86,7 +87,7 @@ fun SettingsScreenContent(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Settings Screen", group = "Screens")
+@Preview(showBackground = true, showSystemUi = false, name = "Settings Screen", group = "Screens")
 @Composable
 fun SettingsScreenPreview() {
     AppTheme {
@@ -94,7 +95,7 @@ fun SettingsScreenPreview() {
             onBack = {},
             musicEnabled = true,
             sfxEnabled = false,
-            coins = 150,
+            coins = AppConstants.DEFAULT_INITIAL_COINS,
             onMusicToggle = {},
             onSfxToggle = {},
         )

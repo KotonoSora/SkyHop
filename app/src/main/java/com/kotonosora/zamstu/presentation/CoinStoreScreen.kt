@@ -9,17 +9,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kotonosora.zamstu.core.AppConstants
 import com.kotonosora.zamstu.domain.repository.BillingStatus
 import com.kotonosora.zamstu.feature.shop.CoinPackItem
 import com.kotonosora.zamstu.feature.shop.ShopData
@@ -61,6 +63,7 @@ import com.kotonosora.zamstu.presentation.theme.CoinButtonPrimary
 import com.kotonosora.zamstu.presentation.theme.CoinButtonShadow
 import com.kotonosora.zamstu.presentation.theme.CoinGoldDark
 import com.kotonosora.zamstu.presentation.theme.CoinGoldLight
+import com.kotonosora.zamstu.presentation.theme.PressStart2P
 import com.kotonosora.zamstu.viewmodel.ShopIntent
 import com.kotonosora.zamstu.viewmodel.ShopViewModel
 
@@ -136,33 +139,23 @@ fun CoinStoreContent(
     onRetry: () -> Unit,
     onBuy: (CoinPackItem) -> Unit
 ) {
-    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (billingStatus == BillingStatus.CONNECTING || billingStatus == BillingStatus.IDLE) {
             ConnectionLoadingView()
-            return@Box
-        }
-
-        val emptyMessage = when (billingStatus) {
-            BillingStatus.EMPTY -> "Store currently empty."
-            BillingStatus.CONNECTED -> if (coinPacks.isEmpty()) "No items available." else null
-            else -> null
-        }
-
-        if (emptyMessage != null) {
-            NoPacksView(message = emptyMessage)
-            return@Box
-        }
-
-        when (billingStatus) {
-            BillingStatus.ERROR -> {
-                ConnectionErrorView(onRetry = onRetry)
+        } else if (billingStatus == BillingStatus.ERROR) {
+            ConnectionErrorView(onRetry = onRetry)
+        } else {
+            val emptyMessage = when (billingStatus) {
+                BillingStatus.EMPTY -> "Store currently empty."
+                BillingStatus.CONNECTED -> if (coinPacks.isEmpty()) "No items available." else null
+                BillingStatus.IDLE, BillingStatus.CONNECTING, BillingStatus.ERROR -> null
             }
 
-            BillingStatus.CONNECTED -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+            if (emptyMessage != null) {
+                NoPacksView(message = emptyMessage)
+            } else if (billingStatus == BillingStatus.CONNECTED) {
+                LazyColumn(
                     contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -173,8 +166,6 @@ fun CoinStoreContent(
                     }
                 }
             }
-
-            else -> {}
         }
     }
 }
@@ -182,24 +173,22 @@ fun CoinStoreContent(
 @Composable
 fun CoinPackCard(item: CoinPackItem, onBuy: () -> Unit) {
     Card(
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.75f)
+            .height(110.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(16.dp))
+                    .size(86.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(
                         Brush.verticalGradient(
                             listOf(CoinGoldLight, CoinGoldDark)
@@ -210,50 +199,43 @@ fun CoinPackCard(item: CoinPackItem, onBuy: () -> Unit) {
                 Image(
                     painter = painterResource(id = item.imageRes),
                     contentDescription = item.name,
-                    modifier = Modifier.fillMaxSize(0.7f),
+                    modifier = Modifier.fillMaxSize(0.8f),
                     contentScale = ContentScale.Fit
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
-            Text(
-                text = item.name.uppercase(),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = item.name.uppercase(),
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = PressStart2P,
+                    ),
+                    color = Color.Black,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
 
-            Text(
-                text = item.description,
-                style = TextStyle(fontSize = 10.sp, lineHeight = 12.sp),
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
+                Spacer(modifier = Modifier.height(16.dp))
 
-            GameButton(
-                text = item.price,
-                onClick = onBuy,
-                modifier = Modifier.fillMaxWidth(),
-                height = 40.dp,
-                backgroundColor = CoinButtonPrimary,
-                glowColor = CoinButtonShadow,
-                textColor = Color.Black,
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.size(14.dp)
-                    )
-                }
-            )
+                GameButton(
+                    text = item.price,
+                    onClick = onBuy,
+                    modifier = Modifier.fillMaxWidth(),
+                    height = 36.dp,
+                    backgroundColor = CoinButtonPrimary,
+                    glowColor = CoinButtonShadow,
+                    textColor = Color.Black,
+                    textStyle = MaterialTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }
@@ -323,7 +305,7 @@ private fun Context.findActivity(): Activity? {
     return null
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Coin Store – connected")
+@Preview(showBackground = true, showSystemUi = false, name = "Coin Store – connected")
 @Composable
 fun CoinStoreScreenPreview() {
     AppTheme {
@@ -338,7 +320,7 @@ fun CoinStoreScreenPreview() {
                     .fillMaxSize()
                     .safeContentPadding()
             ) {
-                GameHeader(title = "COINS", coins = 750, onBackClick = {})
+                GameHeader(title = "COINS", coins = AppConstants.DEFAULT_INITIAL_COINS, onBackClick = {})
                 Spacer(modifier = Modifier.height(16.dp))
                 CoinStoreContent(
                     modifier = Modifier.weight(1f),
@@ -347,12 +329,22 @@ fun CoinStoreScreenPreview() {
                     onRetry = {},
                     onBuy = {}
                 )
+                GameButton(
+                    text = "GO TO SKIN SHOP",
+                    onClick = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    backgroundColor = Color(0xFFAB47BC),
+                    glowColor = Color(0xFF7B1FA2),
+                    textColor = Color.White
+                )
             }
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Coin Store – loading")
+@Preview(showBackground = true, showSystemUi = false, name = "Coin Store – loading")
 @Composable
 fun CoinStoreLoadingPreview() {
     AppTheme {
@@ -372,7 +364,7 @@ fun CoinStoreLoadingPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Coin Store – error")
+@Preview(showBackground = true, showSystemUi = false, name = "Coin Store – error")
 @Composable
 fun CoinStoreErrorPreview() {
     AppTheme {
@@ -392,7 +384,7 @@ fun CoinStoreErrorPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Coin Store – empty")
+@Preview(showBackground = true, showSystemUi = false, name = "Coin Store – empty")
 @Composable
 fun CoinStoreEmptyPreview() {
     AppTheme {
