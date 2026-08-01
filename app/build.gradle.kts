@@ -6,11 +6,11 @@ plugins {
 }
 
 configure<ApplicationExtension> {
-    namespace = "com.kotonosora.zamstu"
+    namespace = "com.kotonosora.flappybird"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.kotonosora.zamstu"
+        applicationId = "com.kotonosora.flappybird"
         minSdk = 30
         versionCode = 7
         versionName = "2.0.0"
