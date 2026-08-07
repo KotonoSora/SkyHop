@@ -54,3 +54,9 @@ google-services.json
 # AI
 .agent
 input_images/
+
+.artifacts/
+.kotlin/
+app/release/**/*.dm
+keystore.properties
+*.artifact.md
