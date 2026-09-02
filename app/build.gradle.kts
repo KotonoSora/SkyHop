@@ -11,9 +11,9 @@ configure<ApplicationExtension> {
 
     defaultConfig {
         applicationId = "com.kotonosora.flappybird"
-        minSdk = 30
-        versionCode = 7
-        versionName = "2.0.0"
+        minSdk = 24
+        versionCode = 8
+        versionName = "2.1.0"
     }
 
     buildTypes {
