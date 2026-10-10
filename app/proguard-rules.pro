@@ -19,21 +19,13 @@
 -keepnames class kotlinx.coroutines.android.AndroidDispatcherFactory {}
 -dontwarn kotlinx.coroutines.**
 
-# Google Play Billing (Mandatory for Store flow)
--dontwarn com.android.billingclient.api.**
--keep class com.android.vending.billing.**
-
-# Coil (Image Loading)
--dontwarn coil.**
-
-# DataStore (Persistence)
--keep class androidx.datastore.preferences.core.** { *; }
--dontwarn androidx.datastore.**
-
-# Game Domain Models (Prevent field obfuscation for data integrity)
--keep class com.kotonosora.flappybird.domain.model.** { *; }
--keep class com.kotonosora.flappybird.data.** { *; }
--keep class com.kotonosora.flappybird.feature.shop.** { *; }
+# Game + shared module models (Prevent field obfuscation for data integrity)
+-keep class local.flappybird.engine.** { *; }
+-keep class local.core.billing.** { *; }
+-keep class local.core.shop.coins.** { *; }
+-keep class local.core.ui.** { *; }
+-keep class local.flappybird.shop.** { *; }
+-keep class local.flappybird.ui.** { *; }
 
 # Support for Previews in release if needed (rare but useful for debugging)
 -keep class * implements androidx.compose.ui.tooling.preview.Preview
