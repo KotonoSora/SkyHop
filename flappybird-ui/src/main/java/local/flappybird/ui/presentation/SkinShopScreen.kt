@@ -45,18 +45,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import local.flappybird.shop.R
 import local.core.ui.AppConstants
+import local.core.ui.components.GameButton
+import local.core.ui.components.GameHeader
+import local.core.ui.theme.AppTheme
 import local.flappybird.engine.model.PowerUpType
-import local.flappybird.shop.PowerUps
 import local.flappybird.shop.PowerUpShopItem
+import local.flappybird.shop.PowerUps
+import local.flappybird.shop.R
 import local.flappybird.shop.ShopItem
 import local.flappybird.shop.SkinIds
 import local.flappybird.shop.SkinShopItem
 import local.flappybird.ui.presentation.components.GameBackground
-import local.core.ui.components.GameButton
-import local.core.ui.components.GameHeader
-import local.core.ui.theme.AppTheme
 import local.flappybird.ui.viewmodel.ShopIntent
 import local.flappybird.ui.viewmodel.ShopViewModel
 

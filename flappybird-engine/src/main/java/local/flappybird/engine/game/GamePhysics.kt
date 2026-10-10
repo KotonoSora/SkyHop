@@ -137,11 +137,7 @@ object GamePhysics {
             val pipeLeft = pipe.x
             val pipeRight = pipe.x + pipe.width
 
-            if (animalRect.right > pipeLeft && animalRect.left < pipeRight) {
-                animalRect.top < pipe.gapTop || animalRect.bottom > pipe.gapTop + pipe.gapHeight
-            } else {
-                false
-            }
+            animalRect.right > pipeLeft && animalRect.left < pipeRight && (animalRect.top < pipe.gapTop || animalRect.bottom > pipe.gapTop + pipe.gapHeight)
         }
     }
 

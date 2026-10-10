@@ -2,13 +2,13 @@ package local.flappybird.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import local.core.ui.usecase.GetAudioSettingsUseCase
-import local.core.ui.usecase.GetCoinsUseCase
-import local.core.ui.usecase.ToggleAudioUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import local.core.ui.usecase.GetAudioSettingsUseCase
+import local.core.ui.usecase.GetCoinsUseCase
+import local.core.ui.usecase.ToggleAudioUseCase
 
 sealed class SettingsIntent {
     data class ToggleMusic(val enabled: Boolean) : SettingsIntent()

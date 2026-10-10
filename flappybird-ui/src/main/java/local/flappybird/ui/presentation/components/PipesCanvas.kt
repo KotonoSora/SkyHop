@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import local.flappybird.engine.model.PipeState
 import local.core.ui.theme.AppTheme
+import local.flappybird.engine.model.PipeState
 
 private val limestoneColors = listOf(
     Color(0xFFD7C9A3), // light limestone

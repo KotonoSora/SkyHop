@@ -39,10 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import local.flappybird.ui.R
 import local.core.ui.AppConstants
-import local.flappybird.shop.SkinData
-import local.flappybird.ui.presentation.components.GameBackground
 import local.core.ui.components.GameButton
 import local.core.ui.components.GameHeader
 import local.core.ui.theme.AppTheme
@@ -50,6 +47,9 @@ import local.core.ui.theme.NeonCyan
 import local.core.ui.theme.NeonGreen
 import local.core.ui.theme.NeonMagenta
 import local.core.ui.theme.NeonYellow
+import local.flappybird.shop.SkinData
+import local.flappybird.ui.R
+import local.flappybird.ui.presentation.components.GameBackground
 
 @Composable
 fun HomeScreen(

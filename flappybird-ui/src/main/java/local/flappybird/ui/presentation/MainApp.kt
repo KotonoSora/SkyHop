@@ -8,10 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import local.core.ui.theme.AppTheme
 import local.flappybird.ui.di.AppContainerHost
 import local.flappybird.ui.di.LocalAppContainer
 import local.flappybird.ui.presentation.navigation.AppNavHost
-import local.core.ui.theme.AppTheme
 
 @Composable
 fun MainApp() {

@@ -30,12 +30,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import local.core.ui.AppConstants
-import local.flappybird.engine.model.ScoreEntry
-import local.flappybird.ui.presentation.components.GameBackground
 import local.core.ui.components.GameHeader
 import local.core.ui.theme.AppTheme
 import local.core.ui.theme.NeonCyan
 import local.core.ui.theme.NeonYellow
+import local.flappybird.engine.model.ScoreEntry
+import local.flappybird.ui.presentation.components.GameBackground
 import local.flappybird.ui.viewmodel.LeaderboardViewModel
 import java.text.SimpleDateFormat
 import java.util.Date

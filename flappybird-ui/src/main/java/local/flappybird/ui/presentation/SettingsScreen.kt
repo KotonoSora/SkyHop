@@ -18,12 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import local.flappybird.ui.R
 import local.core.ui.AppConstants
 import local.core.ui.components.AudioSettingsGroup
-import local.flappybird.ui.presentation.components.GameBackground
 import local.core.ui.components.GameHeader
 import local.core.ui.theme.AppTheme
+import local.flappybird.ui.R
+import local.flappybird.ui.presentation.components.GameBackground
 import local.flappybird.ui.viewmodel.SettingsIntent
 import local.flappybird.ui.viewmodel.SettingsViewModel
 

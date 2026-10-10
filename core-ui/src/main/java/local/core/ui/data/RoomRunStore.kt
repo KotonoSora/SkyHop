@@ -1,9 +1,9 @@
 package local.core.ui.data
 
-import local.core.ui.data.db.RunDao
-import local.core.ui.data.db.RunEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import local.core.ui.data.db.RunDao
+import local.core.ui.data.db.RunEntity
 
 class RoomRunStore(private val dao: RunDao) : RunStore {
     override val highScoreFlow: Flow<Int> = dao.observeHighScore()

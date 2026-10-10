@@ -2,25 +2,6 @@ package local.flappybird.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import local.core.ui.audio.IAudioManager
-import local.flappybird.ui.audio.SfxType
-import local.core.billing.BillingRepository
-import local.core.billing.BillingStatus
-import local.core.billing.DomainProduct
-import local.core.ui.data.CoinAccount
-import local.core.ui.data.InventoryStore
-import local.core.ui.data.SkinLibrary
-import local.core.shop.coins.CoinPackIds
-import local.core.shop.coins.CoinPacks
-import local.core.shop.coins.CoinPackItem
-import local.core.shop.coins.mapToCoinPack
-import local.flappybird.engine.model.PowerUpType
-import local.flappybird.shop.PowerUpShopItem
-import local.flappybird.shop.PowerUps
-import local.flappybird.shop.ShopItem
-import local.flappybird.shop.SkinData
-import local.flappybird.shop.SkinIds
-import local.flappybird.shop.SkinShopItem
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -31,6 +12,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import local.core.billing.BillingRepository
+import local.core.billing.BillingStatus
+import local.core.billing.DomainProduct
+import local.core.shop.coins.CoinPackIds
+import local.core.shop.coins.CoinPackItem
+import local.core.shop.coins.CoinPacks
+import local.core.shop.coins.mapToCoinPack
+import local.core.ui.audio.IAudioManager
+import local.core.ui.data.CoinAccount
+import local.core.ui.data.InventoryStore
+import local.core.ui.data.SkinLibrary
+import local.flappybird.engine.model.PowerUpType
+import local.flappybird.shop.PowerUpShopItem
+import local.flappybird.shop.PowerUps
+import local.flappybird.shop.ShopItem
+import local.flappybird.shop.SkinData
+import local.flappybird.shop.SkinIds
+import local.flappybird.shop.SkinShopItem
+import local.flappybird.ui.audio.SfxType
 
 sealed class ShopIntent {
     data class SelectSkin(val id: String) : ShopIntent()
@@ -75,9 +75,10 @@ class ShopViewModel(
     val shieldCount: StateFlow<Int> = inventory.inventoryCountFlow(PowerUpType.SHIELD.id).stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
     )
-    val multiplierCount: StateFlow<Int> = inventory.inventoryCountFlow(PowerUpType.MULTIPLIER.id).stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), 0
-    )
+    val multiplierCount: StateFlow<Int> =
+        inventory.inventoryCountFlow(PowerUpType.MULTIPLIER.id).stateIn(
+            viewModelScope, SharingStarted.WhileSubscribed(5000), 0
+        )
 
     init {
         viewModelScope.launch {

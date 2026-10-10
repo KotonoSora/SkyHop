@@ -2,12 +2,12 @@ package local.flappybird.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import local.flappybird.engine.model.ScoreEntry
-import local.core.ui.usecase.GetCoinsUseCase
-import local.flappybird.engine.usecase.GetScoreHistoryUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import local.core.ui.usecase.GetCoinsUseCase
+import local.flappybird.engine.model.ScoreEntry
+import local.flappybird.engine.usecase.GetScoreHistoryUseCase
 
 class LeaderboardViewModel(
     private val getScoreHistoryUseCase: GetScoreHistoryUseCase,

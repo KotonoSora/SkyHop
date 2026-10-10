@@ -20,11 +20,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import local.core.ui.AppConstants
-import local.flappybird.ui.presentation.components.GameBackground
 import local.core.ui.components.GameHeader
 import local.core.ui.theme.AppTheme
 import local.core.ui.theme.NeonCyan
 import local.core.ui.theme.NeonYellow
+import local.flappybird.ui.presentation.components.GameBackground
 
 @Composable
 fun HelpScreen(coins: Int, onBack: () -> Unit) {

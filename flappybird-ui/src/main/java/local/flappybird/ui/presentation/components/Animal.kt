@@ -20,10 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import local.flappybird.shop.R
+import local.core.ui.theme.AppTheme
 import local.flappybird.engine.model.Point
 import local.flappybird.engine.model.Size
-import local.core.ui.theme.AppTheme
+import local.flappybird.shop.R
 import kotlin.math.roundToInt
 
 @Composable

@@ -1,7 +1,7 @@
 package local.core.ui.usecase
 
-import local.core.ui.data.AudioSettings
 import kotlinx.coroutines.flow.Flow
+import local.core.ui.data.AudioSettings
 
 data class AudioSettingsState(
     val musicEnabled: Boolean,

@@ -1,16 +1,16 @@
 package local.flappybird.ui.adapters
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import local.core.billing.CoinSink
 import local.core.ui.data.CoinAccount
 import local.core.ui.data.InventoryStore
-import local.core.ui.data.RunRecord as CoreRunRecord
 import local.core.ui.data.RunStore
 import local.flappybird.engine.model.RunEndCause
-import local.flappybird.engine.model.RunRecord as EngineRunRecord
 import local.flappybird.engine.repo.PowerUpStore
 import local.flappybird.engine.repo.RunHistoryRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import local.core.ui.data.RunRecord as CoreRunRecord
+import local.flappybird.engine.model.RunRecord as EngineRunRecord
 
 /**
  * Glue between the generic core persistence layer and the game engine's ports.

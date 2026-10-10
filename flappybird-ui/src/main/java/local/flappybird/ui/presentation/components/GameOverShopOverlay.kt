@@ -24,12 +24,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import local.flappybird.ui.R
 import local.core.ui.components.GameButton
 import local.core.ui.theme.AppTheme
 import local.core.ui.theme.NeonCyan
 import local.core.ui.theme.NeonRed
 import local.core.ui.theme.NeonYellow
+import local.flappybird.ui.R
 import java.util.Locale
 
 @Composable

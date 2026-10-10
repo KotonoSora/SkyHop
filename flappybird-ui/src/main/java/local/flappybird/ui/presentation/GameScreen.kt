@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import local.core.ui.AppConstants
+import local.core.ui.theme.AppTheme
 import local.flappybird.engine.model.GameState
 import local.flappybird.engine.model.PipeState
 import local.flappybird.shop.SkinData
@@ -28,7 +29,6 @@ import local.flappybird.ui.presentation.components.GameHUD
 import local.flappybird.ui.presentation.components.GameOverShopOverlay
 import local.flappybird.ui.presentation.components.GameWinOverlay
 import local.flappybird.ui.presentation.components.PipesCanvas
-import local.core.ui.theme.AppTheme
 import local.flappybird.ui.viewmodel.GameIntent
 import local.flappybird.ui.viewmodel.GameViewModel
 

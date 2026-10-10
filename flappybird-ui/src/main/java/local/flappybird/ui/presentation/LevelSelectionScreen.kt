@@ -22,12 +22,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import local.core.ui.AppConstants
-import local.flappybird.ui.presentation.components.GameBackground
 import local.core.ui.components.GameButton
 import local.core.ui.components.GameHeader
 import local.core.ui.theme.AppTheme
 import local.core.ui.theme.NeonGreen
 import local.core.ui.theme.NeonMagenta
+import local.flappybird.ui.presentation.components.GameBackground
 
 @Composable
 fun LevelSelectionScreen(

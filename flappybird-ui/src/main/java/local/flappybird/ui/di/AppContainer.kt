@@ -2,38 +2,38 @@ package local.flappybird.ui.di
 
 import android.content.Context
 import android.content.pm.PackageManager
-import local.flappybird.ui.R
-import local.flappybird.ui.audio.SfxType
+import local.core.billing.BillingConfig
+import local.core.billing.BillingManagerImpl
+import local.core.billing.BillingRepository
+import local.core.billing.MockBillingManager
+import local.core.shop.coins.CoinPackIds
+import local.core.shop.coins.CoinPacks
 import local.core.ui.audio.AudioManager
 import local.core.ui.audio.IAudioManager
+import local.core.ui.data.AudioSettings
+import local.core.ui.data.CoinAccount
+import local.core.ui.data.InventoryStore
 import local.core.ui.data.RoomRunStore
 import local.core.ui.data.RunStore
 import local.core.ui.data.SettingsRepositoryImpl
+import local.core.ui.data.SkinLibrary
 import local.core.ui.data.db.GameDatabase
 import local.core.ui.data.db.createGameDatabase
-import local.core.ui.data.CoinAccount
-import local.core.ui.data.InventoryStore
-import local.core.ui.data.SkinLibrary
-import local.core.ui.data.AudioSettings
-import local.core.billing.BillingConfig
-import local.core.billing.BillingManagerImpl
-import local.core.billing.MockBillingManager
-import local.core.billing.BillingRepository
-import local.core.shop.coins.CoinPackIds
-import local.core.shop.coins.CoinPacks
-import local.flappybird.engine.repo.RunHistoryRepository
 import local.core.ui.usecase.GetAudioSettingsUseCase
 import local.core.ui.usecase.GetCoinsUseCase
+import local.core.ui.usecase.ToggleAudioUseCase
+import local.flappybird.engine.repo.RunHistoryRepository
 import local.flappybird.engine.usecase.GetHighScoreUseCase
 import local.flappybird.engine.usecase.GetScoreHistoryUseCase
 import local.flappybird.engine.usecase.RecordRunUseCase
 import local.flappybird.engine.usecase.UpdateRunUseCase
-import local.core.ui.usecase.ToggleAudioUseCase
 import local.flappybird.engine.usecase.UsePowerUpUseCase
 import local.flappybird.shop.SkinIds
+import local.flappybird.ui.R
 import local.flappybird.ui.adapters.asCoinSink
 import local.flappybird.ui.adapters.asPowerUpStore
 import local.flappybird.ui.adapters.asRunHistoryRepository
+import local.flappybird.ui.audio.SfxType
 
 /**
  * Dependency Injection container for the application.

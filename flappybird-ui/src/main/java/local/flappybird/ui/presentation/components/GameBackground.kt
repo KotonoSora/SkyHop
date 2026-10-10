@@ -18,10 +18,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import local.flappybird.ui.R
 import local.core.ui.theme.AppTheme
 import local.core.ui.theme.CloudWhite
 import local.core.ui.theme.SurfaceDark
+import local.flappybird.ui.R
 
 @Composable
 fun GameBackground(

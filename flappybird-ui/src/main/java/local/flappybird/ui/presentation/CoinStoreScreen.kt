@@ -49,12 +49,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import local.core.ui.AppConstants
 import local.core.billing.BillingStatus
 import local.core.shop.coins.CoinPackItem
 import local.core.shop.coins.CoinPacks
 import local.core.shop.coins.mapToCoinPack
-import local.flappybird.ui.presentation.components.GameBackground
+import local.core.ui.AppConstants
 import local.core.ui.components.GameButton
 import local.core.ui.components.GameHeader
 import local.core.ui.theme.AppTheme
@@ -63,6 +62,7 @@ import local.core.ui.theme.CoinButtonShadow
 import local.core.ui.theme.CoinGoldDark
 import local.core.ui.theme.CoinGoldLight
 import local.core.ui.theme.PressStart2P
+import local.flappybird.ui.presentation.components.GameBackground
 import local.flappybird.ui.viewmodel.ShopIntent
 import local.flappybird.ui.viewmodel.ShopViewModel
 

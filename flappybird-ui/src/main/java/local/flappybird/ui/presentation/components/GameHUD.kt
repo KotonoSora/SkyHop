@@ -40,13 +40,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import local.flappybird.ui.R
-import local.flappybird.shop.R as ShopR
 import local.core.ui.AppConstants
+import local.core.ui.theme.AppTheme
 import local.flappybird.engine.model.GameState
 import local.flappybird.engine.model.PowerUpType
-import local.core.ui.theme.AppTheme
+import local.flappybird.ui.R
 import kotlin.math.ceil
+import local.flappybird.shop.R as ShopR
 
 @Composable
 fun GameHUD(

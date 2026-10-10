@@ -1,7 +1,7 @@
 package local.flappybird.engine.repo
 
-import local.flappybird.engine.model.RunRecord
 import kotlinx.coroutines.flow.Flow
+import local.flappybird.engine.model.RunRecord
 
 interface RunHistoryRepository {
     val highScoreFlow: Flow<Int>
