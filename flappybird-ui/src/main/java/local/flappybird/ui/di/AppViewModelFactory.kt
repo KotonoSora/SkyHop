@@ -17,7 +17,8 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(GameViewModel::class.java) -> {
                 GameViewModel(
                     getHighScoreUseCase = container.getHighScoreUseCase,
-                    updateHighScoreUseCase = container.updateHighScoreUseCase,
+                    recordRunUseCase = container.recordRunUseCase,
+                    updateRunUseCase = container.updateRunUseCase,
                     usePowerUpUseCase = container.usePowerUpUseCase,
                     coins = container.coinAccount,
                     inventory = container.inventoryStore,

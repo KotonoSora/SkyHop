@@ -3,11 +3,12 @@ package local.flappybird.ui.adapters
 import local.core.billing.CoinSink
 import local.core.ui.data.CoinAccount
 import local.core.ui.data.InventoryStore
-import local.core.ui.data.ScoreEntry as CoreScoreEntry
-import local.core.ui.data.ScoreStore
-import local.flappybird.engine.model.ScoreEntry as EngineScoreEntry
+import local.core.ui.data.RunRecord as CoreRunRecord
+import local.core.ui.data.RunStore
+import local.flappybird.engine.model.RunEndCause
+import local.flappybird.engine.model.RunRecord as EngineRunRecord
 import local.flappybird.engine.repo.PowerUpStore
-import local.flappybird.engine.repo.ScoreRepository
+import local.flappybird.engine.repo.RunHistoryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -25,22 +26,57 @@ fun InventoryStore.asPowerUpStore(): PowerUpStore =
             consumeFromInventory(typeId)
     }
 
-fun CoreScoreEntry.toEngine(): EngineScoreEntry =
-    EngineScoreEntry(score = score, reward = reward, timestamp = timestamp)
+fun CoreRunRecord.toEngine(): EngineRunRecord =
+    EngineRunRecord(
+        mode = mode,
+        level = level,
+        score = score,
+        reward = reward,
+        durationMs = durationMs,
+        pipesPassed = pipesPassed,
+        // Core stores the cause as the enum name; fall back instead of crashing
+        // the flow if a row ever holds an unknown value.
+        endCause = runCatching { RunEndCause.valueOf(endCause) }
+            .getOrDefault(RunEndCause.COLLISION),
+        shieldUses = shieldUses,
+        multiplierUses = multiplierUses,
+        autoPlayUses = autoPlayUses,
+        deathX = deathX,
+        deathY = deathY,
+        startedAt = startedAt,
+        endedAt = endedAt
+    )
 
-fun EngineScoreEntry.toCore(): CoreScoreEntry =
-    CoreScoreEntry(score = score, reward = reward, timestamp = timestamp)
+fun EngineRunRecord.toCore(): CoreRunRecord =
+    CoreRunRecord(
+        mode = mode,
+        level = level,
+        score = score,
+        reward = reward,
+        durationMs = durationMs,
+        pipesPassed = pipesPassed,
+        endCause = endCause.name,
+        shieldUses = shieldUses,
+        multiplierUses = multiplierUses,
+        autoPlayUses = autoPlayUses,
+        deathX = deathX,
+        deathY = deathY,
+        startedAt = startedAt,
+        endedAt = endedAt
+    )
 
-fun ScoreStore.asScoreRepository(): ScoreRepository =
-    object : ScoreRepository {
+fun RunStore.asRunHistoryRepository(): RunHistoryRepository =
+    object : RunHistoryRepository {
         override val highScoreFlow: Flow<Int> =
-            this@asScoreRepository.highScoreFlow
-        override val scoreHistoryFlow: Flow<List<EngineScoreEntry>> =
-            this@asScoreRepository.scoreHistoryFlow.map { list -> list.map { it.toEngine() } }
+            this@asRunHistoryRepository.highScoreFlow
 
-        override suspend fun updateHighScore(score: Int) =
-            this@asScoreRepository.updateHighScore(score)
+        override fun recentRunsFlow(limit: Int): Flow<List<EngineRunRecord>> =
+            this@asRunHistoryRepository.recentRunsFlow(limit)
+                .map { list -> list.map { it.toEngine() } }
 
-        override suspend fun saveScoreEntry(entry: EngineScoreEntry) =
-            this@asScoreRepository.saveScoreEntry(entry.toCore())
+        override suspend fun recordRun(record: EngineRunRecord): Long =
+            this@asRunHistoryRepository.recordRun(record.toCore())
+
+        override suspend fun updateRun(id: Long, record: EngineRunRecord) =
+            this@asRunHistoryRepository.updateRun(id, record.toCore())
     }

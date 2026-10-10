@@ -1,8 +1,8 @@
 package local.flappybird.engine.usecase
 
-import local.flappybird.engine.repo.ScoreRepository
+import local.flappybird.engine.repo.RunHistoryRepository
 import kotlinx.coroutines.flow.Flow
 
-class GetHighScoreUseCase(private val scoreRepository: ScoreRepository) {
-    operator fun invoke(): Flow<Int> = scoreRepository.highScoreFlow
+class GetHighScoreUseCase(private val runs: RunHistoryRepository) {
+    operator fun invoke(): Flow<Int> = runs.highScoreFlow
 }

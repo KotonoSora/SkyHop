@@ -1,5 +1,6 @@
 package local.flappybird.ui.viewmodel
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import local.core.ui.audio.IAudioManager
@@ -9,15 +10,19 @@ import local.flappybird.engine.game.GamePhysics
 import local.flappybird.engine.game.RewardPolicy
 import local.flappybird.engine.game.newGame
 import local.flappybird.engine.model.AnimalState
+import local.flappybird.engine.model.GameMode
 import local.flappybird.engine.model.GameState
 import local.flappybird.engine.model.Point
 import local.flappybird.engine.model.PowerUpType
+import local.flappybird.engine.model.RunEndCause
+import local.flappybird.engine.model.RunRecord
 import local.core.ui.data.AudioSettings
 import local.core.ui.data.CoinAccount
 import local.core.ui.data.InventoryStore
 import local.core.ui.data.SkinLibrary
 import local.flappybird.engine.usecase.GetHighScoreUseCase
-import local.flappybird.engine.usecase.UpdateHighScoreUseCase
+import local.flappybird.engine.usecase.RecordRunUseCase
+import local.flappybird.engine.usecase.UpdateRunUseCase
 import local.flappybird.engine.usecase.UsePowerUpUseCase
 import local.flappybird.shop.SkinIds
 import kotlinx.coroutines.Job
@@ -45,7 +50,8 @@ sealed class GameIntent {
 
 class GameViewModel(
     private val getHighScoreUseCase: GetHighScoreUseCase,
-    private val updateHighScoreUseCase: UpdateHighScoreUseCase,
+    private val recordRunUseCase: RecordRunUseCase,
+    private val updateRunUseCase: UpdateRunUseCase,
     private val usePowerUpUseCase: UsePowerUpUseCase,
     private val coins: CoinAccount,
     private val inventory: InventoryStore,
@@ -64,6 +70,19 @@ class GameViewModel(
     private var currentSfxEnabled: Boolean = true
 
     private var gameJob: Job? = null
+
+    // Run telemetry, recorded to the run-history database on win/game over.
+    // Wall-clock for display timestamps, monotonic clock for the duration.
+    private var runStartedAtMs: Long = 0L
+    private var runStartedElapsedMs: Long = 0L
+    private var shieldUses: Int = 0
+    private var multiplierUses: Int = 0
+    private var autoPlayUses: Int = 0
+
+    // Row id of the already-recorded run, if the run already ended once
+    // (e.g. game over followed by a power-up revive). A second terminal event
+    // updates the row instead of inserting a duplicate.
+    private var recordedRunId: Long? = null
 
     init {
         observeRepositories()
@@ -160,6 +179,12 @@ class GameViewModel(
     }
 
     private fun resetGame(level: Int, isEndless: Boolean, isDailyChallenge: Boolean) {
+        runStartedAtMs = System.currentTimeMillis()
+        runStartedElapsedMs = SystemClock.elapsedRealtime()
+        shieldUses = 0
+        multiplierUses = 0
+        autoPlayUses = 0
+        recordedRunId = null
         _gameState.update { state ->
             newGame(state, GameConfig(level, isEndless, isDailyChallenge))
         }
@@ -230,9 +255,10 @@ class GameViewModel(
             if (currentSfxEnabled) audioManager.playSfx(SfxType.WIN.rawResId)
 
             val reward = RewardPolicy.winReward(state.level, state.isDailyChallenge)
+            val record = buildRunRecord(state, reward, RunEndCause.WIN, death = null)
             viewModelScope.launch {
                 coins.addCoins(reward)
-                updateHighScoreUseCase(state.score, reward)
+                saveRun(record)
             }
             return state.copy(isWin = true, rewardCoins = reward)
         }
@@ -251,13 +277,58 @@ class GameViewModel(
             audioManager.stopBgm()
 
             val consolation = RewardPolicy.gameOverReward(state.score)
+            val record = buildRunRecord(
+                state,
+                consolation,
+                RunEndCause.COLLISION,
+                death = state.animal.position
+            )
             viewModelScope.launch {
-                updateHighScoreUseCase(state.score, consolation)
+                saveRun(record)
                 coins.addCoins(consolation)
             }
             return state.copy(isGameOver = true)
         }
         return state
+    }
+
+    /**
+     * Inserts the run on its first terminal event, updating the same row if
+     * the run already ended once (revive continued it).
+     */
+    private suspend fun saveRun(record: RunRecord) {
+        val id = recordedRunId
+        recordedRunId = if (id == null) {
+            recordRunUseCase(record)
+        } else {
+            updateRunUseCase(id, record)
+            id
+        }
+    }
+
+    private fun buildRunRecord(
+        state: GameState,
+        reward: Int,
+        endCause: RunEndCause,
+        death: Point?
+    ): RunRecord {
+        val endedAt = System.currentTimeMillis()
+        return RunRecord(
+            mode = GameMode.of(state.isDailyChallenge, state.isEndless),
+            level = state.level,
+            score = state.score,
+            reward = reward,
+            durationMs = (SystemClock.elapsedRealtime() - runStartedElapsedMs).coerceAtLeast(0L),
+            pipesPassed = state.pipesPassed,
+            endCause = endCause,
+            shieldUses = shieldUses,
+            multiplierUses = multiplierUses,
+            autoPlayUses = autoPlayUses,
+            deathX = death?.x,
+            deathY = death?.y,
+            startedAt = runStartedAtMs,
+            endedAt = endedAt
+        )
     }
 
     private fun getRevivedAnimalState(state: GameState): AnimalState {
@@ -277,6 +348,11 @@ class GameViewModel(
 
         viewModelScope.launch {
             if (usePowerUpUseCase(type.id)) {
+                when (type) {
+                    PowerUpType.SHIELD -> shieldUses += 1
+                    PowerUpType.MULTIPLIER -> multiplierUses += 1
+                    PowerUpType.AUTO_PLAY, PowerUpType.BOOST -> autoPlayUses += 1
+                }
                 _gameState.update { state ->
                     var newState = when (type) {
                         PowerUpType.SHIELD -> state.copy(shieldActive = true, shieldTimeLeft = 10f)

@@ -6,8 +6,11 @@ import local.flappybird.ui.R
 import local.flappybird.ui.audio.SfxType
 import local.core.ui.audio.AudioManager
 import local.core.ui.audio.IAudioManager
-import local.core.ui.data.ScoreRepositoryImpl
+import local.core.ui.data.RoomRunStore
+import local.core.ui.data.RunStore
 import local.core.ui.data.SettingsRepositoryImpl
+import local.core.ui.data.db.GameDatabase
+import local.core.ui.data.db.createGameDatabase
 import local.core.ui.data.CoinAccount
 import local.core.ui.data.InventoryStore
 import local.core.ui.data.SkinLibrary
@@ -18,24 +21,25 @@ import local.core.billing.MockBillingManager
 import local.core.billing.BillingRepository
 import local.core.shop.coins.CoinPackIds
 import local.core.shop.coins.CoinPacks
-import local.flappybird.engine.repo.ScoreRepository
+import local.flappybird.engine.repo.RunHistoryRepository
 import local.core.ui.usecase.GetAudioSettingsUseCase
 import local.core.ui.usecase.GetCoinsUseCase
 import local.flappybird.engine.usecase.GetHighScoreUseCase
 import local.flappybird.engine.usecase.GetScoreHistoryUseCase
+import local.flappybird.engine.usecase.RecordRunUseCase
+import local.flappybird.engine.usecase.UpdateRunUseCase
 import local.core.ui.usecase.ToggleAudioUseCase
-import local.flappybird.engine.usecase.UpdateHighScoreUseCase
 import local.flappybird.engine.usecase.UsePowerUpUseCase
 import local.flappybird.shop.SkinIds
 import local.flappybird.ui.adapters.asCoinSink
 import local.flappybird.ui.adapters.asPowerUpStore
-import local.flappybird.ui.adapters.asScoreRepository
+import local.flappybird.ui.adapters.asRunHistoryRepository
 
 /**
  * Dependency Injection container for the application.
  */
 interface AppContainer {
-    val scoreRepository: ScoreRepository
+    val runHistoryRepository: RunHistoryRepository
     val coinAccount: CoinAccount
     val inventoryStore: InventoryStore
     val skinLibrary: SkinLibrary
@@ -46,7 +50,8 @@ interface AppContainer {
 
     val getHighScoreUseCase: GetHighScoreUseCase
     val getScoreHistoryUseCase: GetScoreHistoryUseCase
-    val updateHighScoreUseCase: UpdateHighScoreUseCase
+    val recordRunUseCase: RecordRunUseCase
+    val updateRunUseCase: UpdateRunUseCase
     val getAudioSettingsUseCase: GetAudioSettingsUseCase
     val getCoinsUseCase: GetCoinsUseCase
     val toggleAudioUseCase: ToggleAudioUseCase
@@ -74,8 +79,16 @@ class DefaultAppContainer(
     override val skinLibrary: SkinLibrary by lazy { settingsStore }
     override val audioSettings: AudioSettings by lazy { settingsStore }
 
-    override val scoreRepository: ScoreRepository by lazy {
-        ScoreRepositoryImpl(context).asScoreRepository()
+    private val gameDatabase: GameDatabase by lazy {
+        createGameDatabase(context)
+    }
+
+    private val runStore: RunStore by lazy {
+        RoomRunStore(gameDatabase.runDao())
+    }
+
+    override val runHistoryRepository: RunHistoryRepository by lazy {
+        runStore.asRunHistoryRepository()
     }
 
     override val audioManager: IAudioManager by lazy {
@@ -108,15 +121,19 @@ class DefaultAppContainer(
     }
 
     override val getHighScoreUseCase: GetHighScoreUseCase by lazy {
-        GetHighScoreUseCase(scoreRepository)
+        GetHighScoreUseCase(runHistoryRepository)
     }
 
     override val getScoreHistoryUseCase: GetScoreHistoryUseCase by lazy {
-        GetScoreHistoryUseCase(scoreRepository)
+        GetScoreHistoryUseCase(runHistoryRepository)
     }
 
-    override val updateHighScoreUseCase: UpdateHighScoreUseCase by lazy {
-        UpdateHighScoreUseCase(scoreRepository)
+    override val recordRunUseCase: RecordRunUseCase by lazy {
+        RecordRunUseCase(runHistoryRepository)
+    }
+
+    override val updateRunUseCase: UpdateRunUseCase by lazy {
+        UpdateRunUseCase(runHistoryRepository)
     }
 
     override val getAudioSettingsUseCase: GetAudioSettingsUseCase by lazy {
