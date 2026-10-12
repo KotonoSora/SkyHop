@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Zamstu</string>
+    <string name="desc_coin">Coins</string>
+    <string name="desc_multiplier">Multiplier Booster</string>
+    <string name="desc_play">Level Icon</string>
+    <string name="desc_shield">Shield</string>
+    <string name="desc_star">Score Star</string>
+    <string name="label_game_over">GAME OVER</string>
+    <string name="title_level">LEVEL</string>
+    <string name="title_score">SCORE</string>
+    <string name="title_settings">SETTINGS</string>
+    <string name="title_coins">COINS</string>
+    <string name="msg_no_packs_available">NO COIN PACKS AVAILABLE AT THE MOMENT.</string>
+    <string name="msg_no_packs_found">NO COIN PACKS FOUND IN THE STORE.</string>
+    <string name="msg_connecting_play_store">CONNECTING TO PLAY STORE…</string>
+    <string name="msg_connection_error">FAILED TO CONNECT TO GOOGLE PLAY. PLEASE CHECK YOUR INTERNET CONNECTION.</string>
+    <string name="btn_retry">RETRY</string>
+    <string name="btn_buy">BUY</string>
+</resources>

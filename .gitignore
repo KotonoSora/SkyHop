@@ -60,3 +60,6 @@ input_images/
 app/release/**/*.dm
 keystore.properties
 *.artifact.md
+
+AGENTS.md
+.opencode/

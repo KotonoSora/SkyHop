@@ -26,3 +26,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "Zamstu"
 include(":app")
+include(":flappybird-engine")
+include(":core-billing")
+include(":core-shop-coins")
+include(":core-ui")
+include(":flappybird-shop")
+include(":flappybird-ui")
